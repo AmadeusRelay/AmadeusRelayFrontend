@@ -40,7 +40,6 @@ export default class App extends Vue {
     this.token2 = ''
   }
   getOrders () {
-    //call api here, from /api
     alert(`Token1: ${this.token1} | Token2: ${this.token2}`)
   }
 }
