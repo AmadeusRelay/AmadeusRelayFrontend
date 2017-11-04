@@ -8,39 +8,52 @@
       <div class="row">
         <div class="col-md-2"/>
         <div class="col-md-4">
-          <token-list :token='token1' @update:token='val => token1 = val'/> 
+          <tokens-list :token='token1' @update:token='val => token1 = val'/> 
         </div>
         <div class="col-md-4">
-          <token-list :token='token2' @update:token='val => token2 = val'/>
+          <tokens-list :token='token2' @update:token='val => token2 = val'/>
         </div> 
         <div class="col-md-2">
           <button @click="getOrders" class="js-add btn btn-primary btn-block" 
               type="button">Get Orders!</button> 
         </div>
       </div>
+      <br><br>
+      <div class="row">
+        <div class="col-md-2"/>
+        <div class="col-md-8">
+          <orders-list :ordersList='orders'/>
+        </div>    
+      </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import TokenList from './components/TokensList.vue'
+import TokensList from './components/TokensList.vue'
+import OrdersList from './components/OrdersList.vue'
+import { OrderService } from './api'
+import { Order } from './model/order'
 
 @Component({
   name: 'App',
   components: {
-    'token-list': TokenList
+    'tokens-list': TokensList,
+    'orders-list': OrdersList
   }
 })
 
 export default class App extends Vue {
-  token1: string
-  token2: string
-  mounted () {
-    this.token1 = ''
-    this.token2 = ''
-  }
+  token1: string = ''
+  token2: string = ''
+  orders: Order[] = []
   getOrders () {
     alert(`Token1: ${this.token1} | Token2: ${this.token2}`)
+    var orderService : OrderService = new OrderService()
+    orderService.listOrders(this.token1, this.token2).then(this.onSuccessfullyGetOrders)
+  }
+  onSuccessfullyGetOrders (response) {
+    this.orders = response
   }
 }
 </script>
