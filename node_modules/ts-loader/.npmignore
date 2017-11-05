@@ -1,6 +1,0 @@
-*.ts
-.vscode
-.test
-examples
-test
-src
