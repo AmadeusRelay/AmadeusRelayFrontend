@@ -13,8 +13,8 @@
                 <tr v-for="order in ordersList">
                 <td>{{order.maker}}</td>
                 <td>{{order.taker}}</td>
-                <td><input v-value="order.valueRequired"/></td>
-                <td><button @click="fillOrder" class="js-add btn btn-primary btn-block" type="button">Fill Order!</button></td>
+                <td><input v-model="order.valueRequired"/></td>
+                <td><button @click="fillOrder(order)" class="js-add btn btn-primary btn-block" type="button">Fill Order!</button></td>
                 </tr>
             </tbody>
         </table>
@@ -24,10 +24,19 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Order } from '../model/order'
+import { OrderService } from '../api'
 
 @Component
 export default class OrderList extends Vue {
   @Prop()
   ordersList: Order[]
+
+  fillOrder (order: Order) {
+    var orderService : OrderService = new OrderService()
+    orderService.fillOrder(order, order.valueRequired).then(this.onSuccess)
+  }
+  onSuccess () {
+    this.$emit('onSuccessfullyFillOrder')
+  }
 }
 </script>

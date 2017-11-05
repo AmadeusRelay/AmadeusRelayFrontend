@@ -22,7 +22,7 @@
       <div class="row">
         <div class="col-md-2"/>
         <div class="col-md-8">
-          <orders-list :ordersList='orders'/>
+          <orders-list :ordersList='orders' @onSuccessfullyFillOrder='onSuccessfullyFillOrder'/>
         </div>    
       </div>
     </div>
@@ -52,8 +52,12 @@ export default class App extends Vue {
     var orderService : OrderService = new OrderService()
     orderService.listOrders(this.token1, this.token2).then(this.onSuccessfullyGetOrders)
   }
-  onSuccessfullyGetOrders (response) {
+  onSuccessfullyGetOrders (response: any) {
     this.orders = response
+  }
+  onSuccessfullyFillOrder () {
+    alert('Fill completed with success!')
+    this.getOrders()
   }
 }
 </script>
