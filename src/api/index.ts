@@ -1,1 +1,1 @@
-export {OrderService} from './order-service';
+export {OrderService} from './orderService';
