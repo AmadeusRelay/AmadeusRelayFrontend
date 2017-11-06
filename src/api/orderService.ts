@@ -14,7 +14,7 @@ export class OrderService {
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        return this.getDataFromApi('http://localhost:3000/api/v0/orders', {}).then((response) => this.success(response));
+        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders', {}).then((response) => this.success(response));
     }
     public async fillOrder(order: Order, takerAmount: string): Promise<TransactionReceiptWithDecodedLogs> {
         var takerAddress = web3.eth.coinbase
