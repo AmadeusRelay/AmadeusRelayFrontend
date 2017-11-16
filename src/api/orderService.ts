@@ -13,14 +13,19 @@ export class OrderService {
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {});
+        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.success(response));
     }
+
     public async fillOrder(order: Order, takerAmount: string) {
         var takerAddress: string = web3.eth.coinbase
         await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
 
         const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), new BigNumber(takerAmount), true, takerAddress);
         return this.zeroEx.awaitTransactionMinedAsync(txHash);
+    }
+
+    private success(response) : any{
+        return this.convertOrders(response);
     }
 
     private async getToken(symbol: string){
