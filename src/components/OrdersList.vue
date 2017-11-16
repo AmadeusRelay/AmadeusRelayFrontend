@@ -33,7 +33,11 @@ export default class OrderList extends Vue {
 
   fillOrder (order: Order) {
     var orderService : OrderService = new OrderService()
-    orderService.fillOrder(order, order.valueRequired).then(this.onSuccess)
+    orderService.fillOrder(order, order.valueRequired).then(() => {
+      this.onSuccess()
+    }).catch(e => {
+      alert(e)
+    })
   }
   onSuccess () {
     this.$emit('onSuccessfullyFillOrder')

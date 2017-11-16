@@ -2,30 +2,31 @@ import { Order } from "../model/order";
 import Vue from 'vue'
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
-import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder } from '0x.js';
+import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
 declare var web3;
 
 export class OrderService {
     private zeroEx: ZeroEx;
 
     public constructor() {
-        debugger;
         this.zeroEx = new ZeroEx(web3.currentProvider);
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders', {}).then((response) => this.success(response));
+        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {});
     }
-    public async fillOrder(order: Order, takerAmount: string): Promise<TransactionReceiptWithDecodedLogs> {
-        var takerAddress = web3.eth.coinbase
-        const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), new BigNumber(takerAmount), false, takerAddress);
-        return this.zeroEx.awaitTransactionMinedAsync(txHash);
-	}
+    public async fillOrder(order: Order, takerAmount: string) {
+        var takerAddress: string = web3.eth.coinbase
+        await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
 
-    private success(response) : any{
-        return this.convertOrders(response);
+        const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), new BigNumber(takerAmount), true, takerAddress);
+        return this.zeroEx.awaitTransactionMinedAsync(txHash);
     }
-    
+
+    private async getToken(symbol: string){
+        return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
+    }
+
     private getDataFromApi (path: string, params: any) :  Promise<any> {
         return axios.get(path, {
             params: params

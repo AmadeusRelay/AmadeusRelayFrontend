@@ -48,7 +48,6 @@ export default class App extends Vue {
   token2: string = ''
   orders: Order[] = []
   getOrders () {
-    alert(`Token1: ${this.token1} | Token2: ${this.token2}`)
     var orderService : OrderService = new OrderService()
     orderService.listOrders(this.token1, this.token2).then(this.onSuccessfullyGetOrders)
   }
