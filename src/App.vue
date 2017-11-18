@@ -8,10 +8,10 @@
       <div class="row">
         <div class="col-md-2"/>
         <div class="col-md-4">
-          <tokens-list :token='token1' @update:token='val => token1 = val'/> 
+          <tokens-list :token='token1' :tokenAIsSelected='true' @update:token='updateToken1'/> 
         </div>
         <div class="col-md-4">
-          <tokens-list :token='token2' @update:token='val => token2 = val'/>
+          <tokens-list :token='token2':tokenAIsSelected='token1' ref="tokenB" @update:token='val => token2 = val'/>
         </div> 
         <div class="col-md-2">
           <button @click="getOrders" class="js-add btn btn-primary btn-block" 
@@ -44,12 +44,20 @@ import { Order } from './model/order'
 })
 
 export default class App extends Vue {
+  $refs: {
+    tokenB: TokensList
+  }
+
   token1: string = ''
   token2: string = ''
   orders: Order[] = []
   getOrders () {
     var orderService : OrderService = new OrderService()
     orderService.listOrders(this.token1, this.token2).then(this.onSuccessfullyGetOrders)
+  }
+  updateToken1 (value) {
+    this.token1 = value
+    this.$refs.tokenB.getTokenPairs(this.token1)
   }
   onSuccessfullyGetOrders (response: any) {
     this.orders = response
