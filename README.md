@@ -20,7 +20,7 @@ The frontend is referencing our APIs on cloud, so you don´t have to worry about
 
 ## Interacting with APIs
 
-If you are running locally or on cloud, you will see a page where you can choose tokens to "trade". So, let´s do a STEP-BY-STEP to get in the final moment and complete the order.
+If you are running locally or on cloud, you will see a page where you can choose tokens to "trade". So, let´s do a STEP-BY-STEP to reach our goal of completing an order.
 
 ### Considerations
 
@@ -36,7 +36,7 @@ import it on your code
 ```
 import {ZeroEx} from '0x.js';
 ```
-and in the constructor of your class where you will use it, initialize it.
+and in the class constructor where you will use it, initialize
 ```
 private zeroEx: ZeroEx;
 
@@ -44,17 +44,17 @@ public constructor() {
 	this.zeroEx = new ZeroEx(web3.currentProvider);
 }
 ```
-Metamask exposes the standart Ethereum web3 API, so we don´t have to declare it. The currentProvider returns the provider that is set in your metamask, as seen it has to be kovan testnet.
+Metamask exposes the standart Ethereum web3 API, so we don´t have to declare it before. The currentProvider returns the provider that is set in your metamask, and is expected to be kovan provider.
 
 ### STEP 1: GET token_pairs
 
-The first step doing in our frontend is get token pairs to trade, accessing the follow API: 
+The first step done in our frontend is get token pairs to trade, accessing the following API: 
 ```
 GET /api/v0/token_pairs?tokenA=
 ```
-In the first moment, we call that passing tokenA as empty, because no tokens are selected to trade yet. So it returns an array of tokens, combined in pairs. This show us witch tokens could be trade 2-by-2.
+In the first moment, we called this function passing tokenA as empty, because no tokens are selected to trade yet. It returns an array of tokens, combined in pairs. This shows us which tokens could be trade 2-by-2.
 
-With the result, we can populate the first combobox, with all of tokenA:
+With the result, we could populate the first combobox, with all tokens called tokenA:
 ```
 private async convertTokenPairs(response: any, tokenA: string) :  Promise<string[]> {
   let tokens: string[] = new Array();
@@ -73,13 +73,13 @@ private async convertTokenPairs(response: any, tokenA: string) :  Promise<string
   return tokens;
 }
 ```
-As we can see, we are using an ZeroEx function, called getTokenIfExistsAsync. It´s because our API returns token´s Address instead of token´s symbol. To frontend, it´s more interesting to show token´s symbol, so we made a conversion.
+As we can see, we are using an ZeroEx function, called getTokenIfExistsAsync. It´s because our API returns token´s address instead of token´s symbol. To frontend, it´s more interesting to show token´s symbol, so we made a conversion.
 
-Another important thing is that we show the "WETH" symbol as "ETH" in our frontend. It´s because the ETH itself does not conform to the ERC20 token interface. So, it has been established that a wrapped ether token (WETH) should be used across dApps. In our frontend, though, we convert to show you how to do it in a single time.
+Another important thing is that we show the "WETH" symbol as "ETH" in our page. It´s because the ETH itself does not conform to the ERC20 token interface. So, it has been established that a wrapped ether token (WETH) should be used across dApps. In our frontend, though, we convert ETH -> WETH to show you how to do it in a single time.
 
-After select tokenA in the combo, the page unable the second combo to choose tokenB, and call the same API token_pairs, but passing tokenA already selected. With the same convertTokenPairs function, the second combo is filled.
+After select tokenA in the combo, the page unable the second combo to choose tokenB, calling the same API token_pairs, but passing tokenA already selected. With the same convertTokenPairs function, the second combo is filled.
 
-So, in this moment, you already know how to get witch coins we can trade. But is very important to know that you don´t have to choose any coins in fact, and can leave all combos empty. You´ll see this in next step.
+So, in this moment, you already know how to get which coins we can trade. But is very important to know that you don´t have to choose any tokens in fact, and can leave all combos empty. You´ll see this in next step.
 
 ### STEP 2: GET orders
 
@@ -88,7 +88,7 @@ To get orders, we have three scenarios:
 - You filled only tokenA to trade
 - You left combos empty
 
-All of them will end in the same API call, but passing different parameters. So, when you push "GET ORDERS!" button, our frontend call the following API: 
+All of them will end in the same API call, but passing different parameters. So, when you push "GET ORDERS!" button, our frontend calls the following API: 
 ```
 GET /api/v0/orders?tokenA=&tokenB=
 ```
@@ -98,9 +98,9 @@ Then, in this moment, a table is shown in the page with all orders posted by our
 
 Now you are almost ready to fill the real value you want to trade and complete the order.
 
-### STEP 3: FILLING VALUE AND CONVERTING ETH in WETH
+### STEP 3: Filling value and converting ETH in WETH
 
-In the order´s table, you can choose the most interesting order to complete. Let´s see an example:
+In order´s table, you can choose the most interesting order to complete. Let´s see an example:
 - Our relay posted an order to sell 100000 ZRX in exchange for 100 WETH
 - In this order, the maker is ZRX and the taker is WETH
 - As you´re the taker, you can sell your WETH in exchance to relayer´s ZRX
@@ -114,7 +114,7 @@ var amount = ZeroEx.toBaseUnitAmount(new BigNumber(takerAmount), 18)
 
 await this.zeroEx.etherToken.depositAsync(amount, takerAddress)
 ```
-As we can see, there´s two step before convert ETH in WETH. The first one get taker address from web3.eth.coinbase, that returns the coinbase address set in your metamask, that is your public wallet key. The second step convert the value inserted in the the smallest denomination of a token, expressed in baseUnits. In our case, this mean 18 decimals. After this, we can call depositAsync and actually make the ETH -> WETH exchange.
+As we can see, there´s two steps before convert ETH in WETH. The first one get taker address from web3.eth.coinbase, that returns the coinbase address set in your metamask, i.e. your public wallet key. The second step convert the value inserted in the the smallest denomination of a token, expressed in baseUnits. In our case, this mean 18 decimals. After this, we can call depositAsync and actually make the ETH -> WETH exchange.
 
 All zeroEx function that we are using next will consider this amount already converted in baseUnits.
 
@@ -165,15 +165,15 @@ private convertToSignedOrder(order: Order) :  SignedOrder
 ```
 The amount is the baseUnit amount we mentioned before. The third parameter tells the function if it should throw exception on insufficient balance or allowance, and we set it true. The last parameter is the taker address. 
 
-The awaitTransactionMinedAsync function tell us that we are waiting the transaction to be mined, only after this we will return an success status to our page.
+The awaitTransactionMinedAsync function tell us that we are waiting the transaction to be mined, and only after this we will return an success status to our page.
 
 ### Completing the order
 
-If no errors happened in fillOrder command, a success message will be returned to the page and your exchange will be successfull. You can check it in your metamask, where you can verify that the quantities of the tokens chosen for the exchange have changed.
+If no errors happened in fillOrder command, a success message will be returned to the page and your exchange will be successfull. You can check it in your metamask, where you can see that the quantities of the tokens chosen for the exchange have changed.
 
 But some errors can ocurred, for example:
-- ORDER_EXPIRED: The order created by Amadeus Relay expired, because the expiration is short in our strategy. Don´t worry, get orders again and call interact with it more quickly.
+- ORDER_EXPIRED: The order created by Amadeus Relay expired, because the expiration is short in our strategy. Don´t worry, get orders again and interact with it more quickly.
 - INSUFFICIENT_TAKER_ALLOWANCE: You do not allow 0x to interact with your funds or allowed a lower quantity than you want to exchance.
 - INSUFFICIENT_TAKER_BALANCE: Your wallet do not have the quantity of tokens you want to trade.
 
-Well, that´s it. With this guide you can perfectly interact with Amadeus API´s, and make your exchange tokens our responsability. 
+Well, that´s it. With this guide you can perfectly interact with Amadeus API´s, and share with us your exchange tokens responsability. 
