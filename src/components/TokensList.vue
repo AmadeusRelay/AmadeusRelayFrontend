@@ -12,7 +12,7 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
 @Component
 export default class TokensList extends Vue {
-  tokenList: string[] = ['ZRX', 'ETH', 'XXX']
+  tokenList: string[] = ['ZRX', 'ETH', 'AAA']
 
   @Prop()
   token: string

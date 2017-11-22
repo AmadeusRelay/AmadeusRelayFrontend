@@ -13,7 +13,7 @@ export class OrderService {
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.success(response));
+        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.success(response));
     }
 
     public async fillOrder(order: Order, takerAmount: string) {
