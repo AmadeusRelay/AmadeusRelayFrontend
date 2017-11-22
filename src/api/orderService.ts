@@ -1,4 +1,5 @@
 import { Order } from "../model/order";
+import { TokenInfo } from "../model/tokenInfo";
 import Vue from 'vue'
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
@@ -13,29 +14,29 @@ export class OrderService {
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.success(response));
+        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response));
     }
 
     public async fillOrder(order: Order, takerAmount: string) {
         var takerAddress: string = web3.eth.coinbase
+        
+        await this.zeroEx.etherToken.depositAsync(new BigNumber(takerAmount), takerAddress)
+
         await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
 
         const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), new BigNumber(takerAmount), true, takerAddress);
         return this.zeroEx.awaitTransactionMinedAsync(txHash);
     }
+    public async getTokenPairs(tokenA : string) : Promise<string[]> {
+        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
+    }
 
-    private success(response) : any{
+    private successGetOrder(response) : any{
         return this.convertOrders(response);
     }
 
-    private async getToken(symbol: string){
-        return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
-    }
-
-    private getDataFromApi (path: string, params: any) :  Promise<any> {
-        return axios.get(path, {
-            params: params
-        })
+    private successGetTokenPair(response: any, tokenA: string) : any {
+        return this.convertTokenPairs(response, tokenA);
     }  
 
     private convertOrders(response: any) :  Order[]
@@ -62,6 +63,23 @@ export class OrderService {
         return orders;
     }
 
+    private async convertTokenPairs(response: any, tokenA: string) :  Promise<string[]> {
+        let tokens: string[] = new Array();
+        for (let responseToken of response.data) {
+            if (!response.data) continue
+
+            let tokenAddress = responseToken.tokenA.address;
+            if (tokenA) {
+                tokenAddress = responseToken.tokenB.address;
+            }  
+            let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
+            if (tokenReceived == null) continue
+            if (tokenReceived.symbol === 'WETH') tokenReceived.symbol = 'ETH'
+            tokens.push(tokenReceived.symbol);
+        }
+        return tokens;
+    }
+
     private convertToSignedOrder(order: Order) :  SignedOrder
     {
         var signedOrder : SignedOrder = {
@@ -79,6 +97,16 @@ export class OrderService {
                 expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
                 feeRecipient: order.feeRecipient
             };
-            return signedOrder;
-        }
+        return signedOrder;
+    }
+
+    private async getToken(symbol: string){
+        return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
+    }
+
+    private getDataFromApi (path: string, params: any) :  Promise<any> {
+        return axios.get(path, {
+            params: params
+        })
+    }
 }
