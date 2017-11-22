@@ -7,10 +7,10 @@
       <p class="text-center">Choose tokens to trade:</p>
       <div class="row">
         <div class="col-md-2"/>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <tokens-list :token='token1' :tokenAIsSelected='true' @update:token='updateToken1'/> 
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <tokens-list :token='token2':tokenAIsSelected='token1' ref="tokenB" @update:token='val => token2 = val'/>
         </div> 
         <div class="col-md-2">
@@ -32,6 +32,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import TokensList from './components/TokensList.vue'
 import OrdersList from './components/OrdersList.vue'
+import OrdersListItem from './components/OrderListItem.vue'
 import { OrderService } from './api'
 import { Order } from './model/order'
 
@@ -39,7 +40,8 @@ import { Order } from './model/order'
   name: 'App',
   components: {
     'tokens-list': TokensList,
-    'orders-list': OrdersList
+    'orders-list': OrdersList,
+    'orders-list-item': OrdersListItem
   }
 })
 
@@ -75,7 +77,6 @@ export default class App extends Vue {
   text-align: center;
   background-position: 50% 50%;
   background-size: cover;
-  max-height: 626px;
   overflow: hidden;
 }
 

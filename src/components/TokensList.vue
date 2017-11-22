@@ -1,7 +1,7 @@
 <template>
   <div class="form-group">
     <select v-model="token" :disabled="!tokenAIsSelected" class="form-control">
-      <option value=""></option>
+      <option value="">All tokens</option>
       <option v-for="(coin, index) in tokenList" :value="coin">{{ coin }}</option>
     </select>
   </div>

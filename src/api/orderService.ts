@@ -4,8 +4,10 @@ import Vue from 'vue'
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
+import AsyncComputed from 'vue-async-computed'
 declare var web3;
 
+Vue.use(AsyncComputed);
 export class OrderService {
     private zeroEx: ZeroEx;
 
@@ -14,7 +16,7 @@ export class OrderService {
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response));
+        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response));
     }
 
     public async fillOrder(order: Order, takerAmount: string) {
@@ -27,8 +29,16 @@ export class OrderService {
         const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), new BigNumber(takerAmount), true, takerAddress);
         return this.zeroEx.awaitTransactionMinedAsync(txHash);
     }
+
     public async getTokenPairs(tokenA : string) : Promise<string[]> {
-        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
+        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
+    }
+
+    public async getTokenSymbol(tokenAddress: string) :  Promise<string> {
+        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
+        if (tokenReceived == null) return 'teste';
+        if (tokenReceived.symbol === 'WETH') return 'ETH'
+        return tokenReceived.symbol;
     }
 
     private successGetOrder(response) : any{
