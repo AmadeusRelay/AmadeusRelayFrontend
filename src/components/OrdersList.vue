@@ -5,6 +5,7 @@
                 <tr>
                 <th>Transaction</th>
                 <th>Max Amount</th>
+                <th>Rate</th>
                 <th>Expiration Date</th>
                 <th>Value Required</th>
                 <th></th>
