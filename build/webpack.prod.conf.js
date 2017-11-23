@@ -29,7 +29,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin({
       'process.env': env,
-      'process.env.AMADEUS_SERVER_HOSTNAME': JSON.stringify('35.195.138.26'),
+      'process.env.AMADEUS_SERVER_HOSTNAME': JSON.stringify('api.amadeusrelay.org'),
       'process.env.AMADEUS_SERVER_PORT': JSON.stringify('80')
     }),
     // UglifyJs do not support ES6+, you can also use babel-minify for better treeshaking: https://github.com/babel/minify
