@@ -1,7 +1,6 @@
 <template>
     <tr>
-        <td>{{makerSymbol}}</td>
-        <td>{{takerSymbol}}</td>
+        <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
         <td>{{maxAmount}}</td>
         <td>{{expiringDate}}</td>
         <td><input v-model="order.valueRequired"/></td>
@@ -59,7 +58,7 @@ export default {
       this.expiringDate = day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
     },
     setMaxAmount () {
-      var makerAmount = new BigNumber(this.order.makerTokenAmount)
+      var makerAmount = new BigNumber(this.order.takerTokenAmount)
       var conv = new BigNumber(100000000000000000)
       BigNumber.set({ DECIMAL_PLACES: 5 })
       this.maxAmount = makerAmount.dividedBy(conv).toFormat()

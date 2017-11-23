@@ -3,8 +3,7 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
                 <tr>
-                <th>Maker</th>
-                <th>Taker</th>
+                <th>Transaction</th>
                 <th>Max Amount</th>
                 <th>Expiration Date</th>
                 <th>Value Required</th>
