@@ -4,10 +4,8 @@ import Vue from 'vue'
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
-import AsyncComputed from 'vue-async-computed'
 declare var web3;
 
-Vue.use(AsyncComputed);
 export class OrderService {
     private zeroEx: ZeroEx;
 
@@ -36,7 +34,7 @@ export class OrderService {
 
     public async getTokenSymbol(tokenAddress: string) :  Promise<string> {
         let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
-        if (tokenReceived == null) return 'teste';
+        if (tokenReceived == null) return null;
         if (tokenReceived.symbol === 'WETH') return 'ETH'
         return tokenReceived.symbol;
     }
@@ -82,10 +80,11 @@ export class OrderService {
             if (tokenA) {
                 tokenAddress = responseToken.tokenB.address;
             }  
-            let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
-            if (tokenReceived == null) continue
-            if (tokenReceived.symbol === 'WETH') tokenReceived.symbol = 'ETH'
-            tokens.push(tokenReceived.symbol);
+
+            let symbol = await this.getTokenSymbol(tokenAddress);
+            if(symbol != null && tokens.indexOf(symbol) <= -1){
+                tokens.push(symbol);
+            }
         }
         return tokens;
     }

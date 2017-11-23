@@ -5,6 +5,8 @@
                 <tr>
                 <th>Maker</th>
                 <th>Taker</th>
+                <th>Max Amount</th>
+                <th>Expiration Date</th>
                 <th>Value Required</th>
                 <th></th>
                 </tr>
