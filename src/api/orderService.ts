@@ -14,17 +14,18 @@ export class OrderService {
     }
 
     public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
+//        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response)); 
         return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response));
     }
 
-    public async fillOrder(order: Order, takerAmount: string) {
+    public async fillOrder(order: Order, takerAmount: BigNumber) {
         var takerAddress: string = web3.eth.coinbase
         
-        await this.zeroEx.etherToken.depositAsync(new BigNumber(takerAmount), takerAddress)
+        await this.zeroEx.etherToken.depositAsync(takerAmount, takerAddress)
 
         await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
 
-        const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), new BigNumber(takerAmount), true, takerAddress);
+        const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), takerAmount, true, takerAddress);
         return this.zeroEx.awaitTransactionMinedAsync(txHash);
     }
 

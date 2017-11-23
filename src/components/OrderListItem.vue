@@ -2,6 +2,7 @@
     <tr>
         <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
         <td>{{maxAmount}}</td>
+        <td>{{rate}} : 1</td>
         <td>{{expiringDate}}</td>
         <td><input v-model="order.valueRequired"/></td>
         <td><a @click="fillOrder()" class="btn btn-link">Fill Order!</a></td>
@@ -21,7 +22,8 @@ export default {
       makerSymbol: null,
       takerSymbol: null,
       expiringDate: null,
-      maxAmount: null
+      maxAmount: null,
+      rate: null
     }
   },
   created () {
@@ -29,6 +31,7 @@ export default {
     this.setTakerSymbol()
     this.setOrderExpiringDate()
     this.setMaxAmount()
+    this.setRate()
   },
   methods: {
     setMakerSymbol () {
@@ -38,6 +41,11 @@ export default {
       }).catch(e => {
         alert(e)
       })
+    },
+    setRate () {
+      var makerAmount = new BigNumber(this.order.makerTokenAmount)
+      var takerAmount = new BigNumber(this.order.takerTokenAmount)
+      this.rate = makerAmount.dividedBy(takerAmount).toFormat()
     },
     setTakerSymbol () {
       var orderService = new OrderService()
@@ -65,7 +73,9 @@ export default {
     },
     fillOrder () {
       var orderService = new OrderService()
-      orderService.fillOrder(this.order, this.order.valueRequired).then(() => {
+      var amount = new BigNumber(this.order.valueRequired)
+      amount = amount.mul(1000000000000000000)
+      orderService.fillOrder(this.order, amount).then(() => {
         this.onSuccess()
       }).catch(e => {
         alert(e)
