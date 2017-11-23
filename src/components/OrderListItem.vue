@@ -34,8 +34,8 @@ export default {
     maxAmount: function () {
       return this.getMaxAmount()
     },
-    rate: function() {
-        return this.getRate()
+    rate: function () {
+      return this.getRate()
     }
   },
   methods: {
