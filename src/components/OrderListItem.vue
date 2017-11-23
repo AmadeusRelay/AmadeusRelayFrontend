@@ -19,16 +19,20 @@ export default {
   data () {
     return {
       makerSymbol: null,
-      takerSymbol: null,
-      expiringDate: null,
-      maxAmount: null
+      takerSymbol: null
     }
   },
   created () {
     this.setMakerSymbol()
     this.setTakerSymbol()
-    this.setOrderExpiringDate()
-    this.setMaxAmount()
+  },
+  computed: {
+    expiringDate: function () {
+      return this.getOrderExpiringDate()
+    },
+    maxAmount: function () {
+      return this.getMaxAmount()
+    }
   },
   methods: {
     setMakerSymbol () {
@@ -47,7 +51,7 @@ export default {
         alert(e)
       })
     },
-    setOrderExpiringDate () {
+    getOrderExpiringDate () {
       var date = new Date(this.order.expirationUnixTimestampSec * 1000)
       var day = date.getDate()
       var month = date.getMonth() + 1
@@ -55,13 +59,13 @@ export default {
       var hours = date.getHours()
       var minutes = date.getMinutes()
       var seconds = date.getSeconds()
-      this.expiringDate = day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
+      return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
     },
-    setMaxAmount () {
+    getMaxAmount () {
       var makerAmount = new BigNumber(this.order.takerTokenAmount)
       var conv = new BigNumber(100000000000000000)
       BigNumber.set({ DECIMAL_PLACES: 5 })
-      this.maxAmount = makerAmount.dividedBy(conv).toFormat()
+      return makerAmount.dividedBy(conv).toFormat()
     },
     fillOrder () {
       var orderService = new OrderService()
