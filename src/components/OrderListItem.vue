@@ -4,7 +4,7 @@
         <td>{{maxAmount}}</td>
         <td>{{expiringDate}}</td>
         <td><input v-model="order.valueRequired"/></td>
-        <td><button @click="fillOrder()" class="js-add btn btn-primary btn-block" type="button">Fill Order!</button></td>
+        <td><a @click="fillOrder()" class="btn btn-link">Fill Order!</a></td>
     </tr>
 </template>
 
@@ -77,3 +77,15 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+a.btn-link{
+  cursor: pointer;
+  color: #a09fac;
+  font-weight: bold;
+}
+
+a.btn-link:hover{
+  color: #bc5585;
+}
+</style>

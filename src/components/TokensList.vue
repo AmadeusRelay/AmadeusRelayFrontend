@@ -41,3 +41,12 @@ export default class TokensList extends Vue {
   }
 }
 </script>
+
+<style scoped>
+
+select.form-control{
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+</style>

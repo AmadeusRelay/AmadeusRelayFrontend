@@ -14,7 +14,7 @@
           <tokens-list :token='token2':tokenAIsSelected='token1' ref="tokenB" @update:token='val => token2 = val'/>
         </div> 
         <div class="col-md-2">
-          <button @click="getOrders" class="js-add btn btn-primary btn-block" 
+          <button @click="getOrders" class="js-add btn btn-block" 
               type="button">Get Orders!</button> 
         </div>
       </div>
@@ -87,5 +87,12 @@ export default class App extends Vue {
   margin-top: 60px;
   margin-left: auto;
   margin-right: auto;
+}
+
+button.btn{
+  border-radius: 0px;
+  background-image:  linear-gradient(115deg, #ff6c72, #6737a0);
+  color: white;
+  cursor: pointer;
 }
 </style>
