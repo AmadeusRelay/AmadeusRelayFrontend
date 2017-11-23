@@ -62,13 +62,13 @@ export default {
     },
     getOrderExpiringDate () {
       var date = new Date(this.order.expirationUnixTimestampSec * 1000)
-      var day = date.getDate()
-      var month = date.getMonth() + 1
+      var day = ('0' + date.getDate()).slice(-2)
+      var month = ('0' + (date.getMonth() + 1)).slice(-2)
       var year = date.getFullYear()
-      var hours = date.getHours()
-      var minutes = date.getMinutes()
-      var seconds = date.getSeconds()
-      return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
+      var hours = ('0' + date.getHours()).slice(-2)
+      var minutes = ('0' + date.getMinutes()).slice(-2)
+      var seconds = ('0' + date.getSeconds()).slice(-2)
+      return month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
     },
     getMaxAmount () {
       var makerAmount = new BigNumber(this.order.takerTokenAmount)
