@@ -12,20 +12,14 @@
 <script>
 import { OrderService } from '../api'
 import { BigNumber } from 'bignumber.js'
+import Vue from 'vue'
+import AsyncComputed from 'vue-async-computed'
+
+Vue.use(AsyncComputed)
 
 export default {
   props: {
     order: Object
-  },
-  data () {
-    return {
-      makerSymbol: null,
-      takerSymbol: null
-    }
-  },
-  created () {
-    this.setMakerSymbol()
-    this.setTakerSymbol()
   },
   computed: {
     expiringDate: function () {
@@ -38,23 +32,25 @@ export default {
       return this.getRate()
     }
   },
+  asyncComputed: {
+    makerSymbol () {
+      var orderService = new OrderService()
+      return orderService.getTokenSymbol(this.order.makerTokenAddress).then((response) => {
+        return response
+      }).catch(e => {
+        alert(e)
+      })
+    },
+    takerSymbol () {
+      var orderService = new OrderService()
+      return orderService.getTokenSymbol(this.order.takerTokenAddress).then((response) => {
+        return response
+      }).catch(e => {
+        alert(e)
+      })
+    }
+  },
   methods: {
-    setMakerSymbol () {
-      var orderService = new OrderService()
-      orderService.getTokenSymbol(this.order.makerTokenAddress).then((response) => {
-        this.makerSymbol = response
-      }).catch(e => {
-        alert(e)
-      })
-    },
-    setTakerSymbol () {
-      var orderService = new OrderService()
-      orderService.getTokenSymbol(this.order.takerTokenAddress).then((response) => {
-        this.takerSymbol = response
-      }).catch(e => {
-        alert(e)
-      })
-    },
     getRate () {
       var makerAmount = new BigNumber(this.order.makerTokenAmount)
       var takerAmount = new BigNumber(this.order.takerTokenAmount)

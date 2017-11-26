@@ -18,6 +18,28 @@ export class OrderService {
         return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response));
     }
 
+    public async checkMetamaskNetWork(): Promise<string> {
+        let message = null
+        if (typeof web3 == 'undefined') {
+            message = 'No web3? You should consider trying MetaMask!'
+        }
+        else {
+            let network = web3.version.network
+            if(network != "42"){
+                if(network == "1"){
+                    message = "You are connected to the mainnet, switch do the Kovan network to try this demo!"
+                }
+                else if(network == "3"){
+                    message = "You are connected to ropsten test network, switch do the Kovan network to try this demo!"
+                }
+                else {
+                    message = "Please connect to the Kovan network to try this demo!"
+                }
+            }
+        }
+        return message
+    }
+
     public async fillOrder(order: Order, takerAmount: BigNumber) {
         var takerAddress: string = web3.eth.coinbase
         
