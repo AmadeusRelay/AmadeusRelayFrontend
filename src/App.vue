@@ -68,6 +68,13 @@ export default class App extends Vue {
     alert('Fill completed with success!')
     this.getOrders()
   }
+  mounted () {
+    (new OrderService()).checkMetamaskNetWork().then((response) => {
+      if (response) {
+        alert(response)
+      }
+    })
+  }
 }
 </script>
 
