@@ -20,8 +20,9 @@ export class OrderService {
 
     public async fillOrder(order: Order, takerAmount: BigNumber) {
         var takerAddress: string = web3.eth.coinbase
+        //var amount = ZeroEx.toBaseUnitAmount(takerAmount, 18)
         
-        await this.zeroEx.etherToken.depositAsync(takerAmount, takerAddress)
+        this.wrapETH(takerAmount, takerAddress)
 
         await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
 
@@ -38,6 +39,18 @@ export class OrderService {
         if (tokenReceived == null) return null;
         if (tokenReceived.symbol === 'WETH') return 'ETH'
         return tokenReceived.symbol;
+    }
+
+    private async wrapETH(amount: BigNumber, address: string): Promise<void> {
+        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address))
+
+        if (!tokenReceived || tokenReceived.symbol != "ETH") return
+
+        const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
+        if (balance.lessThan(amount)) {
+            const tx = await this.zeroEx.etherToken.depositAsync(amount.minus(balance), address);
+            await this.zeroEx.awaitTransactionMinedAsync(tx);
+        }
     }
 
     private successGetOrder(response) : any{
