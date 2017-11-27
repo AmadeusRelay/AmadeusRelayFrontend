@@ -20,22 +20,29 @@ export class OrderService {
 
     public async checkMetamaskNetWork(): Promise<string> {
         let message = null
-        if (typeof web3 == 'undefined') {
-            message = 'No web3? You should consider trying MetaMask!'
+        if (typeof web3 != 'undefined' && web3.currentProvider.isMetaMask === true) {
+            await web3.eth.getAccounts(function(err, accounts){
+                if (accounts.length == 0){
+                    message = "Please, log in to MetaMask"
+                } 
+                else{
+                    let network = web3.version.network
+                    if(network != "42"){
+                        if(network == "1"){
+                            message = "You are connected to the mainnet, switch do the Kovan network to try this demo!"
+                        }
+                        else if(network == "3"){
+                            message = "You are connected to ropsten test network, switch do the Kovan network to try this demo!"
+                        }
+                        else {
+                            message = "Please connect to the Kovan network to try this demo!"
+                        }
+                    }
+                } 
+            });
         }
         else {
-            let network = web3.version.network
-            if(network != "42"){
-                if(network == "1"){
-                    message = "You are connected to the mainnet, switch do the Kovan network to try this demo!"
-                }
-                else if(network == "3"){
-                    message = "You are connected to ropsten test network, switch do the Kovan network to try this demo!"
-                }
-                else {
-                    message = "Please connect to the Kovan network to try this demo!"
-                }
-            }
+            message = 'No web3? You should consider trying MetaMask!'
         }
         return message
     }
