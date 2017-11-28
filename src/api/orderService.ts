@@ -47,9 +47,10 @@ export class OrderService {
         var takerAddress: string = web3.eth.coinbase
         //var amount = ZeroEx.toBaseUnitAmount(takerAmount, 18)
         
-        this.wrapETH(takerAmount, takerAddress)
+        await this.wrapETH(takerAmount, takerAddress)
 
-        await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
+        const txHashAllowance : string = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
+        this.zeroEx.awaitTransactionMinedAsync(txHashAllowance)
 
         const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), takerAmount, true, takerAddress);
         return this.zeroEx.awaitTransactionMinedAsync(txHash);
