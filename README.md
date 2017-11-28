@@ -2,7 +2,7 @@
 
 This is the frontend developed by Amadeus' team to interact with our APIs. It was developed so dApps can understand how consume our APIs, creating a demo experience.
 
-Take a look on our APIs on [Amadeus Relay API](https://github.com/AmadeusRelay/AmadeusRelayServer)
+Take a look on our APIs on [Amadeus Relay API Docs](http://api.amadeusrelay.org/api-docs/)
 
 ## For Developers that want to run locally
 
@@ -44,7 +44,7 @@ public constructor() {
 	this.zeroEx = new ZeroEx(web3.currentProvider);
 }
 ```
-Metamask exposes the standart Ethereum web3 API, so we don't have to declare it before. The currentProvider returns the provider that is set in your metamask, and is expected to be a kovan provider.
+The ZeroEx must receive an [Web3 object](https://github.com/ethereum/wiki/wiki/Javascript-API) with access to your account. As the demo version is using Metamask, it exposes the standart Ethereum web3 API, so we don't have to declare it before. The currentProvider returns the provider that is set in your metamask, making sure the api and client are in the same network.
 
 ### STEP 1: GET token_pairs
 
@@ -90,11 +90,13 @@ To get orders, there are three scenarios:
 
 All of them will call the same API, but passing different parameters. So, when you push "GET ORDERS!" button, the frontend calls the following API: 
 ```
-GET /api/v0/orders?tokenA=&tokenB=
+GET /api/v0/orders?makerTokenAddress=&takerTokenAddress=
 ```
+where makerTokenAddress and takerTokenAddress are the address from tokenA and tokenB, respectively.
+
 Our relay strategy is called Reserve Manager, and as it's concept, we provide large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. Your goal is to fill your address as taker address and call fillOrder to complete the order. 
 
-Then, a table is shown on the page with all orders posted by the relay, accordingly with tokens chosen on Step 1. If you chose two tokens, all orders will be from token A -> token B or token B -> token A; if you chose only token A, all orders will involve token A, combining it to other tokens that can be traded with; if you do not chose any tokens, all orders will be from tokens that can be traded, token-independent.
+Then, a table is shown on the page with all orders posted by the relay, accordingly with tokens chosen on Step 1. If you chose two tokens, all orders will have maker equals tokenA and taker equals tokenB; if you chose only tokenA, all orders will have maker equals tokenA, combining it to other tokens that can be traded with; if you do not chose any tokens, all orders will be from tokens that can be traded, token-independent.
 
 Now you are almost ready to fill the real value you want to trade and complete the order.
 
@@ -112,9 +114,23 @@ There're an important point at this step. Our frontend presumes that you do not 
 var takerAddress: string = web3.eth.coinbase
 var amount = ZeroEx.toBaseUnitAmount(new BigNumber(takerAmount), 18)
 
-await this.zeroEx.etherToken.depositAsync(amount, takerAddress)
+this.wrapETH()
 ```
-As we can see, there are two steps before converting ETH to WETH. The first one is getting the taker's address from web3.eth.coinbase, that returns the coinbase address set in your metamask, i.e. your public wallet key. The second step is to convert the value inserted in the the smallest denomination of a token, expressed in baseUnits. In our case, this mean 18 decimals. After that, you can call depositAsync and actually make the ETH -> WETH exchange.
+
+```
+private async wrapETH(amount: BigNumber, address: string): Promise<void> {
+    let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address))
+
+    if (!tokenReceived || tokenReceived.symbol != "ETH") return
+
+    const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
+    if (balance.lessThan(amount)) {
+        const tx = await this.zeroEx.etherToken.depositAsync(amount.minus(balance), address);
+        await this.zeroEx.awaitTransactionMinedAsync(tx);
+    }
+}
+```
+As we can see, there are two steps before converting ETH to WETH. The first one is getting the taker's address from web3.eth.coinbase, that returns the coinbase address set in your metamask, i.e. your public wallet key. The second step is to convert the value inserted in the the smallest denomination of a token, expressed in baseUnits. In our case, this mean 18 decimals. After that, you can call depositAsync and actually make the ETH -> WETH exchange. On the code shown above, this conversion was made only if taker didn't have WETH enought, avoiding unnecessary conversions. 
 
 All zeroEx function that we are using next will consider this amount already converted to baseUnits.
 
