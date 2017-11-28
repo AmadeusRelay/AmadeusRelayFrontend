@@ -13,9 +13,12 @@ export class OrderService {
         this.zeroEx = new ZeroEx(web3.currentProvider);
     }
 
-    public listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-//        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response)); 
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?tokenA=' + tokenA + "&tokenB=" + tokenB, {}).then((response) => this.successGetOrder(response));
+    public async listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
+        var tokenAAddress = await this.getTokenAddress(tokenA);
+        var tokenBAddress = await this.getTokenAddress(tokenB);
+        
+//        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?makerTokenAddress=' + tokenA + "&takerTokenAddress=" + tokenBAddress.address, {}).then((response) => this.successGetOrder(response)); 
+        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?makerTokenAddress=' + tokenAAddress + "&takerTokenAddress=" + tokenBAddress, {}).then((response) => this.successGetOrder(response));
     }
 
     public async checkMetamaskNetWork(): Promise<string> {
@@ -53,6 +56,8 @@ export class OrderService {
     }
 
     public async getTokenPairs(tokenA : string) : Promise<string[]> {
+        if (tokenA === "ETH") tokenA = "WETH";
+
         return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
     }
 
@@ -145,7 +150,17 @@ export class OrderService {
         return signedOrder;
     }
 
-    private async getToken(symbol: string){
+    private async getTokenAddress(symbol: string) : Promise<string> {
+        if (symbol === "ETH") return await this.zeroEx.etherToken.getContractAddressAsync();
+
+        var token : Token = await this.getToken(symbol);
+
+        if (token) { return token.address; }
+
+        return "";
+    }
+
+    private async getToken(symbol: string) : Promise<Token> {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
