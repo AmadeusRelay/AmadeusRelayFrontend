@@ -21,33 +21,33 @@ export class OrderService {
         return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?makerTokenAddress=' + tokenAAddress + "&takerTokenAddress=" + tokenBAddress, {}).then((response) => this.successGetOrder(response));
     }
 
-    public async checkMetamaskNetWork(): Promise<string> {
+    public async checkMetamaskNetWork() {
         let message = null
         if (typeof web3 != 'undefined' && web3.currentProvider.isMetaMask === true) {
-            await web3.eth.getAccounts(function(err, accounts){
+            await web3.eth.getAccounts((err, accounts) => {
                 if (accounts.length == 0){
-                    message = "Please, log in to MetaMask"
+                    alert("Please, login to MetaMask")
                 } 
                 else{
-                    let network = web3.version.network
-                    if(network != "42"){
-                        if(network == "1"){
-                            message = "You are connected to the mainnet, switch do the Kovan network to try this demo!"
+                    web3.version.getNetwork((error, network) => {
+                        if(network != "42"){
+                            if(network == "1"){
+                                alert("You are connected to the mainnet, switch do the Kovan network to try this demo!")
+                            }
+                            else if(network == "3"){
+                                alert("You are connected to ropsten test network, switch do the Kovan network to try this demo!")
+                            }
+                            else {
+                                alert("Please connect to the Kovan network to try this demo!")
+                            }
                         }
-                        else if(network == "3"){
-                            message = "You are connected to ropsten test network, switch do the Kovan network to try this demo!"
-                        }
-                        else {
-                            message = "Please connect to the Kovan network to try this demo!"
-                        }
-                    }
+                    });
                 } 
             });
         }
         else {
-            message = 'No web3? You should consider trying MetaMask!'
+            alert('No web3? You should consider trying MetaMask!')
         }
-        return message
     }
 
     public async fillOrder(order: Order, takerAmount: BigNumber) {
