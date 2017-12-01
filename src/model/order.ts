@@ -7,7 +7,7 @@ export interface Order {
     takerFee: string;
     makerTokenAmount: string;
     takerTokenAmount: string;
-    makerTokenAddress: string;
+    makerTokenAddress: string;   
     takerTokenAddress: string;
     ecSignature: ECSignature;
     salt: string;
