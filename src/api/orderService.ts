@@ -50,14 +50,20 @@ export class OrderService {
         }
     }
 
-    public async fillOrder(order: Order, takerAmount: BigNumber) {
+    public async ensureAllowance(amount: BigNumber, tokenAddress: string) {
         var takerAddress: string = web3.eth.coinbase
-        //var amount = ZeroEx.toBaseUnitAmount(takerAmount, 18)
+        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
+        if (alowancedValue.comparedTo(amount) < 0) {
+            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, takerAddress);
+            await this.zeroEx.awaitTransactionMinedAsync(tx);
+        }
+    }
+
+    public async fillOrder(order: Order, takerAmount: BigNumber): Promise<any> {
+        var takerAddress: string = web3.eth.coinbase
         
         await this.wrapETH(takerAmount, takerAddress)
-
-        const txHashAllowance : string = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.takerTokenAddress, takerAddress)
-        this.zeroEx.awaitTransactionMinedAsync(txHashAllowance)
+        this.ensureAllowance(takerAmount, order.takerTokenAddress)
 
         const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), takerAmount, true, takerAddress);
         return this.zeroEx.awaitTransactionMinedAsync(txHash);

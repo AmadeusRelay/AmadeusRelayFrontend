@@ -83,6 +83,7 @@ export default {
       })
     },
     onSuccess () {
+      alert('Fill order successfully performed!!')
       this.$emit('onSuccessfullyFillOrder')
     }
   }
