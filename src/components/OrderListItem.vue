@@ -68,7 +68,7 @@ export default {
     },
     getMaxAmount () {
       var makerAmount = new BigNumber(this.order.takerTokenAmount)
-      var conv = new BigNumber(100000000000000000)
+      var conv = new BigNumber(1000000000000000000)
       BigNumber.set({ DECIMAL_PLACES: 5 })
       return makerAmount.dividedBy(conv).toFormat()
     },
