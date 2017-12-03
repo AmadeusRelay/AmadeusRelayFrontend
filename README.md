@@ -6,7 +6,7 @@ Take a look on our APIs on [Amadeus Relay API Docs](http://api.amadeusrelay.org/
 
 ### Considerations
 
-The APIs are in demo version, and we're using metamask integrating with [Kovan testnet](https://kovan.etherscan.io/) 
+The APIs are in test version, and because of this they're integrated with [Kovan testnet](https://kovan.etherscan.io/). As a user of our APIs, you have to have a connection to ethereum network; if your dApp runs in a browser, you can use [Metamask](https://metamask.io/) for this.
 
 You have to import 0x.js to use some functions to interact with tokens and orders. In your dApp, you have to install it:
 ```
@@ -24,7 +24,7 @@ public constructor() {
 	this.zeroEx = new ZeroEx(web3.currentProvider);
 }
 ```
-The ZeroEx must receive an [Web3 object](https://github.com/ethereum/wiki/wiki/Javascript-API) with access to your account. As our demo version is using Metamask, it exposes the standart Ethereum web3 API, so we don't have to declare it before. The currentProvider returns the provider that is set in your metamask, making sure the api and client are in the same network.
+The ZeroEx must receive an [Web3 object](https://github.com/ethereum/wiki/wiki/Javascript-API) with access to your account. If you're using Metamask, it exposes the standart Ethereum web3 API, so you don't have to declare it before. The currentProvider returns the provider that is in use, making sure the api and client are in the same network.
 
 ### STEP 1: GET token_pairs
 
@@ -32,7 +32,24 @@ The first step to make a full use of our APIs is getting token pairs to trade, a
 ```
 GET /api/v0/token_pairs?tokenA=
 ```
-This function can be called passing tokenA as empty or passing a token symbol already chosen. On the first case, you will get all token pairs that can be traded, 2-by-2. On the other one, you will get all token-pairs given the token chosen.
+This function can be called passing tokenA as empty or passing a token symbol already chosen. On the first case, you will get all token pairs that can be traded, 2-by-2. On the other one, you will get all token-pairs given the token chosen. In both cases, it returns an array of token-pairs, with records similar to this JSON response: 
+
+```
+{
+    "tokenA": {
+      "address": "0x05d090b51c40b020eab3bfcb6a2dff130df22e9c",
+      "minAmount": "0",
+      "maxAmount": "700000000000000000",
+      "precision": 6
+    },
+    "tokenB": {
+      "address": "0xb18845c260f680d5b9d84649638813e342e4f8c9",
+      "minAmount": "0",
+      "maxAmount": "40000000000000000000",
+      "precision": 6
+    }
+}
+```
 
 It's important to say that our API works with "WETH" symbol instead "ETH". The reason is that ETH itself does not conform to the ERC20 token interface. So, it has been established that a wrapped ether token (WETH) should be used across dApps.
 
@@ -59,6 +76,29 @@ GET /api/v0/orders?tokenA=&tokenB=
 where you are not specifying which token is the maker or the taker; you are only saying that you want to get orders of tokenA and tokenB, regardless of their order. The return follows the same logic above, but now it's not important which token is the maker or the taker.
 
 Our relay strategy is called Reserve Manager, and as it's concept, we provide large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. Your goal is to fill your address as taker address and call fillOrder to complete the order. 
+
+Then, the api returns an array of orders, with elements similar to the JSON object shown below:
+
+```
+{
+	"exchangeContractAddress": "0x90fe2af704b34e0224bf2299c838e04d4dcf1364",
+	"expirationUnixTimestampSec": "1512327957",
+	"feeRecipient": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
+	"maker": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
+	"makerFee": "0",
+	"makerTokenAddress": "0x05d090b51c40b020eab3bfcb6a2dff130df22e9c",
+	"makerTokenAmount": "700000000000000000",
+	"salt": "4553755533182542422375656968800152891785237622594445148472747276167045657872",
+	"taker": "0x0000000000000000000000000000000000000000",
+	"takerFee": "0",
+	"takerTokenAddress": "0xb18845c260f680d5b9d84649638813e342e4f8c9",
+	"takerTokenAmount": "9051000000000000000",
+	"ecSignature": {
+	"v": 28,
+	"r": "0x18f921844f4a32bbf37327ed6ce19e28cddafe36af34996b2cb81c0f88d13c6b",
+	"s": "0x1f177e60b16d3e82c67ddc307cf33799bb4e5014eebfa1b0b7231419a7e9c2a2"
+}
+  ```
 
 Now you are almost ready to fill the real value you want to trade and complete the order.
 
@@ -92,7 +132,7 @@ private async wrapETH(amount: BigNumber, address: string): Promise<void> {
     }
 }
 ```
-As we can see, there are two steps before converting ETH to WETH. The first one is getting the taker's address from web3.eth.coinbase, that returns the coinbase address set in your metamask, i.e. your public wallet key. The second step is to convert the value inserted in the the smallest denomination of a token, expressed in baseUnits. In our case, this mean 18 decimals. After that, you can call depositAsync and actually make the ETH -> WETH exchange. On the code shown above, this conversion was made only if taker didn't have WETH enought, avoiding unnecessary conversions. 
+As we can see, there are two steps before converting ETH to WETH. The first one is getting the taker's address from web3.eth.coinbase, that returns your public wallet key. If you're using Metamask, it is the coinbase address set in it. The second step is to convert the value inserted in the the smallest denomination of a token, expressed in baseUnits. In our case, this mean 18 decimals. After that, you can call depositAsync and actually make the ETH -> WETH exchange. On the code shown above, this conversion was made only if taker didn't have WETH enought, avoiding unnecessary conversions. 
 
 All zeroEx function that we are using next will consider this amount already converted to baseUnits.
 
@@ -146,7 +186,7 @@ The awaitTransactionMinedAsync function shows that the program have to wait the 
 
 ### Completing the order
 
-If no errors happened in fillOrder command, your order will be completed and your exchange will be successfull. You can check it in your metamask, where you can see that the quantities of the tokens chosen for the exchange have changed.
+If no errors happened in fillOrder command, your order will be completed and your exchange will be successfull. You can check it in your wallet, where you can see that the quantities of the tokens chosen for the exchange have changed. You can consult the transaction using [Etherscan](https://kovan.etherscan.io/) as well.  
 
 However some errors can occur, for example:
 - ORDER_EXPIRED: The order created by Amadeus Relay expired, because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.
