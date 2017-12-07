@@ -60,8 +60,8 @@ At this moment, you already know how to get which coins can be traded. However, 
 
 To proceed, call API GET orders which can be used in the four scenarios described above: 
 
-1 - you want to get orders of two specific tokens
-2 - you want to get orders of one specific token
+1 - you want to get orders of two specific tokens, specifying the maker and the taker;
+2 - you want to get orders of one specific token, know
 3 - you want to get all available orders
 4 - you want to get orders of two specific tokens regardless of their order (maker or taker)
 
@@ -163,7 +163,7 @@ passing the amount you want to allow. That spends less gas in one call, but you 
 ### STEP 5: Fill order
 
 Now, everything is ready to complete the order. At this point, you have to be sure that:
-- You have the token amount you want to exchange in your metamask wallet (WETH if that's the case);
+- You have the token amount you want to exchange in your wallet (WETH if that's the case);
 - You allowed 0x protocol to interact with your funds.
 
 Once those conditions are fullfilled, call the command:
@@ -198,7 +198,7 @@ The awaitTransactionMinedAsync function shows that the program have to wait the 
 
 ### Completing the order
 
-In order to make sure that your exchange was successful and no errors happened in fillOrder command, you can check it in your Metamask and see that the quantities of the tokens chosen to be exchanged have changed. You can consult the transaction using [Etherscan](https://kovan.etherscan.io/) as well.  
+In order to make sure that your exchange was successful and no errors happened in fillOrder command, you can check it in your Metamask if you're using it, and see that the quantities of the tokens chosen to be exchanged have changed. You can consult the transaction using [Etherscan](https://kovan.etherscan.io/) as well.  
 
 However some errors can occur, for example:
 - ORDER_EXPIRED: The order created by Amadeus Relay expired, because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.
