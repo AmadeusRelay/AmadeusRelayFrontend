@@ -58,24 +58,22 @@ At this moment, you already know how to get which coins can be traded. However, 
 
 ### STEP 2: GET orders
 
-To proceed, call API GET orders which can be used in the four scenarios described above: 
+To proceed, call API GET orders which can be used in the three scenarios described above, all of them will call the same API, but passing different parameters.
 
 1 - you want to get orders of two specific tokens, specifying the maker and the taker;
 2 - you want to get orders of one specific token, know
 3 - you want to get all available orders
-4 - you want to get orders of two specific tokens regardless of their order (maker or taker)
 
-For cases 1 to 3 you will call the following API, with different parameters: 
 ```
 GET /api/v0/orders?makerTokenAddress=&takerTokenAddress=
 ```
 where makerTokenAddress and takerTokenAddress are the addresses from tokenA and tokenB, respectively. Using that, you're specifying which token is the maker and which one is the taker. If you fill both, orders accomplishing with both requirements will be returned (case 1). If you fill only makerTokenAddress, all orders returned will have the maker specified, combining it to other tokens that can be traded with (case 2); if you do not fill any address, all orders will be from tokens that can be traded, token-independent (case 3).
 
-For case 4 you will call the following API:
+The API GET orders can also be use as described below if you don't want to specify which token is the maker or the taker:
 ```
 GET /api/v0/orders?tokenA=&tokenB=
 ```
-where you are not specifying which token is the maker or the taker; you are only saying that you want to get orders of tokenA and tokenB, regardless of their order. The return follows the same logic above, but now it's not important which token is the maker or the taker.
+In this case you are only saying that you want to get orders of tokenA and tokenB, regardless of their order. The return follows the same logic above, but now it's not important which token is the maker or the taker.
 
 Amadeus provides large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. And you should fill your address as taker address and call fillOrder to complete the order. 
 
