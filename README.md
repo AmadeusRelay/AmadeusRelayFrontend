@@ -1,8 +1,8 @@
 # Amadeus Relay API User Documentation
 
-This is the documentation created by Amadeus' team for dApps to learn how to interact with our APIs. Below you will find a user guide on how to consume it, but if you have any doubts feel free to contact us at team@amadeusrelay.org. 
+This is the documentation created by Amadeus' team for dApps to learn how to interact with our API. Below you will find a user guide on how to consume it, but if you have any doubts feel free to contact us at team@amadeusrelay.org. 
 
-Take a look on our APIs on [Amadeus Relay API Docs](http://api.amadeusrelay.org/api-docs/)
+Take a look on our API on [Amadeus Relay API Docs](http://api.amadeusrelay.org/api-docs/)
 
 ### Considerations
 
@@ -29,7 +29,7 @@ The ZeroEx must receive an [Web3 object](https://github.com/ethereum/wiki/wiki/J
 
 ### STEP 1: GET token_pairs
 
-The first step to make a full use of our APIs is getting token pairs to trade, accessing API GET token_pairs:
+The first step to make a full use of our API is getting token pairs to trade, accessing API GET token_pairs:
 ```
 GET /api/v0/token_pairs?tokenA=
 ```
@@ -75,7 +75,7 @@ GET /api/v0/orders?tokenA=&tokenB=
 ```
 In this case you are only saying that you want to get orders of tokenA and tokenB, regardless of their order. The return follows the same logic above, but now it's not important which token is the maker or the taker.
 
-Amadeus provides large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. And you should fill your address as taker address and call fillOrder to complete the order. 
+Amadeus provides large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. And you should call fillOrder filling your address as taker address to complete the order. 
 
 Then, the api returns an array of orders, with elements similar to the JSON object shown below:
 
