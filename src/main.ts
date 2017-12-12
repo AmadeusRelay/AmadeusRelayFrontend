@@ -13,10 +13,9 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(VueResource)
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
-  router,
+  router: router,
   template: '<App/>',
   components: { App }
 })

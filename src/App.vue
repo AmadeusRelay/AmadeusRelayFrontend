@@ -1,105 +1,66 @@
 <template>
     <div id="main-section">
-      <div class="row" id="logo">
-        <img src="http://amadeusrelay.org/img/logo_nome_transparente.png">
-      </div>
-      <br><br><br>
-      <p class="text-center">Choose tokens to trade:</p>
-      <div class="row">
-        <div class="col-md-2"/>
-        <div class="col-md-3">
-          <tokens-list :token='token1' :tokenAIsSelected='true' @update:token='updateToken1'/> 
+      <div class="container-fluid" v-bind:class="{'full-container': !$route.meta.plainLayout, 'half-container': $route.meta.plainLayout}">
+        <div class="col-md-12">
+          <div class="row">
+            <div class="col-md-4">
+              <img id="logo" src="http://amadeusrelay.org/img/logo_nome_transparente.png">
+            </div>
+            <div v-if="$route.meta.plainLayout" class="col-md-8">
+              <div class="col-md-3 pull-right">
+                <button class="js-add btn btn-block uppercase" type="button">Restart</button> 
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-md-3">
-          <tokens-list :token='token2':tokenAIsSelected='token1' ref="tokenB" @update:token='val => token2 = val'/>
-        </div> 
-        <div class="col-md-2">
-          <button @click="getOrders" class="js-add btn btn-block" 
-              type="button">Get Orders!</button> 
+        <router-view></router-view>
+      </div>
+        <div v-if="$route.meta.plainLayout" class="code-container">
         </div>
-      </div>
-      <br><br>
-      <div class="row">
-        <div class="col-md-2"/>
-        <div class="col-md-8">
-          <orders-list :ordersList='orders' @onSuccessfullyFillOrder='onSuccessfullyFillOrder'/>
-        </div>    
-      </div>
     </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import TokensList from './components/TokensList.vue'
-import OrdersList from './components/OrdersList.vue'
-import OrdersListItem from './components/OrderListItem.vue'
-import { OrderService } from './api'
-import { Order } from './model/order'
-
-@Component({
-  name: 'App',
-  components: {
-    'tokens-list': TokensList,
-    'orders-list': OrdersList,
-    'orders-list-item': OrdersListItem
-  }
-})
-
-export default class App extends Vue {
-  $refs: {
-    tokenB: TokensList
-  }
-
-  token1: string = ''
-  token2: string = ''
-  orders: Order[] = []
-  getOrders () {
-    var orderService : OrderService = new OrderService()
-    orderService.listOrders(this.token1, this.token2).then(this.onSuccessfullyGetOrders)
-  }
-  updateToken1 (value) {
-    this.token1 = value
-    this.$refs.tokenB.getTokenPairs(this.token1)
-  }
-  onSuccessfullyGetOrders (response: any) {
-    this.orders = response
-  }
-  onSuccessfullyFillOrder () {
-    alert('Fill completed with success!')
-    this.getOrders()
-  }
-  mounted () {
-    (new OrderService()).checkMetamaskNetWork().then((response) => {
-      if (response) {
-        alert(response)
-      }
-    })
-  }
-}
-</script>
-
 <style scoped>
 #main-section{
-  color: #FFFFFF;
-  text-align: center;
-  background-position: 50% 50%;
+  background-image: linear-gradient(to bottom, #433c7f, #2f295f);
   background-size: cover;
   overflow: hidden;
+  height: 100vh;
+}
+
+#main-section .container-fluid {
+    padding-top: 75px;
+}
+
+#main-section .full-container {
+    width: 100%;
+    padding-left: 100px;
+}
+
+#main-section .half-container {
+    width: 70%;
+    padding-left: 100px;
+    float: left;
+}
+
+#main-section .code-container {
+    width: 30%;
+    background-color: #26204a;
+    box-shadow: inset 2px 1px 10px 0 rgba(35, 31, 32, 0.4);
+    height: 100vh;
 }
 
 #logo {
-  text-align: center;
-  color: #2c3e50;
-  display: block;
-  margin-top: 60px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 250px;
 }
 
 button.btn{
-  border-radius: 0px;
-  background-image:  linear-gradient(115deg, #ff6c72, #6737a0);
+  border-radius: 4px;
   color: white;
   cursor: pointer;
+  border: solid 1px #76729f;
+  background-color: transparent;
+  height: 50px;
+  text-transform: uppercase;
 }
 </style>
