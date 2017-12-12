@@ -1,5 +1,5 @@
 <template>
-    <div id="main-section">
+    <div id="main-section" ref="mainsection">
       <div class="container-fluid" v-bind:class="{'full-container': !$route.meta.plainLayout, 'half-container': $route.meta.plainLayout}">
         <div class="col-md-12">
           <div class="row">
@@ -16,9 +16,31 @@
         <router-view></router-view>
       </div>
         <div v-if="$route.meta.plainLayout" class="code-container">
+          <pre>
+            <code v-for="n in codeLineNumber">{{n}}</code>
+          </pre>
         </div>
     </div>
 </template>
+
+<script>
+export default {
+  data: function () {
+    return {
+      codeLineNumber: 0
+    }
+  },
+  methods: {
+    setCodeLineNumber () {
+      var lineHeight = 20
+      this.codeLineNumber = Math.round(this.$refs.mainsection.clientHeight / lineHeight)
+    }
+  },
+  mounted () {
+    this.setCodeLineNumber()
+  }
+}
+</script>
 
 <style scoped>
 #main-section{
@@ -48,6 +70,14 @@
     background-color: #26204a;
     box-shadow: inset 2px 1px 10px 0 rgba(35, 31, 32, 0.4);
     height: 100vh;
+    float: right;
+}
+
+#main-section code {
+    line-height: 20px;
+    color: white;
+    width: 100%;
+    display: block;
 }
 
 #logo {
@@ -60,7 +90,7 @@ button.btn{
   cursor: pointer;
   border: solid 1px #76729f;
   background-color: transparent;
-  height: 50px;
+  height: 46px;
   text-transform: uppercase;
 }
 </style>
