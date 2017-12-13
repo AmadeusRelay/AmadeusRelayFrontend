@@ -138,7 +138,6 @@ export default {
 button.btn{
   border-radius: 4px;
   color: white;
-  cursor: pointer;
   border: solid 1px #76729f;
   background-color: transparent;
   height: 46px;
