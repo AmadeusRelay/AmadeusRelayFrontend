@@ -1,5 +1,5 @@
 <template>
- <button class="js-add btn btn-block uppercase" type="button" @click="goToTokenPairs()">Let's Go</button> 
+ <button class="js-add btn btn-block uppercase" type="button" @click="goToTokenPairsPage()">Let's Go</button> 
 </template>
 
 <script>
@@ -11,7 +11,7 @@ export default {
     ...mapMutations({
       updatePageId: 'changePage'
     }),
-    goToTokenPairs () {
+    goToTokenPairsPage () {
       this.updatePageId(1)
     }
   }

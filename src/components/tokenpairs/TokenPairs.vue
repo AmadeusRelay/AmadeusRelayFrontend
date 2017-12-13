@@ -7,8 +7,18 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+
 export default {
-  name: 'token-pairs'
+  name: 'token-pairs',
+  methods: {
+    ...mapMutations({
+      addCodeLine: 'addCodeLine'
+    })
+  },
+  mounted () {
+    this.addCodeLine('teste teste')
+  }
 }
 </script>
 

@@ -11,7 +11,7 @@
             </div>
             <div v-if="pageId != 0" class="col-md-8">
               <div class="col-md-3 pull-right">
-                <button class="js-add btn btn-block uppercase" type="button">Restart</button> 
+                <button class="js-add btn btn-block uppercase" type="button" @click="goToWelcomePage()">Restart</button> 
               </div>
             </div>
           </div>
@@ -21,14 +21,14 @@
       </div>
         <div v-if="pageId != 0" class="code-container">
           <pre>
-            <code v-for="n in codeLineNumber"><span>{{n}}</span></code>
+            <code v-for="(line, index) in codeLines"><span>{{index}}     {{line}}</span></code>
           </pre>
         </div>
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import Welcome from './components/welcome/Welcome.vue'
 import TokenPairs from './components/tokenpairs/TokenPairs.vue'
 
@@ -37,18 +37,22 @@ export default {
     Welcome,
     TokenPairs
   },
-  data: function () {
-    return {
-      codeLineNumber: 0
-    }
-  },
   computed: mapState({
-    pageId: state => state.pageId
+    pageId: state => state.pageId,
+    codeLines: state => state.codeLines
   }),
   methods: {
+    ...mapMutations({
+      updatePageId: 'changePage',
+      inicializeCodeLines: 'inicializeCodeLines'
+    }),
     setCodeLineNumber () {
       var lineHeight = 22
-      this.codeLineNumber = Math.round((this.$refs.mainsection.clientHeight - 30) / lineHeight)
+      var codeLineNumber = Math.round((this.$refs.mainsection.clientHeight - 30) / lineHeight)
+      this.inicializeCodeLines(codeLineNumber)
+    },
+    goToWelcomePage () {
+      this.updatePageId(0)
     }
   },
   mounted () {
