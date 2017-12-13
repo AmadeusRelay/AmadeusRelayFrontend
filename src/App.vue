@@ -62,6 +62,8 @@ export default {
 </script>
 
 <style scoped>
+@import '../node_modules/lato-font/css/lato-font.css';
+
 #main-section{
   background-image: linear-gradient(to bottom, #433c7f, #2f295f);
   background-size: cover;
