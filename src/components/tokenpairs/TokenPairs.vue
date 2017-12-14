@@ -1,7 +1,18 @@
 <template>
 <div id="token-pairs-section">
       <div class="container">
-          <p>Through our API, the dApp can get the token pairs available at Amadeus using end point <b>GET token_pairs</b></p>
+        <div class="row">
+            <div class="col-md-12">
+              <p>Through our API, the dApp can get the token pairs available at Amadeus using end point <b>GET token_pairs</b></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <a class="btn-next-step" @click="goToGetOrdersPage()">GET TOKENS
+              <img src="../../assets/arrow-right.svg"/>
+            </a>
+          </div>
+        </div>
       </div>
 </div>
 </template>
@@ -13,8 +24,12 @@ export default {
   name: 'token-pairs',
   methods: {
     ...mapMutations({
-      addCodeLine: 'addCodeLine'
-    })
+      addCodeLine: 'addCodeLine',
+      updatePageId: 'changePage'
+    }),
+    goToGetOrdersPage () {
+      this.updatePageId(2)
+    }
   },
   mounted () {
     this.addCodeLine('teste teste')
