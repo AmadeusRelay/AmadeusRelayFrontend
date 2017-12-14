@@ -67,12 +67,11 @@ export default {
 #main-section{
   background-image: linear-gradient(to bottom, #433c7f, #2f295f);
   background-size: cover;
-  overflow: hidden;
   height: 100vh;
 }
 
 #main-section .container-fluid {
-    padding-top: 75px;
+    padding-top: 45px;
 }
 
 #main-section .full-container {

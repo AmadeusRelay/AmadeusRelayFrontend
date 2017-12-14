@@ -20,34 +20,17 @@ export class OrderService {
 //        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?makerTokenAddress=' + tokenA + "&takerTokenAddress=" + tokenBAddress.address, {}).then((response) => this.successGetOrder(response)); 
         return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?makerTokenAddress=' + tokenAAddress + "&takerTokenAddress=" + tokenBAddress, {}).then((response) => this.successGetOrder(response));
     }
+    
+    public checkMetamaskInstalled(): boolean {
+        return typeof web3 != 'undefined' && web3.currentProvider.isMetaMask === true
+    }
 
-    public async checkMetamaskNetWork() {
-        let message = null
-        if (typeof web3 != 'undefined' && web3.currentProvider.isMetaMask === true) {
-            await web3.eth.getAccounts((err, accounts) => {
-                if (accounts.length == 0){
-                    alert("Please, login to MetaMask")
-                } 
-                else{
-                    web3.version.getNetwork((error, network) => {
-                        if(network != "42"){
-                            if(network == "1"){
-                                alert("You are connected to the mainnet, switch do the Kovan network to try this demo!")
-                            }
-                            else if(network == "3"){
-                                alert("You are connected to ropsten test network, switch do the Kovan network to try this demo!")
-                            }
-                            else {
-                                alert("Please connect to the Kovan network to try this demo!")
-                            }
-                        }
-                    });
-                } 
-            });
-        }
-        else {
-            alert('No web3? You should consider trying MetaMask!')
-        }
+    public checkMetamaskLoggedIn(): boolean {
+        return this.checkMetamaskInstalled() && web3.eth.accounts != null && web3.eth.accounts.length > 0
+    }
+
+    public checkMetamaskNetwork(): boolean {
+        return this.checkMetamaskInstalled() && this.checkMetamaskLoggedIn() && web3.version.network == "42"
     }
 
     public async ensureAllowance(amount: BigNumber, tokenAddress: string) {
