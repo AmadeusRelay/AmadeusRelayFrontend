@@ -1,9 +1,9 @@
 <template>
-<div id="choose-order-section">
+<div id="fill-order-section">
       <div class="container">
           <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToFillOrderPage()">CHOOSE ORDER
+                <a class="btn-next-step" @click="goToFinalPage()">FILL ORDER
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -17,14 +17,14 @@
 import { mapMutations } from 'vuex'
 
 export default {
-  name: 'choose-order',
+  name: 'fill-order',
   methods: {
     ...mapMutations({
       addCodeLine: 'addCodeLine',
       updatePageId: 'changePage'
     }),
-    goToFillOrderPage () {
-      this.updatePageId(4)
+    goToFinalPage () {
+      this.updatePageId(5)
     }
   },
   mounted () {
