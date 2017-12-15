@@ -18,6 +18,7 @@
         </div>
         <welcome v-if="pageId == 0"></welcome>
         <token-pairs v-if="pageId == 1"></token-pairs>
+        <get-orders v-if="pageId == 2"></get-orders>
       </div>
         <div v-if="pageId != 0" class="code-container">
           <pre>
@@ -31,11 +32,13 @@
 import { mapState, mapMutations } from 'vuex'
 import Welcome from './components/welcome/Welcome.vue'
 import TokenPairs from './components/tokenpairs/TokenPairs.vue'
+import GetOrders from './components/getorders/GetOrders.vue'
 
 export default {
   components: {
     Welcome,
-    TokenPairs
+    TokenPairs,
+    GetOrders
   },
   computed: mapState({
     pageId: state => state.pageId,
