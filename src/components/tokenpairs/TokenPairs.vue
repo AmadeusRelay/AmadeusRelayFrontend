@@ -8,7 +8,7 @@
         </div>
         <div class="row">
           <div class="col-md-12">
-            <a class="btn-next-step" @click="goToGetOrdersPage()">GET TOKENS
+            <a class="btn-next-step" @click="getTokenPairs(); goToGetOrdersPage()">GET TOKENS
               <img src="../../assets/arrow-right.svg"/>
             </a>
           </div>
@@ -19,6 +19,7 @@
 
 <script>
 import { mapMutations } from 'vuex'
+import { Scripts } from '../../utils/scripts'
 
 export default {
   name: 'token-pairs',
@@ -32,7 +33,7 @@ export default {
     }
   },
   mounted () {
-    this.addCodeLine('teste teste')
+    this.addCodeLine(new Scripts().getTokenPairs)
   }
 }
 </script>

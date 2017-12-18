@@ -19,11 +19,7 @@
         <welcome v-if="pageId == 0"></welcome>
         <token-pairs v-if="pageId == 1"></token-pairs>
       </div>
-        <div v-if="pageId != 0" class="code-container">
-          <pre>
-            <code v-for="(line, index) in codeLines"><span>{{index}}     {{line}}</span></code>
-          </pre>
-        </div>
+      <codemirror ref="myCm" v-model="code"></codemirror>
     </div>
 </template>
 
@@ -39,24 +35,18 @@ export default {
   },
   computed: mapState({
     pageId: state => state.pageId,
-    codeLines: state => state.codeLines
+    code: state => state.code
   }),
   methods: {
     ...mapMutations({
-      updatePageId: 'changePage',
-      inicializeCodeLines: 'inicializeCodeLines'
+      updatePageId: 'changePage'
     }),
-    setCodeLineNumber () {
-      var lineHeight = 22
-      var codeLineNumber = Math.round((this.$refs.mainsection.clientHeight - 30) / lineHeight)
-      this.inicializeCodeLines(codeLineNumber)
-    },
     goToWelcomePage () {
       this.updatePageId(0)
     }
   },
   mounted () {
-    this.setCodeLineNumber()
+    this.$refs.myCm.codemirror.setSize('auto', '100%')
   }
 }
 </script>
@@ -143,5 +133,9 @@ button.btn{
   background-color: transparent;
   height: 46px;
   text-transform: uppercase;
+}
+
+.vue-codemirror {
+  height: inherit;
 }
 </style>
