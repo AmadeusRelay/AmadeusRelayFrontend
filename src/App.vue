@@ -23,7 +23,7 @@
         <fill-order v-if="pageId == 4"></fill-order>
         <order-confirmation v-if="pageId == 5"></order-confirmation>
       </div>
-      <codemirror ref="myCm" v-model="code"></codemirror>
+      <codemirror v-if="pageId != 0" ref="myCm" v-model="code"></codemirror>
     </div>
 </template>
 
@@ -57,8 +57,10 @@ export default {
       this.updatePageId(0)
     }
   },
-  mounted () {
-    this.$refs.myCm.codemirror.setSize('auto', '100%')
+  watch: {
+    code () {
+      this.$refs.myCm.codemirror.setSize('auto', '100%')
+    }
   }
 }
 </script>

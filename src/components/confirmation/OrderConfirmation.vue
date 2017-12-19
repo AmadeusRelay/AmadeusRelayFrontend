@@ -62,7 +62,8 @@ export default {
   name: 'order-confirmation',
   methods: {
     ...mapMutations({
-      addCodeLine: 'addCodeLine'
+      addCodeLine: 'addCodeLine',
+      updatePageId: 'changePage'
     }),
     goToWelcomePage () {
       this.updatePageId(0)

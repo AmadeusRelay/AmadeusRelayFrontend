@@ -49,7 +49,7 @@
         <div class="col-md-1"></div>
         <div class="col-md-10">
           <p class="foot-text">If you don’t have any money in your wallet, you can get some using a Kovan faucet: 
-            <a href="https://github.com/kovan-testnet/faucet">https://github.com/kovan-testnet/faucet</a></p>
+            <a target="_blank" href="https://github.com/kovan-testnet/faucet">https://github.com/kovan-testnet/faucet</a></p>
         </div>
       </div>
     </div>
