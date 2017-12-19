@@ -5,7 +5,6 @@ Vue.use(Vuex)
 
 const state = {
     pageId: 0, 
-    codeLines: [],
     lastLineCode: 0, 
     code: ''
 }
@@ -18,6 +17,9 @@ export default new Vuex.Store({
         },
         addCodeLine (state, newCodeLine) {
             state.code += newCodeLine + '\r\n'
+        },
+        cleanCodeLine (state){
+            state.code = ''
         }
     }
 })

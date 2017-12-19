@@ -63,9 +63,11 @@ export default {
   methods: {
     ...mapMutations({
       addCodeLine: 'addCodeLine',
-      updatePageId: 'changePage'
+      updatePageId: 'changePage',
+      cleanCodeContainer: 'cleanCodeLine'
     }),
     goToWelcomePage () {
+      this.cleanCodeContainer()
       this.updatePageId(0)
     },
     goToDocumentation () {

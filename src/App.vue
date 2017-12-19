@@ -51,9 +51,11 @@ export default {
   }),
   methods: {
     ...mapMutations({
-      updatePageId: 'changePage'
+      updatePageId: 'changePage',
+      cleanCodeContainer: 'cleanCodeLine'
     }),
     goToWelcomePage () {
+      this.cleanCodeContainer()
       this.updatePageId(0)
     }
   },
