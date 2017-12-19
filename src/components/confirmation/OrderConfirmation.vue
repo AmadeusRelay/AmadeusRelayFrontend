@@ -7,6 +7,7 @@
                     You can check your wallet balance at Metamask to see your transaction.</p>
             </div>
         </div>
+        <br />
         <div class="row">
             <div class="col-md-1">
             </div>
@@ -34,13 +35,20 @@
                 </div>
             </div>
         </div>
+        <br />
+        <br />
         <div class="row">
-            <div class="col-md-2"></div>
-            <div class="col-md-3">
-                <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
-            </div>
-            <div class="col-md-3">
-                <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToWelcomePage()">RETRY DEMO</button>
+            <div class="col-md-1"></div>
+            <div class="col-md-11">
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-3">
+                        <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToWelcomePage()">RETRY DEMO</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -71,7 +79,7 @@ export default {
 
 <style scoped>
 #order-confirmation-section .container {
-    padding-top: 130px;
+    padding-top: 110px;
 }
 
 #order-confirmation-section .container p{

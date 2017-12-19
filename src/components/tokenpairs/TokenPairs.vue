@@ -8,7 +8,7 @@
         </div>
         <div class="row">
           <div class="col-md-12">
-            <a class="btn-next-step" @click="getTokenPairs(); goToGetOrdersPage()">GET TOKENS
+            <a class="btn-next-step" @click="/*getTokenPairs();*/ goToGetOrdersPage()">GET TOKENS
               <img src="../../assets/arrow-right.svg"/>
             </a>
           </div>
