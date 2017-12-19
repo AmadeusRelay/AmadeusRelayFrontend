@@ -44,7 +44,12 @@ export default {
 }
 
 #token-pairs-section .container p{
-    font-size: 20px;
+    font-size: 22px;
     color: #ffffff;
+    font-weight: 300;
+}
+
+#token-pairs-section .container p b{
+    font-weight: 400;
 }
 </style>
