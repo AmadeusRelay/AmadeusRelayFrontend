@@ -8,7 +8,7 @@
         </div>
         <div class="row">
           <div class="col-md-12">
-            <a class="btn-next-step" @click="getTokenPairs(); goToGetOrdersPage()">GET TOKENS
+            <a class="btn-next-step" @click="getTokenPairs()">GET TOKENS
               <img src="../../assets/arrow-right.svg"/>
             </a>
           </div>
@@ -17,21 +17,32 @@
 </div>
 </template>
 
-<script>
-import { mapMutations } from 'vuex'
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
 import { Scripts } from '../../utils/scripts'
+import { OrderService } from '../../api'
+import { Mutation } from 'vuex-class'
 
-export default {
-  name: 'token-pairs',
-  methods: {
-    ...mapMutations({
-      addCodeLine: 'addCodeLine',
-      updatePageId: 'changePage'
-    }),
-    goToGetOrdersPage () {
-      this.updatePageId(2)
-    }
-  },
+@Component
+export default class TokenPairs extends Vue {
+  @Mutation addCodeLine
+  @Mutation changePage
+  @Mutation updateTokenPairs
+
+  getTokenPairs () {
+    var orderService : OrderService = new OrderService()
+    orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs)
+  }
+
+  onSuccessfullyGetTokenPairs (tokenPairs: any) {
+    this.updateTokenPairs(tokenPairs)
+    this.goToGetOrdersPage()
+  }
+
+  goToGetOrdersPage () {
+    this.changePage(2)
+  }
+
   mounted () {
     this.addCodeLine(new Scripts().getTokenPairs)
   }

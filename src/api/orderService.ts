@@ -1,5 +1,5 @@
 import { Order } from "../model/order";
-import { TokenInfo } from "../model/tokenInfo";
+import { TokenPair } from "../model/tokenPair";
 import Vue from 'vue'
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
@@ -52,10 +52,8 @@ export class OrderService {
         return this.zeroEx.awaitTransactionMinedAsync(txHash);
     }
 
-    public async getTokenPairs(tokenA : string) : Promise<string[]> {
-        if (tokenA === "ETH") tokenA = "WETH";
-
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
+    public async getTokenPairs() : Promise<TokenPair[]> {
+        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs', {}).then((response) => this.successGetTokenPair(response));
     }
 
     public async getTokenSymbol(tokenAddress: string) :  Promise<string> {
@@ -81,8 +79,8 @@ export class OrderService {
         return this.convertOrders(response);
     }
 
-    private successGetTokenPair(response: any, tokenA: string) : any {
-        return this.convertTokenPairs(response, tokenA);
+    private successGetTokenPair(response: any) : any {
+        return this.convertTokenPairs(response);
     }  
 
     private convertOrders(response: any) :  Order[]
@@ -109,19 +107,22 @@ export class OrderService {
         return orders;
     }
 
-    private async convertTokenPairs(response: any, tokenA: string) :  Promise<string[]> {
-        let tokens: string[] = new Array();
+    private async convertTokenPairs(response: any) :  Promise<TokenPair[]> {
+        let tokens: TokenPair[] = new Array();
         for (let responseToken of response.data) {
             if (!response.data) continue
 
-            let tokenAddress = responseToken.tokenA.address;
-            if (tokenA) {
-                tokenAddress = responseToken.tokenB.address;
-            }  
+            var tokenASymbol = await this.getTokenSymbol(responseToken.tokenA.address);
+            var tokenBSymbol = await this.getTokenSymbol(responseToken.tokenB.address);
 
-            let symbol = await this.getTokenSymbol(tokenAddress);
-            if(symbol != null && tokens.indexOf(symbol) <= -1){
-                tokens.push(symbol);
+            if (tokenASymbol && tokenBSymbol)
+            {
+                let tokenPair : TokenPair = {
+                    tokenASymbol: tokenASymbol,
+                    tokenBSymbol: tokenBSymbol
+                };
+    
+                tokens.push(tokenPair);
             }
         }
         return tokens;

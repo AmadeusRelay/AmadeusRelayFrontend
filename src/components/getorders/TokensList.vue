@@ -9,25 +9,28 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { OrderService } from '../api'
+import { Getter } from 'vuex-class'
 
 @Component
 export default class TokensList extends Vue {
   tokenList: string[] = []
 
+  @Getter getTokenPairs
+
   mounted () {
     if (this.tokenAIsSelected) {
-      this.getTokenPairs('')
+      this.refreshToken('')
     }
   }
 
-  getTokenPairs (tokenSelected : string) {
-    var orderService : OrderService = new OrderService()
-    orderService.getTokenPairs(tokenSelected).then(this.onSuccessfullyGetTokenPairs)
-  }
-
-  onSuccessfullyGetTokenPairs (response: any) {
-    this.tokenList = response
+  refreshToken (tokenASelected) {
+    debugger
+    var tokens = this.getTokenPairs
+    if (tokenASelected) {
+      this.tokenList = tokens.filter(a => a.tokenASymbol === tokenASelected).map(i => i.tokenBSymbol)
+    } else {
+      this.tokenList = tokens.map(i => i.tokenASymbol)
+    }
   }
 
   @Prop()
@@ -37,6 +40,7 @@ export default class TokensList extends Vue {
 
   @Watch('token')
   onPropertyChanged (value: string, oldValue: string) {
+    debugger
     this.$emit('update:token', value)
   }
 }
