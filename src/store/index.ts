@@ -6,7 +6,6 @@ Vue.use(Vuex)
 
 const state = {
     pageId: 0, 
-    codeLines: [],
     lastLineCode: 0, 
     code: '',
     tokenPairs: []
@@ -23,6 +22,9 @@ export default new Vuex.Store({
         },
         updateTokenPairs (state, tokenPairs : TokenPair[]) {
             state.tokenPairs = tokenPairs
+        },
+        cleanCodeLine (state) {
+            state.code = ''
         }
     },
     getters: {
