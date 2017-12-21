@@ -24,12 +24,11 @@ export default class TokensList extends Vue {
   }
 
   refreshToken (tokenASelected) {
-    debugger
     var tokens = this.getTokenPairs
     if (tokenASelected) {
       this.tokenList = tokens.filter(a => a.tokenASymbol === tokenASelected).map(i => i.tokenBSymbol)
     } else {
-      this.tokenList = tokens.map(i => i.tokenASymbol)
+      this.tokenList = tokens.map(i => i.tokenASymbol).filter((item, pos, arr) => arr.indexOf(item) === pos)
     }
   }
 
@@ -40,8 +39,7 @@ export default class TokensList extends Vue {
 
   @Watch('token')
   onPropertyChanged (value: string, oldValue: string) {
-    debugger
-    this.$emit('update:token', value)
+    this.$emit('updateToken', value)
   }
 }
 </script>

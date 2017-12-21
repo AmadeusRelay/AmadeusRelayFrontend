@@ -7,10 +7,10 @@
             </div>
           </div>
           <div class="col-md-3">
-            <tokens-list :token='tokenA' :tokenAIsSelected='true' @update:token='val => tokenA = val'/> 
+            <tokens-list :token='tokenA':tokenAIsSelected='true' @updateToken='updateTokenA'/> 
           </div>
           <div class="col-md-3">
-            <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @update:token='val => tokenB = val'/>
+            <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @updateToken='val => tokenB = val'/>
           </div> 
           <div class="row">
             <div class="col-md-12">
@@ -26,21 +26,19 @@
 
 <script lang="ts">
 import TokensList from './TokensList.vue'
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
 
 @Component({
   components: { 'tokens-list': TokensList }
 })
-
-@Component
 export default class GetOrders extends Vue {
+  tokenA: string = ''
+  tokenB: string = ''
+
   $refs: {
     tokenRef: TokensList
   }
-
-  tokenA: string = ''
-  tokenB: string = ''
 
   @Mutation addCodeLine
   @Mutation changePage
@@ -49,10 +47,12 @@ export default class GetOrders extends Vue {
     this.changePage(3)
   }
 
-  @Watch('tokenA')
-  onPropertyChanged (value: string, oldValue: string) {
-    debugger
+  updateTokenA (value : string) {
+    this.tokenA = value
     this.$refs.tokenRef.refreshToken(this.tokenA)
+    if (!this.tokenA) {
+      this.tokenB = ''
+    }
   }
 
   mounted () {
