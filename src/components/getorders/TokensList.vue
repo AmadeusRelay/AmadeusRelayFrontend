@@ -1,7 +1,7 @@
 <template>
   <div class="form-group">
     <select v-model="token" :disabled="!tokenAIsSelected" class="form-control">
-      <option value="">All tokens</option>
+      <option value="">Choose Token</option>
       <option v-for="(coin, index) in tokenList" :value="coin">{{ coin }}</option>
     </select>
   </div>
@@ -46,9 +46,17 @@ export default class TokensList extends Vue {
 
 <style scoped>
 
-select.form-control{
-  border-radius: 0px;
+select.form-control {
   cursor: pointer;
+  border-radius: 3px;
+  background-color: rgba(119, 117, 144, 0.5);
+  color: #ffffff;
+  border: none;
+  height: 52px !important;
+}
+
+.Select-arrow {
+  color: #111111;
 }
 
 </style>

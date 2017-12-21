@@ -6,11 +6,13 @@
                 <p>Amadeus returns an array of tokens, combined in pairs. Then the dApp choose which tokens to trade using end point <b>GET orders</b>.</p>
             </div>
           </div>
-          <div class="col-md-3">
-            <tokens-list :token='tokenA':tokenAIsSelected='true' @updateToken='updateTokenA'/> 
-          </div>
-          <div class="col-md-3">
-            <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @updateToken='val => tokenB = val'/>
+          <div class="row">
+            <div class="col-md-4">
+              <tokens-list :token='tokenA':tokenAIsSelected='true' @updateToken='updateTokenA'/> 
+            </div>
+            <div class="col-md-4">
+              <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @updateToken='val => tokenB = val'/>
+            </div>
           </div> 
           <div class="row">
             <div class="col-md-12">
