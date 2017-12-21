@@ -57,10 +57,6 @@ export default {
     goToWelcomePage () {
       this.cleanCodeContainer()
       this.updatePageId(0)
-    },
-    updateTokenA (value) {
-      debugger
-      this.tokenA = value
     }
   },
   watch: {
