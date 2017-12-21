@@ -55,8 +55,4 @@ select.form-control {
   height: 52px !important;
 }
 
-.Select-arrow {
-  color: #111111;
-}
-
 </style>
