@@ -33,12 +33,12 @@ export class OrderService {
         return this.checkMetamaskInstalled() && this.checkMetamaskLoggedIn() && web3.version.network == "42"
     }
 
-    public async ensureAllowance(amount: BigNumber, tokenAddress: string) {
-        var takerAddress: string = web3.eth.coinbase
-        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
-        if (alowancedValue.comparedTo(amount) < 0) {
+    public async ensureAllowance(amount: BigNumber, tokenAddress: string) : Promise<any> {
+        if (await this.isNecessaryToSetAllowance(amount, tokenAddress)) {
+            var takerAddress: string = web3.eth.coinbase
+
             const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, takerAddress);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
+            return await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
 
@@ -63,15 +63,31 @@ export class OrderService {
         return tokenReceived.symbol;
     }
 
-    private async wrapETH(amount: BigNumber, address: string): Promise<void> {
+    public async isNecessaryToWrapETH(amount: BigNumber, tokenAddress: string) : Promise<boolean> {
+        return this.getBalanceToWrapETH(amount, tokenAddress) !== undefined
+    }
+
+    public async isNecessaryToSetAllowance(amount: BigNumber, tokenAddress: string) : Promise<boolean> {
+        var takerAddress: string = web3.eth.coinbase
+        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
+        return alowancedValue.comparedTo(amount) < 0
+    }
+
+    private async getBalanceToWrapETH(amount: BigNumber, address: string) : Promise<BigNumber> {
         let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address))
+        
+        var takerAddress: string = web3.eth.coinbase
+        if (!tokenReceived || tokenReceived.symbol !== 'ETH') return
+        
+        var balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), takerAddress);
+        if (balance.lessThan(amount)) return balance
+    }
 
-        if (!tokenReceived || tokenReceived.symbol != "ETH") return
-
-        const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
-        if (balance.lessThan(amount)) {
+    public async wrapETH(amount: BigNumber, address: string): Promise<any> {
+        const balance = await this.getBalanceToWrapETH(amount, address)
+        if (balance) {
             const tx = await this.zeroEx.etherToken.depositAsync(amount.minus(balance), address);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
+            return await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
 
