@@ -1,24 +1,31 @@
 import { Order } from "../model/order";
 import { TokenPair } from "../model/tokenPair";
 import Vue from 'vue'
-import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
 declare var web3;
+import {HttpClient, TokenPairsItem} from '@0xproject/connect';
 
 export class OrderService {
     private zeroEx: ZeroEx;
+    private httpClient: HttpClient;
 
     public constructor() {
         this.zeroEx = new ZeroEx(web3.currentProvider);
+        this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
     }
 
     public async listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        var tokenAAddress = await this.getTokenAddress(tokenA);
-        var tokenBAddress = await this.getTokenAddress(tokenB);
-        
-//        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?makerTokenAddress=' + tokenA + "&takerTokenAddress=" + tokenBAddress.address, {}).then((response) => this.successGetOrder(response)); 
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?makerTokenAddress=' + tokenAAddress + "&takerTokenAddress=" + tokenBAddress, {}).then((response) => this.successGetOrder(response));
+        var tokenAAddress = tokenA && tokenA !== '' ? await this.getTokenAddress(tokenA) : undefined;
+        var tokenBAddress = tokenB && tokenB != '' ? await this.getTokenAddress(tokenB) : undefined;
+
+        return new Promise<Order[]>((resolve, reject) => {
+            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: tokenAAddress, takerTokenAddress: tokenBAddress });
+            result.then(orders => {
+                resolve(this.convertOrders(orders));
+            });            
+        });
+
     }
     
     public checkMetamaskInstalled(): boolean {
@@ -53,7 +60,12 @@ export class OrderService {
     }
 
     public async getTokenPairs() : Promise<TokenPair[]> {
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs', {}).then((response) => this.successGetTokenPair(response));
+        return new Promise<TokenPair[]>((resolve, reject) => {
+            const result: Promise<TokenPairsItem[]> = this.httpClient.getTokenPairsAsync();
+            result.then(pairs => {
+                resolve(this.convertTokenPairs(pairs));
+            });            
+        });
     }
 
     public async getTokenSymbol(tokenAddress: string) :  Promise<string> {
@@ -95,41 +107,36 @@ export class OrderService {
         return this.convertOrders(response);
     }
 
-    private successGetTokenPair(response: any) : any {
-        return this.convertTokenPairs(response);
-    }  
-
-    private convertOrders(response: any) :  Order[]
+    private convertOrders(signedOrders: SignedOrder[]) :  Order[]
     {
         let orders: Order[] = new Array();
-        response.data.forEach((responseOrder) => {
+        signedOrders.forEach((signedOrder) => {
             orders.push({
-                maker: responseOrder.maker,
-                taker: responseOrder.taker,
-                makerFee: responseOrder.makerFee,
-                takerFee: responseOrder.takerFee,
-                makerTokenAmount: responseOrder.makerTokenAmount,
-                takerTokenAmount: responseOrder.takerTokenAmount,
-                makerTokenAddress: responseOrder.makerTokenAddress,
-                takerTokenAddress: responseOrder.takerTokenAddress,
-                ecSignature: responseOrder.ecSignature,
-                exchangeContractAddress: responseOrder.exchangeContractAddress,
-                expirationUnixTimestampSec: responseOrder.expirationUnixTimestampSec,
-                feeRecipient: responseOrder.feeRecipient,
-                salt: responseOrder.salt,
+                maker: signedOrder.maker,
+                taker: signedOrder.taker,
+                makerFee: signedOrder.makerFee.toString(),
+                takerFee: signedOrder.takerFee.toString(),
+                makerTokenAmount: signedOrder.makerTokenAmount.toString(),
+                takerTokenAmount: signedOrder.takerTokenAmount.toString(),
+                makerTokenAddress: signedOrder.makerTokenAddress,
+                takerTokenAddress: signedOrder.takerTokenAddress,
+                ecSignature: signedOrder.ecSignature,
+                exchangeContractAddress: signedOrder.exchangeContractAddress,
+                expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec.toString(),
+                feeRecipient: signedOrder.feeRecipient,
+                salt: signedOrder.salt.toString(),
                 valueRequired: ''
             });
         });
         return orders;
     }
 
-    private async convertTokenPairs(response: any) :  Promise<TokenPair[]> {
+    private async convertTokenPairs(pairs: TokenPairsItem[]) :  Promise<TokenPair[]> {
         let tokens: TokenPair[] = new Array();
-        for (let responseToken of response.data) {
-            if (!response.data) continue
+        for (let pair of pairs) {
 
-            var tokenASymbol = await this.getTokenSymbol(responseToken.tokenA.address);
-            var tokenBSymbol = await this.getTokenSymbol(responseToken.tokenB.address);
+            var tokenASymbol = await this.getTokenSymbol(pair.tokenA.address);
+            var tokenBSymbol = await this.getTokenSymbol(pair.tokenB.address);
 
             if (tokenASymbol && tokenBSymbol)
             {
@@ -178,9 +185,4 @@ export class OrderService {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
-    private getDataFromApi (path: string, params: any) :  Promise<any> {
-        return axios.get(path, {
-            params: params
-        })
-    }
 }
