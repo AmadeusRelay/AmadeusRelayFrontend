@@ -30,6 +30,7 @@
 import TokensList from './TokensList.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
+import { OrderService } from '../../api'
 
 @Component({
   components: { 'tokens-list': TokensList }
@@ -44,9 +45,16 @@ export default class GetOrders extends Vue {
 
   @Mutation addCodeLine
   @Mutation changePage
+  @Mutation updateOrders
 
   goToChooseOrdersPage () {
-    this.changePage(3)
+    var orderService : OrderService = new OrderService();
+    orderService.listOrders(this.tokenA, this.tokenB).then(this.onSuccessfullyListOrders);
+  }
+
+  onSuccessfullyListOrders (orders: any) {
+    this.updateOrders(orders);
+    this.changePage(3);
   }
 
   updateTokenA (value : string) {

@@ -74,6 +74,7 @@ export default {
   background-image: linear-gradient(to bottom, #433c7f, #2f295f);
   background-size: cover;
   height: 100vh;
+  overflow: hidden;
 }
 
 #main-section .container-fluid {

@@ -1,16 +1,20 @@
 <template>
-    <tr>
+    <tr class='table-order-item'>
         <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
         <td>{{maxAmount}}</td>
         <td>{{rate}} : 1</td>
         <td>{{expiringDate}}</td>
-        <td><input v-model="order.valueRequired"/></td>
-        <td><a @click="fillOrder()" class="btn btn-link">Fill Order!</a></td>
+        <td class="order-amount"><input v-model="order.valueRequired"/></td>
+        <td>
+          <a class="btn-next-step-small" @click="chooseOrder()">CHOOSE ORDER
+            <img src="../../assets/arrow-right.svg"/>
+          </a>
+        </td>
     </tr>
 </template>
 
 <script>
-import { OrderService } from '../api'
+import { OrderService } from '../../api'
 import { BigNumber } from 'bignumber.js'
 import Vue from 'vue'
 import AsyncComputed from 'vue-async-computed'
@@ -72,15 +76,8 @@ export default {
       BigNumber.set({ DECIMAL_PLACES: 5 })
       return makerAmount.dividedBy(conv).toFormat()
     },
-    fillOrder () {
-      var orderService = new OrderService()
-      var amount = new BigNumber(this.order.valueRequired)
-      amount = amount.mul(1000000000000000000)
-      orderService.fillOrder(this.order, amount).then(() => {
-        this.onSuccess()
-      }).catch(e => {
-        alert(e)
-      })
+    chooseOrder () {
+      this.$emit('chooseOrder', this.order)
     },
     onSuccess () {
       alert('Fill order successfully performed!!')
@@ -91,13 +88,43 @@ export default {
 </script>
 
 <style scoped>
-a.btn-link{
-  cursor: pointer;
-  color: #a09fac;
-  font-weight: bold;
-}
+  a.btn-link{
+    cursor: pointer;
+    color: #a09fac;
+    font-weight: bold;
+  }
 
-a.btn-link:hover{
-  color: #bc5585;
-}
+  a.btn-link:hover{
+    color: #bc5585;
+  }
+
+  .table-order-item td {
+    color: white;
+    padding-top: 25px;
+    padding-bottom: 20px;
+    font-size: 18px;
+    color: #cccccc;
+    text-align: center;
+    border-color: #cccccc;
+  }
+
+  .order-amount {
+    padding-top: 20px !important;
+  }
+
+  .order-amount input{
+    background-color: #76729f;
+    border-color: transparent;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  a.btn-next-step-small, a:hover.btn-next-step-small{
+    font-size: 20px;
+    color: #ff6c72;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+  }
 </style>
