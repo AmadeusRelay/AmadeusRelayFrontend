@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { TokenPair } from "../model/tokenPair";
 import { Order } from '../model/order'
+import { BigNumber } from 'bignumber.js'
 
 Vue.use(Vuex)
 
@@ -11,7 +12,8 @@ const state = {
     code: '',
     tokenPairs: [],
     orders: [],
-    selectedOrder: null
+    selectedOrder: null,
+    takerAmount: null
 }
   
 export default new Vuex.Store({
@@ -32,6 +34,9 @@ export default new Vuex.Store({
         selectOrder (state, order : Order) {
             state.selectedOrder = order
         },
+        updateTakerAmount(state, takerAmount: BigNumber) {
+            state.takerAmount = takerAmount
+        },
         cleanCodeLine (state) {
             state.code = ''
         }
@@ -42,6 +47,12 @@ export default new Vuex.Store({
         },
         getOrders () : Order[] {
             return state.orders
+        },
+        getSelectedOrder () : Order {
+            return state.selectedOrder
+        },
+        getTakerAmount () : BigNumber {
+            return state.takerAmount
         }
     }
 })

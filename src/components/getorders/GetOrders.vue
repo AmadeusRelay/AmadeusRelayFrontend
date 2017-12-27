@@ -30,7 +30,7 @@
 import TokensList from './TokensList.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
-import { OrderService } from '../../api'
+import { OrderService, ZeroXService } from '../../api'
 
 @Component({
   components: { 'tokens-list': TokensList }
@@ -48,7 +48,7 @@ export default class GetOrders extends Vue {
   @Mutation updateOrders
 
   goToChooseOrdersPage () {
-    var orderService : OrderService = new OrderService();
+    var orderService : OrderService = new OrderService(new ZeroXService());
     orderService.listOrders(this.tokenA, this.tokenB).then(this.onSuccessfullyListOrders);
   }
 

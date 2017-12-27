@@ -58,7 +58,7 @@
 
 <script>
 import { mapMutations } from 'vuex'
-import { OrderService } from '../../api'
+import { MetamaskService } from '../../api'
 
 export default {
   name: 'welcome',
@@ -81,10 +81,10 @@ export default {
     },
     checkMetamaskIntalled: function () {
       setInterval(function () {
-        var orderService = new OrderService()
-        this.metamaskInstalled = orderService.checkMetamaskInstalled()
-        this.metamaskLogin = orderService.checkMetamaskLoggedIn()
-        this.metamaskNetwork = orderService.checkMetamaskNetwork()
+        var metamaskService = new MetamaskService()
+        this.metamaskInstalled = metamaskService.checkMetamaskInstalled()
+        this.metamaskLogin = metamaskService.checkMetamaskLoggedIn()
+        this.metamaskNetwork = metamaskService.checkMetamaskNetwork()
       }.bind(this),
       200)
     }

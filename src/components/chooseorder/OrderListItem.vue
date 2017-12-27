@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { OrderService } from '../../api'
+import { ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
 import Vue from 'vue'
 import AsyncComputed from 'vue-async-computed'
@@ -38,16 +38,16 @@ export default {
   },
   asyncComputed: {
     makerSymbol () {
-      var orderService = new OrderService()
-      return orderService.getTokenSymbol(this.order.makerTokenAddress).then((response) => {
+      var zeroXService = new ZeroXService()
+      return zeroXService.getTokenSymbol(this.order.makerTokenAddress).then((response) => {
         return response
       }).catch(e => {
         alert(e)
       })
     },
     takerSymbol () {
-      var orderService = new OrderService()
-      return orderService.getTokenSymbol(this.order.takerTokenAddress).then((response) => {
+      var zeroXService = new ZeroXService()
+      return zeroXService.getTokenSymbol(this.order.takerTokenAddress).then((response) => {
         return response
       }).catch(e => {
         alert(e)
@@ -77,6 +77,17 @@ export default {
       return makerAmount.dividedBy(conv).toFormat()
     },
     chooseOrder () {
+      if (!this.order.valueRequired || this.order.valueRequired === '') {
+        alert('You must insert a value.');
+        return;
+      }
+      try {
+        var value = (new BigNumber(1000000000000000000)).mul(this.order.valueRequired);
+        this.$emit('setTakerAmount', value);
+      } catch (error) {
+        alert('The value is not valid.');
+      }
+
       this.$emit('chooseOrder', this.order)
     },
     onSuccess () {
@@ -113,7 +124,7 @@ export default {
   }
 
   .order-amount input{
-    background-color: #76729f;
+    background-color: rgba(119, 117, 144, 0.5);
     border-color: transparent;
     color: white;
     font-size: 18px;

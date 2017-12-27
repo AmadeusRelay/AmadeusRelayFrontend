@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Scripts } from '../../utils/scripts'
-import { OrderService } from '../../api'
+import { OrderService, ZeroXService } from '../../api'
 import { Mutation } from 'vuex-class'
 
 @Component
@@ -30,7 +30,7 @@ export default class TokenPairs extends Vue {
   @Mutation updateTokenPairs
 
   getTokenPairs () {
-    var orderService : OrderService = new OrderService()
+    var orderService : OrderService = new OrderService(new ZeroXService())
     orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs)
   }
 

@@ -8,7 +8,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-              <orders-list @chooseOrder='goToFillOrderPage'/>
+              <orders-list @chooseOrder='goToFillOrderPage' @setTakerAmount='setTakerAmount'/>
             </div>
           </div>
         </div>
@@ -21,6 +21,7 @@ import { Mutation } from 'vuex-class'
 import { Component, Vue } from 'vue-property-decorator'
 import OrdersList from './OrdersList.vue'
 import { Order } from '../../model/order'
+import { BigNumber } from 'bignumber.js'
 
 @Component({
   components: { 'orders-list': OrdersList }
@@ -30,10 +31,15 @@ export default class ChooseOrder extends Vue {
   @Mutation addCodeLine
   @Mutation changePage
   @Mutation selectOrder
+  @Mutation updateTakerAmount
 
   goToFillOrderPage (order: Order) {
     this.selectOrder(order);
     this.changePage(4)
+  }
+
+  setTakerAmount (amount: BigNumber) {
+    this.updateTakerAmount(amount);
   }
 
   mounted () {

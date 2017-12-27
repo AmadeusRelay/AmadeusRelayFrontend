@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-               <order-list-item v-for="order in ordersList" :order="order" :key="order.salt" @chooseOrder='chooseOrder(order)'></order-list-item>
+               <order-list-item v-for="order in ordersList" :order="order" :key="order.salt" @chooseOrder='chooseOrder(order)' @setTakerAmount='setTakerAmount'></order-list-item>
             </tbody>
         </table>
     </div>
@@ -41,6 +41,10 @@ export default class OrdersList extends Vue {
 
   chooseOrder (order: any) {
     this.$emit('chooseOrder', order);
+  }
+
+  setTakerAmount (amount: any) {
+    this.$emit('setTakerAmount', amount);
   }
 }
 </script>

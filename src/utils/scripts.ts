@@ -1,8 +1,12 @@
 export class Scripts {
-    public getTokenPairs : string = `
-public async getTokenPairs(tokenA : string) : Promise<string[]> {
-    if (tokenA === "ETH") tokenA = "WETH";
+    public getTokenPairs : string = `import {HttpClient} from '@0xproject/connect';
 
-    return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
-}`
+// Connect to Amadeus Relay
+this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
+
+// Load tokens
+var tokenPairs = [];
+this.httpClient.getTokenPairsAsync().then((result) => tokenPairs = result);
+
+`
 }
