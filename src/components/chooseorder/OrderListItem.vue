@@ -4,7 +4,9 @@
         <td>{{maxAmount}}</td>
         <td>{{rate}} : 1</td>
         <td>{{expiringDate}}</td>
-        <td class="order-amount"><input v-model="order.valueRequired"/></td>
+        <td class="order-amount"><input v-model="order.valueRequired"/>
+          <p v-if="error" class="error">{{error}}</p>
+        </td>
         <td>
           <a class="btn-next-step-small" @click="chooseOrder()">CHOOSE ORDER</a>
         </td>
@@ -20,6 +22,11 @@ import AsyncComputed from 'vue-async-computed'
 Vue.use(AsyncComputed)
 
 export default {
+  data: function () {
+    return {
+      error: ''
+    }
+  },
   props: {
     order: Object
   },
@@ -32,6 +39,9 @@ export default {
     },
     rate: function () {
       return this.getRate()
+    },
+    value: function () {
+      return this.order.valueRequired
     }
   },
   asyncComputed: {
@@ -76,7 +86,8 @@ export default {
     },
     chooseOrder () {
       if (!this.order.valueRequired || this.order.valueRequired === '') {
-        alert('You must insert a value.');
+        this.setError('You must insert a value')
+        // alert('You must insert a value.');
         return;
       }
       try {
@@ -88,9 +99,19 @@ export default {
 
       this.$emit('chooseOrder', this.order)
     },
+    setError (value) {
+      this.error = value
+    },
     onSuccess () {
       alert('Fill order successfully performed!!')
       this.$emit('onSuccessfullyFillOrder')
+    }
+  },
+  watch: {
+    'order.valueRequired': function (newValue) {
+      if (newValue) {
+        this.setError('')
+      }
     }
   }
 }
@@ -135,5 +156,13 @@ export default {
     text-transform: uppercase;
     font-weight: 500;
     cursor: pointer;
+  }
+
+  p.error{
+    padding: 0px;
+    margin: 0px;
+    color: red;
+    opacity: 0.9;
+    font-size: 13px;
   }
 </style>

@@ -9,7 +9,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-              <orders-list @chooseOrder='goToFillOrderPage' @setTakerAmount='setTakerAmount'/>
+                <orders-list @chooseOrder='goToFillOrderPage' @setTakerAmount='setTakerAmount'/>
             </div>
           </div>
         </div>

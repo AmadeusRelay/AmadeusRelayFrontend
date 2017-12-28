@@ -1,4 +1,5 @@
 <template>
+  <scroll-bar class="scroll-area"> 
     <div class="form-group table-order">
         <table class="table table-striped table-condensed">
             <thead class="table-order-head">
@@ -16,6 +17,7 @@
             </tbody>
         </table>
     </div>
+    </scroll-bar>
 </template>
 
 <script lang="ts">
@@ -23,10 +25,12 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Order } from '../../model/order'
 import OrderListItem from './OrderListItem.vue'
 import { Getter } from 'vuex-class'
+import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 
 @Component({
   components: {
-    'order-list-item': OrderListItem
+    'order-list-item': OrderListItem,
+    'scroll-bar': VuePerfectScrollbar
   }
 })
 
@@ -54,7 +58,7 @@ export default class OrdersList extends Vue {
 .table-order-head th {
   color: white;
   padding-top: 30px;
-  padding-bottom: 30px;
+  padding-bottom: 15px;
   font-size: 14px;
   text-align: center;
   border-color: #cccccc;
@@ -63,10 +67,15 @@ export default class OrdersList extends Vue {
 }
 
 .table-order {
-  height: -moz-calc(100vh - 400px);
-  height: -webkit-calc(100vh - 400px);
-  height: calc(100vh - 400px);
+  height: auto; 
   overflow: auto;
 }
 
+.scroll-area {
+  position: relative;
+  margin: auto;
+  height: -moz-calc(100vh - 400px);
+  height: -webkit-calc(100vh - 400px);
+  height: calc(100vh - 400px);
+}
 </style>
