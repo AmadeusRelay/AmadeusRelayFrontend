@@ -13,7 +13,8 @@ const state = {
     tokenPairs: [],
     orders: [],
     selectedOrder: null,
-    takerAmount: null
+    takerAmount: null,
+    errorMessage: null
 }
   
 export default new Vuex.Store({
@@ -39,6 +40,9 @@ export default new Vuex.Store({
         },
         cleanCodeLine (state) {
             state.code = ''
+        },
+        updateErrorMessage(state, errorMessage: string) {
+            state.errorMessage = errorMessage;
         }
     },
     getters: {
@@ -53,6 +57,9 @@ export default new Vuex.Store({
         },
         getTakerAmount () : BigNumber {
             return state.takerAmount
+        },
+        getErrorMessage () : string {
+            return state.errorMessage;
         }
     }
 })
