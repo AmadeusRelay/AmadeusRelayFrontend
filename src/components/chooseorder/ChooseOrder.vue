@@ -3,7 +3,8 @@
       <div class="container">
           <div class="row">
             <div class="col-md-12">
-                <p>Amadeus returns an array of tokens, combined in pairs. Then the dApp choose which tokens to trade using end point <b>GET orders</b>.</p>
+                <p>Our relay provide large signed orders according to the dApp needs, containing the tokens used, fees, amounts, etc. The dApp chooses an order and the amount to exchange.
+<br>In our demo Api, the fee is set to 0%.</p>
             </div>
           </div>
           <div class="row">
@@ -22,6 +23,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import OrdersList from './OrdersList.vue'
 import { Order } from '../../model/order'
 import { BigNumber } from 'bignumber.js'
+import { Scripts } from '../../utils/scripts'
 
 @Component({
   components: { 'orders-list': OrdersList }
@@ -43,7 +45,7 @@ export default class ChooseOrder extends Vue {
   }
 
   mounted () {
-    this.addCodeLine('teste teste')
+    this.addCodeLine(new Scripts().chooseOrder);
   }
 }
 </script>

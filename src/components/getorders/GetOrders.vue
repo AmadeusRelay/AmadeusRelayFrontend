@@ -31,6 +31,7 @@ import TokensList from './TokensList.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
 import { OrderService, ZeroXService } from '../../api'
+import { Scripts } from '../../utils/scripts'
 
 @Component({
   components: { 'tokens-list': TokensList }
@@ -66,7 +67,7 @@ export default class GetOrders extends Vue {
   }
 
   mounted () {
-    this.addCodeLine('teste teste')
+    this.addCodeLine(new Scripts().getOrders);
   }
 }
 </script>

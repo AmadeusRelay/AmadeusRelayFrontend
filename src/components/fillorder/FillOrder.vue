@@ -40,6 +40,11 @@
           </div>
           <div class="row">
             <div class="col-md-12">
+                <p>The dApp fills its address as taker address, the taker desired amount and calls <b>fillOrder</b> to complete the order. </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
                 <a class="btn-next-step" @click="goToFinalPage()">FILL ORDER
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
@@ -56,6 +61,7 @@ import { Getter, Mutation } from 'vuex-class'
 import { ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
 import { Order } from '../../model/order'
+import { Scripts } from '../../utils/scripts'
 
 @Component
 export default class FillOrder extends Vue {
@@ -78,6 +84,7 @@ export default class FillOrder extends Vue {
   @Getter getTakerAmount
   @Mutation addCodeLine
   @Mutation changePage
+  @Mutation updateErrorMessage
 
   goToFinalPage () {
     if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling) {
@@ -85,9 +92,8 @@ export default class FillOrder extends Vue {
     }
     this.isFilling = true;
     this.zeroXService.fillOrder(this.order, this.amount).then(() => this.changePage(5)).catch((e) => {
-      this.isFilling = false;
-      alert(e);
-      return e;
+      this.updateErrorMessage(e.message);
+      this.changePage(6);
     });
   }
 
@@ -96,7 +102,7 @@ export default class FillOrder extends Vue {
     this.order = this.getSelectedOrder;
     this.amount = this.getTakerAmount;
     this.zeroXService.getTokenSymbol(this.order.takerTokenAddress).then(symbol => this.setToken(symbol));
-    this.addCodeLine('teste aaa')
+    this.addCodeLine(new Scripts().fillOrder)
   }
 
   setToken (symbol: string) {

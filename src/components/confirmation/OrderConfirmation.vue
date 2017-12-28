@@ -19,15 +19,23 @@
                         <img src="../../assets/fill-1.svg"/>
                     </div>
                     <div class="col-md-1">
-                        <img src="../../assets/arrow-right.svg"/>
-                        <img style="transform: rotate(180deg);" src="../../assets/arrow-right.svg"/>
+                        <div class="row">
+                            <img class="arrow-right" src="../../assets/arrow-right.svg"/>
+                        </div>
+                        <div class="row">
+                            <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                        </div>
                     </div>
                     <div class="col-md-2">
                         <img src="../../assets/logo.svg"/>
                     </div>
                     <div class="col-md-1">
-                        <img src="../../assets/arrow-right.svg"/>
-                        <img style="transform: rotate(180deg);" src="../../assets/arrow-right.svg"/>
+                        <div class="row">
+                            <img class="arrow-right" src="../../assets/arrow-right.svg"/>
+                        </div>
+                        <div class="row">
+                            <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                        </div>
                     </div>
                     <div class="col-md-2">
                         <img src="../../assets/page-1.svg"/>
@@ -75,7 +83,6 @@ export default {
     }
   },
   mounted () {
-    this.addCodeLine('teste teste')
   }
 }
 </script>
@@ -91,7 +98,18 @@ export default {
     font-weight: 300;
 }
 
-#get-orders-section .container p b{
-    font-weight: 400;
+#order-confirmation-section .arrow-right {
+  margin-top: 15px;
+  width: 23px;
+  height: 18px;
+  object-fit: contain;
+}
+
+#order-confirmation-section .arrow-left {
+  margin-top: 10px;
+  width: 23px;
+  height: 18px;
+  object-fit: contain;
+  transform: rotate(180deg);
 }
 </style>
