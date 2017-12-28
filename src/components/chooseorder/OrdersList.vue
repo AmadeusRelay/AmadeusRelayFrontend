@@ -55,10 +55,11 @@ export default class OrdersList extends Vue {
   color: white;
   padding-top: 30px;
   padding-bottom: 30px;
-  font-size: 18px;
+  font-size: 14px;
   text-align: center;
   border-color: #cccccc;
   border-top: 0px;
+  font-weight: 400;
 }
 
 .table-order {

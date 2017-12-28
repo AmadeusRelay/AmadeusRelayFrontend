@@ -6,9 +6,7 @@
         <td>{{expiringDate}}</td>
         <td class="order-amount"><input v-model="order.valueRequired"/></td>
         <td>
-          <a class="btn-next-step-small" @click="chooseOrder()">CHOOSE ORDER
-            <img src="../../assets/arrow-right.svg"/>
-          </a>
+          <a class="btn-next-step-small" @click="chooseOrder()">CHOOSE ORDER</a>
         </td>
     </tr>
 </template>
@@ -113,7 +111,7 @@ export default {
     color: white;
     padding-top: 25px;
     padding-bottom: 20px;
-    font-size: 18px;
+    font-size: 14px;
     color: #cccccc;
     text-align: center;
     border-color: #cccccc;
@@ -127,12 +125,12 @@ export default {
     background-color: rgba(119, 117, 144, 0.5);
     border-color: transparent;
     color: white;
-    font-size: 18px;
+    font-size: 14px;
     text-align: center;
   }
 
   a.btn-next-step-small, a:hover.btn-next-step-small{
-    font-size: 20px;
+    font-size: 14px;
     color: #ff6c72;
     text-transform: uppercase;
     font-weight: 500;

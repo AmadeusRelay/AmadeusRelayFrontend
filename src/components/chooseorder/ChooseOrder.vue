@@ -56,7 +56,7 @@ export default class ChooseOrder extends Vue {
 }
 
 #choose-order-section .container p{
-    font-size: 22px;
+    font-size: 21px;
     color: #ffffff;
     font-weight: 300;
 }

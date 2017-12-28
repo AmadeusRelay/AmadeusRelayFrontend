@@ -16,13 +16,14 @@
             </div>
           </div>
         </div>
-        <welcome v-if="pageId == 0"></welcome>
-        <token-pairs v-if="pageId == 1"></token-pairs>
-        <get-orders v-if="pageId == 2"></get-orders>
-        <choose-order v-if="pageId == 3"></choose-order>
-        <fill-order v-if="pageId == 4"></fill-order>
-        <order-confirmation v-if="pageId == 5"></order-confirmation>
-        <order-error v-if="pageId == 6"></order-error>
+        <loading v-if="loading"></loading>
+        <welcome v-if="!loading && pageId == 0"></welcome>
+        <token-pairs v-if="!loading && pageId == 1"></token-pairs>
+        <get-orders v-if="!loading && pageId == 2"></get-orders>
+        <choose-order v-if="!loading && pageId == 3"></choose-order>
+        <fill-order v-if="!loading && pageId == 4"></fill-order>
+        <order-confirmation v-if="!loading && pageId == 5"></order-confirmation>
+        <order-error v-if="!loading && pageId == 6"></order-error>
       </div>
       <codemirror v-if="pageId != 0" ref="myCm" v-model="code"></codemirror>
     </div>
@@ -37,6 +38,7 @@ import ChooseOrder from './components/chooseorder/ChooseOrder.vue'
 import FillOrder from './components/fillorder/FillOrder.vue'
 import OrderConfirmation from './components/confirmation/OrderConfirmation.vue'
 import OrderError from './components/error/OrderError.vue'
+import Loading from './components/shared/Loading.vue'
 
 export default {
   components: {
@@ -46,11 +48,13 @@ export default {
     ChooseOrder,
     FillOrder,
     OrderConfirmation,
-    OrderError
+    OrderError,
+    Loading
   },
   computed: mapState({
     pageId: state => state.pageId,
-    code: state => state.code
+    code: state => state.code,
+    loading: state => state.loading
   }),
   methods: {
     ...mapMutations({

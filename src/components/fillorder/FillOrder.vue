@@ -85,16 +85,24 @@ export default class FillOrder extends Vue {
   @Mutation addCodeLine
   @Mutation changePage
   @Mutation updateErrorMessage
+  @Mutation updateLoadingState
 
   goToFinalPage () {
     if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling) {
       return;
     }
     this.isFilling = true;
-    this.zeroXService.fillOrder(this.order, this.amount).then(() => this.changePage(5)).catch((e) => {
+    this.updateLoadingState(true)
+    this.zeroXService.fillOrder(this.order, this.amount).then(this.onSuccessfullyFillOrder).catch((e) => {
       this.updateErrorMessage(e.message);
+      this.updateLoadingState(false)
       this.changePage(6);
     });
+  }
+
+  onSuccessfullyFillOrder () {
+    this.updateLoadingState(false)
+    this.changePage(5)
   }
 
   mounted () {

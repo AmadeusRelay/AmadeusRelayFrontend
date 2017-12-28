@@ -14,7 +14,8 @@ const state = {
     orders: [],
     selectedOrder: null,
     takerAmount: null,
-    errorMessage: null
+    errorMessage: null,
+    loading: false
 }
   
 export default new Vuex.Store({
@@ -43,6 +44,9 @@ export default new Vuex.Store({
         },
         updateErrorMessage(state, errorMessage: string) {
             state.errorMessage = errorMessage;
+        },
+        updateLoadingState(state, loading: boolean){
+            state.loading = loading
         }
     },
     getters: {
