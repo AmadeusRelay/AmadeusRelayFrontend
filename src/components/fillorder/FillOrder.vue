@@ -166,6 +166,9 @@ export default class FillOrder extends Vue {
   checkNecessaryToSetAllowance (result) {
     this.needToSetAllowance = result.needAllowance;
     this.authorizedAmount = result.currentAllowance.dividedBy(1000000000000000000).toFormat();
+    if (this.needToSetAllowance) {
+      setTimeout(() => this.isNecessaryToSetAllowance(), 2000);
+    }
   }
 
   wrapETH () {
@@ -173,10 +176,16 @@ export default class FillOrder extends Vue {
       return;
     }
     this.isWrapping = true;
+    this.updateLoadingState(true);
     this.zeroXService.wrapETH(this.amount, this.order.takerTokenAddress).then(() => {
       this.isNecessaryToWrapETH();
+      this.updateLoadingState(false);
       this.isWrapping = false;
-    }).catch((e) => { this.isWrapping = false; return e; });
+    }).catch((e) => {
+      this.isWrapping = false;
+      this.updateLoadingState(false);
+      return e;
+    });
   }
 
   setAllowance () {
@@ -184,10 +193,16 @@ export default class FillOrder extends Vue {
       return;
     }
     this.isAuthorizing = true;
+    this.updateLoadingState(true);
     this.zeroXService.ensureAllowance(this.amount, this.order.takerTokenAddress).then(() => {
       this.isNecessaryToSetAllowance();
+      this.updateLoadingState(false);
       this.isAuthorizing = false;
-    }).catch((e) => { this.isAuthorizing = false; return e; });
+    }).catch((e) => {
+      this.isAuthorizing = false;
+      this.updateLoadingState(false);
+      return e;
+    });
   }
 }
 </script>
