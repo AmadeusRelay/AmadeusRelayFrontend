@@ -17,13 +17,13 @@
           </div>
         </div>
         <loading v-if="loading"></loading>
-        <welcome v-if="!loading && pageId == 0"></welcome>
-        <token-pairs v-if="!loading && pageId == 1"></token-pairs>
-        <get-orders v-if="!loading && pageId == 2"></get-orders>
-        <choose-order v-if="!loading && pageId == 3"></choose-order>
-        <fill-order v-if="!loading && pageId == 4"></fill-order>
-        <order-confirmation v-if="!loading && pageId == 5"></order-confirmation>
-        <order-error v-if="!loading && pageId == 6"></order-error>
+        <welcome v-if="pageId == 0"></welcome>
+        <token-pairs v-if="pageId == 1"></token-pairs>
+        <get-orders v-if="pageId == 2"></get-orders>
+        <choose-order v-if="pageId == 3"></choose-order>
+        <fill-order v-if="pageId == 4"></fill-order>
+        <order-confirmation v-if="pageId == 5"></order-confirmation>
+        <order-error v-if="pageId == 6"></order-error>
       </div>
       <codemirror v-if="pageId != 0" ref="myCm" v-model="code"></codemirror>
     </div>

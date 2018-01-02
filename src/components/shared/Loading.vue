@@ -33,7 +33,17 @@ export default class Loading extends Vue {
 
 <style scoped>
 #loading-section .container {
-    padding-top: 160px;
+    padding-top: 260px;
+    padding-right: 0px;
+    background-color: rgba(66 , 59, 125, 0.8);
+    position: absolute;
+    z-index: 100;
+    height: -moz-calc(100vh - 400px);
+    height: -webkit-calc(100vh - 400px);
+    height: calc(100vh - 100px);
+    width: 75%;
+    max-width: 75%;
+    left: 0px;
 }
 
 #loading-section .spin-container {

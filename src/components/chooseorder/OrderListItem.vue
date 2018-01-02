@@ -95,6 +95,7 @@ export default {
         this.$emit('setTakerAmount', value);
       } catch (error) {
         alert('The value is not valid.');
+        return;
       }
 
       this.$emit('chooseOrder', this.order)
