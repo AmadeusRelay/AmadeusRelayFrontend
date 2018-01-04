@@ -27,11 +27,26 @@ public constructor() {
 ```
 The ZeroEx must receive an [Web3 object](https://github.com/ethereum/wiki/wiki/Javascript-API) with access to your account. If you are using Metamask, it exposes the standart Ethereum web3 API, so you don't have to declare it before. The currentProvider returns the provider that is in use, making sure the API and client are in the same network.
 
+You can interact with Amadeus Relay by calling our API directly or by using [0x Connect](https://0xproject.com/docs/connect). Applying 0x Connect, you can communicate in a standardized way with any relay in the 0x community, making it even easier. Thereby, if you decide to use the second option, it's important to know that you have to install 0x Connect
+```
+npm install @0xproject/connect --save
+```
+import it on your code
+```
+import {HttpClient} from '@0xproject/connect';
+```
+and instantiate a new HttpClient instance with Amadeus Relay url
+```
+this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
+``` 
+
 ### STEP 1: GET token_pairs
 
 The first step to make a full use of our API is getting token pairs to trade, accessing API GET token_pairs:
 ```
 GET /api/v0/token_pairs?tokenA=
+OR
+this.httpClient.getTokenPairsAsync();
 ```
 This function can be called passing tokenA as empty or passing a token symbol already chosen. In the first case, you will get all token pairs that can be traded, 2-by-2. On the other one, you will get all token-pairs available that contain the chosen token. For both cases, it returns an array of token-pairs, with records similar to this JSON response:
 
@@ -66,14 +81,10 @@ To proceed, call API GET orders which can be used in the three scenarios describ
 
 ```
 GET /api/v0/orders?makerTokenAddress=&takerTokenAddress=
+OR
+this.httpClient.getOrdersAsync({ makerTokenAddress: tokenAAddress, takerTokenAddress: tokenBAddress });
 ```
 where makerTokenAddress and takerTokenAddress are the addresses from tokenA and tokenB, respectively. Using that, you're specifying which token is the maker and which one is the taker. If you fill both, orders accomplishing with both requirements will be returned (case 1). If you fill only makerTokenAddress, all orders returned will have the maker specified, combining it to other tokens that can be traded with (case 2); if you do not fill any address, all orders will be from tokens that can be traded, token-independent (case 3).
-
-The API GET orders can also be use as described below if you don't want to specify which token is the maker or the taker:
-```
-GET /api/v0/orders?tokenA=&tokenB=
-```
-In this case you are only saying that you want to get orders of tokenA and tokenB, regardless of their order. The return follows the same logic above, but now it's not important which token is the maker or the taker.
 
 Amadeus provides large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. And you should call fillOrder filling your address as taker address to complete the order. 
 
