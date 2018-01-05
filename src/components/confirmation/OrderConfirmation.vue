@@ -63,26 +63,29 @@
 </div>
 </template>
 
-<script>
-import { mapMutations } from 'vuex'
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import { Mutation } from 'vuex-class'
+import { AsyncComputed } from 'vue-async-computed'
 
-export default {
-  name: 'order-confirmation',
-  methods: {
-    ...mapMutations({
-      addCodeLine: 'addCodeLine',
-      updatePageId: 'changePage',
-      cleanCodeContainer: 'cleanCodeLine'
-    }),
-    goToWelcomePage () {
-      this.cleanCodeContainer()
-      this.updatePageId(0)
-    },
-    goToDocumentation () {
-      window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/')
-    }
-  },
-  mounted () {
+@Component
+export default class OrderConfirmation extends Vue {
+  @Mutation addCodeLine
+  @Mutation changePage
+  @Mutation cleanCodeLine
+
+  goToWelcomePage () {
+    this.cleanCodeLine()
+    this.changePage(0)
+  }
+
+  goToDocumentation () {
+    window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/')
+  }
+
+  @AsyncComputed
+  teste () {
+    alert('oi')
   }
 }
 </script>

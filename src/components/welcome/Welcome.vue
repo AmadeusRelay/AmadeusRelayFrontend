@@ -56,39 +56,37 @@
 </div> 
 </template>
 
-<script>
-import { mapMutations } from 'vuex'
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import { Mutation } from 'vuex-class'
 import { MetamaskService } from '../../api'
 
-export default {
-  name: 'welcome',
-  data: function () {
-    return {
-      metamaskInstalled: false,
-      metamaskLogin: false,
-      metamaskNetwork: false
-    }
-  },
-  methods: {
-    ...mapMutations({
-      updatePageId: 'changePage'
-    }),
-    goToTokenPairsPage () {
-      this.updatePageId(1)
-    },
-    goToDocumentation () {
-      window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/')
-    },
-    checkMetamaskIntalled: function () {
-      setInterval(function () {
-        var metamaskService = new MetamaskService()
-        this.metamaskInstalled = metamaskService.checkMetamaskInstalled()
-        this.metamaskLogin = metamaskService.checkMetamaskLoggedIn()
-        this.metamaskNetwork = metamaskService.checkMetamaskNetwork()
-      }.bind(this),
-      200)
-    }
-  },
+@Component
+export default class Welcome extends Vue {
+  metamaskInstalled: boolean = false
+  metamaskLogin: boolean = false
+  metamaskNetwork: boolean = false
+
+  @Mutation changePage
+
+  goToTokenPairsPage () {
+    this.changePage(1)
+  }
+
+  goToDocumentation () {
+    window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/')
+  }
+
+  checkMetamaskIntalled () {
+    setInterval(function () {
+      var metamaskService = new MetamaskService()
+      this.metamaskInstalled = metamaskService.checkMetamaskInstalled()
+      this.metamaskLogin = metamaskService.checkMetamaskLoggedIn()
+      this.metamaskNetwork = metamaskService.checkMetamaskNetwork()
+    }.bind(this),
+    200)
+  }
+
   mounted () {
     this.checkMetamaskIntalled()
   }
