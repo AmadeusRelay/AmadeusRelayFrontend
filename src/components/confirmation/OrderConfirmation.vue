@@ -66,7 +66,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
-import { AsyncComputed } from 'vue-async-computed'
 
 @Component
 export default class OrderConfirmation extends Vue {
@@ -81,11 +80,6 @@ export default class OrderConfirmation extends Vue {
 
   goToDocumentation () {
     window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/')
-  }
-
-  @AsyncComputed
-  teste () {
-    alert('oi')
   }
 }
 </script>
