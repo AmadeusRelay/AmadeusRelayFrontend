@@ -8,10 +8,10 @@
           </div>
           <div class="row">
             <div class="col-md-4">
-              <tokens-list :token='tokenA':tokenAIsSelected='true' @updateToken='updateTokenA'/> 
+              <tokens-list :token='tokenA':tokenAIsSelected='true':which='"Maker"' @updateToken='updateTokenA'/> 
             </div>
             <div class="col-md-4">
-              <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @updateToken='val => tokenB = val'/>
+              <tokens-list :token='tokenB':tokenAIsSelected='tokenA':which='"Taker"' ref="tokenRef" @updateToken='val => tokenB = val'/>
             </div>
           </div> 
           <div class="row">

@@ -87,14 +87,13 @@ export default {
     chooseOrder () {
       if (!this.order.valueRequired || this.order.valueRequired === '') {
         this.setError('You must insert a value')
-        // alert('You must insert a value.');
         return;
       }
       try {
         var value = (new BigNumber(1000000000000000000)).mul(this.order.valueRequired);
         this.$emit('setTakerAmount', value);
       } catch (error) {
-        alert('The value is not valid.');
+        this.setError('The value is not valid.')
         return;
       }
 

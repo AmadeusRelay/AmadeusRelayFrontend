@@ -15,17 +15,17 @@
       <div class="row">
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskInstalled}"></span> Have Metamask installed in your browser
+            <span class="cb-validation" v-bind:class="{'active' : metamaskInstalled, 'inactive' : !metamaskInstalled}"></span> Have Metamask installed in your browser
           </label>
         </div>
         <div class="col-md-12">
         <label>
-          <span class="cb-validation" v-bind:class="{'active' : metamaskLogin}"></span> Login into your Metamask account
+          <span class="cb-validation" v-bind:class="{'active' : metamaskLogin, 'inactive' : !metamaskLogin}"></span> Login into your Metamask account
         </label>
         </div>
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork}"></span> Connect Metamast to Kovan test network
+            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork, 'inactive' : !metamaskNetwork}"></span> Connect Metamast to Kovan test network
           </label>
         </div>       
       </div>
@@ -140,6 +140,10 @@ export default class Welcome extends Vue {
 
 #welcome-section .cb-validation.active{
   background-image: url("../../assets/combined-shape-copy.svg");
+}
+
+#welcome-section .cb-validation.inactive{
+  background-image: url("../../assets/error-x.svg");
 }
 
 #welcome-section label{

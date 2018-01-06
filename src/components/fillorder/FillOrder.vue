@@ -9,7 +9,7 @@
           <div class="row">
             <div class="col-md-12 bottom-space">
               <label>
-                <span class="cb-validation" v-bind:class="{'active' : !needBalance}"></span>
+                <span class="cb-validation" v-bind:class="{'active' : !needBalance, 'inactive' : needBalance}"></span>
                 Have suficient balance
                 <div>
                   <div class='item-details'>Balance: {{balanceAmount}} {{token}}</div>
@@ -18,7 +18,7 @@
             </div>
             <div class="col-md-12 bottom-space">
             <label>
-              <span class="cb-validation" v-bind:class="{'active' : !needToWrapETH}"></span> Convert ETH in WETH
+              <span class="cb-validation" v-bind:class="{'active' : !needToWrapETH, 'inactive' :needToWrapETH}"></span> Convert ETH in WETH
                 <div v-if='token==="ETH"'>
                   <div class='item-details'>Converted: {{convertedAmount}} {{convertedToken}}</div>
                   <a v-if='needToWrapETH && !needBalance' class="btn-action" @click="wrapETH()">Convert</a>
@@ -30,7 +30,7 @@
             </div>
             <div class="col-md-12 bottom-space">
               <label>
-                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance}"></span> Authorize 0x to interact with your funds
+                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance, 'inactive' : needToSetAllowance}"></span> Authorize 0x to interact with your funds
                 <div>
                   <div class='item-details'>Authorized: {{authorizedAmount}} {{convertedToken}}</div>
                   <a v-if='needToSetAllowance' class="btn-action" @click="setAllowance()">Authorize</a>
@@ -238,6 +238,10 @@ export default class FillOrder extends Vue {
 
   #fill-order-section .cb-validation.active{
     background-image: url("../../assets/combined-shape-copy.svg");
+  }
+
+  #fill-order-section .cb-validation.inactive{
+    background-image: url("../../assets/error-x.svg");
   }
 
   #fill-order-section .bottom-space {

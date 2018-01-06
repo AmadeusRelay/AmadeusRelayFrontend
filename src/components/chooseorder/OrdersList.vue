@@ -4,11 +4,11 @@
         <table class="table table-striped table-condensed">
             <thead class="table-order-head">
                 <tr>
-                <th>Transaction</th>
+                <th><tr>Transaction</tr><tr>Maker <i class="fa fa-long-arrow-right" aria-hidden="true"></i> Taker</tr></th>
                 <th>Max Amount</th>
                 <th>Rate</th>
                 <th>Expiration Date</th>
-                <th>Value Required</th>
+                <th>Taker Amount</th>
                 <th></th>
                 </tr>
             </thead>
