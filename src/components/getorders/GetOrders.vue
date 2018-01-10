@@ -8,10 +8,12 @@
           </div>
           <div class="row">
             <div class="col-md-4">
-              <tokens-list :token='tokenA':tokenAIsSelected='true':which='"Maker"' @updateToken='updateTokenA'/> 
+              <label>Maker token (to buy)</label>
+              <tokens-list :token='tokenA':tokenAIsSelected='true' @updateToken='updateTokenA'/> 
             </div>
             <div class="col-md-4">
-              <tokens-list :token='tokenB':tokenAIsSelected='tokenA':which='"Taker"' ref="tokenRef" @updateToken='val => tokenB = val'/>
+              <label>Taker token (to sell)</label>
+              <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @updateToken='val => tokenB = val'/>
             </div>
           </div> 
           <div class="row">
@@ -88,5 +90,10 @@ export default class GetOrders extends Vue {
 
 #get-orders-section .container p b{
     font-weight: 400;
+}
+
+#get-orders-section label{
+    color: #ffffff;
+    font-size: 17px;
 }
 </style>

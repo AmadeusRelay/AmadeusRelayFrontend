@@ -45,7 +45,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToFinalPage()">FILL ORDER
+                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': needBalance || needToWrapETH || needToSetAllowance}">FILL ORDER
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -263,6 +263,11 @@ export default class FillOrder extends Vue {
     text-transform: uppercase;
     font-weight: 500;
     cursor: pointer;
+  }
+
+   #fill-order-section .container a.btn-next-step.inactive{
+    opacity: 0.5;
+    cursor: default;
   }
 
 </style>

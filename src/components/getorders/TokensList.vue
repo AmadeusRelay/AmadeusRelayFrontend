@@ -1,7 +1,7 @@
 <template>
   <div class="form-group">
     <select v-model="tokenSelected" :disabled="!tokenAIsSelected" class="form-control">
-      <option value="">Choose {{which}} Token</option>
+      <option value="">All tokens</option>
       <option v-for="(coin, index) in tokenList" :value="coin" :key="coin">{{ coin }}</option>
     </select>
   </div>
@@ -38,8 +38,6 @@ export default class TokensList extends Vue {
   token: string
   @Prop()
   tokenAIsSelected : boolean
-  @Prop()
-  which: string
 
   @Watch('tokenSelected')
   onPropertyChanged (value: string, oldValue: string) {
