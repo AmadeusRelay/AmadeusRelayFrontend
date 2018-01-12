@@ -11,12 +11,12 @@ export class OrderService {
         this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
     }
 
-    public async listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        var tokenAAddress = tokenA && tokenA !== '' ? await this.zeroXService.getTokenAddress(tokenA) : undefined;
-        var tokenBAddress = tokenB && tokenB != '' ? await this.zeroXService.getTokenAddress(tokenB) : undefined;
+    public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
+        var takerTokenAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
+        var makerTokenAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
 
         return new Promise<Order[]>((resolve, reject) => {
-            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: tokenAAddress, takerTokenAddress: tokenBAddress });
+            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress });
             result.then(orders => {
                 resolve(this.convertOrders(orders));
             });            

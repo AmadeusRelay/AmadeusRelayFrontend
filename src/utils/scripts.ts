@@ -8,8 +8,8 @@ const tokenPairs = await this.httpClient.getTokenPairsAsync();
 `;
     public getOrders : string = `// Load orders
 const orders = await this.httpClient.getOrdersAsync({ 
-    makerTokenAddress: tokenPairs[i].tokenA.address, 
-    takerTokenAddress: tokenPairs[i].tokenB.address });
+    takerTokenAddress: tokenPairs[i].tokenA.address, 
+    makerTokenAddress: tokenPairs[i].tokenB.address });
 `;
     public chooseOrder : string = `// Get order info
 const maxAmount = orders[j].takerTokenAmount.dividedBy(new BigNumber(1000000000000000000));

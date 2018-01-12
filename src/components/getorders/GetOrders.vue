@@ -8,12 +8,12 @@
           </div>
           <div class="row">
             <div class="col-md-4">
-              <label>Maker token (to buy)</label>
-              <tokens-list :token='tokenA':tokenAIsSelected='true' @updateToken='updateTokenA'/> 
+              <label>Taker token (to sell)</label>
+              <tokens-list :token='takerToken':takerTokenIsSelected='true' @updateToken='updateTakerToken'/> 
             </div>
             <div class="col-md-4">
-              <label>Taker token (to sell)</label>
-              <tokens-list :token='tokenB':tokenAIsSelected='tokenA' ref="tokenRef" @updateToken='val => tokenB = val'/>
+              <label>Maker token (to buy)</label>
+              <tokens-list :token='makerToken':takerTokenIsSelected='takerToken' ref="tokenRef" @updateToken='val => makerToken = val'/>
             </div>
           </div> 
           <div class="row">
@@ -39,8 +39,8 @@ import { Scripts } from '../../utils/scripts'
   components: { 'tokens-list': TokensList }
 })
 export default class GetOrders extends Vue {
-  tokenA: string = ''
-  tokenB: string = ''
+  takerToken: string = ''
+  makerToken: string = ''
 
   $refs: {
     tokenRef: TokensList
@@ -54,7 +54,7 @@ export default class GetOrders extends Vue {
   goToChooseOrdersPage () {
     var orderService : OrderService = new OrderService(new ZeroXService());
     this.updateLoadingState(true)
-    orderService.listOrders(this.tokenA, this.tokenB).then(this.onSuccessfullyListOrders);
+    orderService.listOrders(this.takerToken, this.makerToken).then(this.onSuccessfullyListOrders);
   }
 
   onSuccessfullyListOrders (orders: any) {
@@ -63,11 +63,11 @@ export default class GetOrders extends Vue {
     this.changePage(3);
   }
 
-  updateTokenA (value : string) {
-    this.tokenA = value
-    this.$refs.tokenRef.refreshToken(this.tokenA)
-    if (!this.tokenA) {
-      this.tokenB = ''
+  updateTakerToken (value : string) {
+    this.takerToken = value
+    this.$refs.tokenRef.refreshToken(this.takerToken)
+    if (!this.takerToken) {
+      this.makerToken = ''
     }
   }
 

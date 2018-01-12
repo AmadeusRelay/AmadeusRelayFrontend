@@ -1,8 +1,8 @@
 <template>
     <tr class='table-order-item'>
-        <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
+        <td>{{takerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerSymbol}}</td>
         <td>{{maxAmount}}</td>
-        <td>{{rate}} : 1</td>
+        <td>1 : {{rate}}</td>
         <td>{{expiringDate}}</td>
         <td class="order-amount"><input v-model="order.valueRequired"/>
           <p v-if="error" class="error">{{error}}</p>
