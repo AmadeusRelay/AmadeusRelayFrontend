@@ -3,7 +3,7 @@
       <div class="container">
           <div class="row">
             <div class="col-md-12">
-                <p>Our relay provide large signed orders according to the dApp needs, containing the tokens used, fees, amounts, etc. The dApp chooses an order and the amount to exchange.
+                <p>Our relay provides large signed orders according to the dApp needs, containing the tokens used, fees, amounts, etc. The dApp chooses an order and the amount to exchange.
 <br>In our demo Api, the fee is set to 0%.</p>
             </div>
           </div>
