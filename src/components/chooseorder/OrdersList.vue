@@ -78,4 +78,11 @@ export default class OrdersList extends Vue {
   height: -webkit-calc(100vh - 400px);
   height: calc(100vh - 400px);
 }
+
+@media (max-width: 992px){
+  .table-order-head th {
+    padding-top: 15px;
+    font-size: 13px;
+  }
+}
 </style>

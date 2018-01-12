@@ -11,8 +11,8 @@
             <div class="col-md-1"></div>
             <div class="col-md-11">
                 <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-8">
+                    <div class="col-lg-1 col-md-0"></div>
+                    <div class="col-lg-8 col-md-10">
                         <div class="row error">
                             <div class="col-md-1">
                                     <img src="../../assets/error.svg">
@@ -29,14 +29,14 @@
         <br />
         <br />
         <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-11">
+            <div class="col-lg-1 col-md-0"></div>
+            <div class="col-lg-11 col-md-12">
                 <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-3">
+                    <div class="col-lg-2 col-md-1"></div>
+                    <div class="col-lg-3 col-md-4">
                         <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-lg-3 col-md-4">
                         <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToWelcomePage()">RETRY DEMO</button>
                     </div>
                 </div>
@@ -113,4 +113,9 @@ export default class OrderError extends Vue {
   padding: 20px;
 }
 
+@media (max-width: 992px){
+  #order-error-section .container p{
+    font-size: 20px;
+  }
+}
 </style>

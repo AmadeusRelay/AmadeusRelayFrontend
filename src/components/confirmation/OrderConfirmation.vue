@@ -9,9 +9,9 @@
         </div>
         <br />
         <div class="row">
-            <div class="col-md-1">
+            <div class="col-lg-1 col-md-0">
             </div>
-            <div class="col-md-11">
+            <div class="col-ld-11 col-md-12">
                 <div class="row">
                     <div class="col-md-1">
                     </div>
@@ -26,7 +26,7 @@
                             <img class="arrow-left" src="../../assets/arrow-right.svg"/>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-lg-2 col-md-3">
                         <img src="../../assets/logo.svg"/>
                     </div>
                     <div class="col-md-1">
@@ -46,14 +46,14 @@
         <br />
         <br />
         <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-11">
+            <div class="col-lg-1 col-md-0"></div>
+            <div class="col-lg-11 col-md-12">
                 <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-3">
+                    <div class="col-lg-2 col-md-1"></div>
+                    <div class="col-lg-3 col-md-4">
                         <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-lg-3 col-md-4">
                         <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToWelcomePage()">RETRY DEMO</button>
                     </div>
                 </div>
@@ -108,5 +108,11 @@ export default class OrderConfirmation extends Vue {
   height: 18px;
   object-fit: contain;
   transform: rotate(180deg);
+}
+
+@media (max-width: 992px){
+    #order-confirmation-section .container p{
+        font-size: 20px;
+    }
 }
 </style>

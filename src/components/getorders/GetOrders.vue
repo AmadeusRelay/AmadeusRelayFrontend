@@ -96,4 +96,10 @@ export default class GetOrders extends Vue {
     color: #ffffff;
     font-size: 17px;
 }
+
+@media (max-width: 992px){
+  #get-orders-section .container p{
+    font-size: 20px;
+  }
+}
 </style>

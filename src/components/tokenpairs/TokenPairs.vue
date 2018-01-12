@@ -77,4 +77,14 @@ export default class TokenPairs extends Vue {
   cursor: pointer;
   opacity: 0.7;
 }
+
+@media (max-width: 992px){
+  #token-pairs-section .container {
+    padding-top: 25%;
+  }
+
+  #token-pairs-section .container p{
+    font-size: 20px;
+  }
+}
 </style>
