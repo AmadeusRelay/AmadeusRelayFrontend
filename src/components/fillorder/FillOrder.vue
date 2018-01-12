@@ -209,7 +209,7 @@ export default class FillOrder extends Vue {
 
 <style scoped>
   #fill-order-section .container {
-      padding-top: 130px;
+      padding-top: 110px;
       color: white;
   }
 
@@ -270,4 +270,13 @@ export default class FillOrder extends Vue {
     cursor: default;
   }
 
+@media (max-width: 992px){
+  #fill-order-section .container {
+      padding-top: 16%;
+  }
+
+  #fill-order-section .container p{ 
+      font-size: 19px; 
+  } 
+}
 </style>

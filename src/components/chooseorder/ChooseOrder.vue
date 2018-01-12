@@ -64,4 +64,14 @@ export default class ChooseOrder extends Vue {
 #choose-order-section .container p b{
     font-weight: 400;
 }
+
+@media (max-width: 992px){
+  #choose-order-section .container p{
+    font-size: 19px;
+  }
+
+  #choose-order-section .container {
+    padding-top: 20%;
+  }
+}
 </style>

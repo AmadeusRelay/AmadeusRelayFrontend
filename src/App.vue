@@ -9,8 +9,8 @@
             <div class="col-md-4">
               <img id="logo" src="http://amadeusrelay.org/img/logo_nome_transparente.png">
             </div>
-            <div v-if="pageId != 0" class="col-md-8">
-              <div class="col-md-3 pull-right">
+            <div v-if="pageId != 0" class="col-lg-8 col-md-8">
+              <div class="col-lg-3 col-md-5 pull-right">
                 <button class="js-add btn btn-block uppercase" type="button" @click="goToWelcomePage()">Restart</button> 
               </div>
             </div>
@@ -172,5 +172,19 @@ button.btn{
 
 .vue-codemirror {
   height: inherit;
+}
+
+@media (max-width: 992px){
+  #main-section .container-fluid {
+    padding-top: 30px;
+  }
+
+  #main-section .full-container {
+    padding-left: 140px;
+  }
+
+  #main-section .half-container {
+      padding-left: 140px;
+  }
 }
 </style>

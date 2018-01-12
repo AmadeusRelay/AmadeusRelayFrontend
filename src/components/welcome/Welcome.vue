@@ -31,11 +31,11 @@
       </div>
       <br/><br/>
       <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-3">
+        <div class="col-lg-3 col-md-2"></div>
+        <div class="col-lg-3 col-md-4 col-sm-5">
           <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-3 col-md-4 col-sm-5">
           <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToTokenPairsPage()" :disabled="!metamaskInstalled || !metamaskLogin || !metamaskNetwork">LET'S GO!</button>
         </div>
       </div>
@@ -158,5 +158,28 @@ export default class Welcome extends Vue {
   font-size: 16px;
   word-wrap: none;
   word-break: keep-all;
+}
+
+@media (max-width: 992px){
+  #welcome-section label{
+    width: 70%;
+    font-size: 17px;
+  }
+
+  #welcome-section .container {
+    padding-top: 40px;
+  }
+
+  #welcome-section p.subtitle {
+    font-size: 17px;
+  }
+
+  #welcome-section .foot-text{
+    font-size: 15px;
+  }
+
+  #welcome-section .line{
+    margin-top: 40px;
+  }
 }
 </style>

@@ -165,4 +165,22 @@ export default {
     opacity: 0.9;
     font-size: 13px;
   }
+
+  @media (max-width: 992px){
+    .table-order-item td {
+      font-size: 12px;
+    }
+
+    a.btn-next-step-small, a:hover.btn-next-step-small{
+      font-size: 12px;
+    }
+
+    p.error{
+      font-size: 11px;
+    }
+
+    .order-amount input{
+      font-size: 11px;
+    }
+  }
 </style>
