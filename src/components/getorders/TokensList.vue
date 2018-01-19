@@ -1,6 +1,6 @@
 <template>
   <div class="form-group">
-    <select v-model="tokenSelected" :disabled="!takerTokenIsSelected" class="form-control">
+    <select v-model="tokenSelected" class="form-control">
       <option value="">All tokens</option>
       <option v-for="(coin, index) in tokenList" :value="coin" :key="coin">{{ coin }}</option>
     </select>
@@ -19,16 +19,18 @@ export default class TokensList extends Vue {
   @Getter getTokenPairs
 
   mounted () {
-    if (this.takerTokenIsSelected) {
-      this.refreshToken('')
-    }
+    this.refreshToken('', null)
     this.tokenSelected = this.token;
   }
 
-  refreshToken (takerTokenSelected) {
+  refreshToken (tokenSelected, takerIsSelected) {
     var tokens = this.getTokenPairs
-    if (takerTokenSelected) {
-      this.tokenList = tokens.filter(a => a.tokenASymbol === takerTokenSelected).map(i => i.tokenBSymbol)
+    if (tokenSelected) {
+      if (takerIsSelected) {
+        this.tokenList = tokens.filter(a => a.tokenASymbol === tokenSelected).map(i => i.tokenBSymbol)
+      } else {
+        this.tokenList = tokens.filter(a => a.tokenBSymbol === tokenSelected).map(i => i.tokenASymbol)
+      }
     } else {
       this.tokenList = tokens.map(i => i.tokenASymbol).filter((item, pos, arr) => arr.indexOf(item) === pos)
     }
@@ -37,7 +39,6 @@ export default class TokensList extends Vue {
   @Prop()
   token: string
   @Prop()
-  takerTokenIsSelected : boolean
 
   @Watch('tokenSelected')
   onPropertyChanged (value: string, oldValue: string) {

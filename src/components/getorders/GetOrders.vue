@@ -9,11 +9,11 @@
           <div class="row">
             <div class="col-md-4">
               <label>Taker token (to sell)</label>
-              <tokens-list :token='takerToken':takerTokenIsSelected='true' @updateToken='updateTakerToken'/> 
+              <tokens-list :token='takerToken' ref='takerTokenRef' @updateToken='updateTakerToken'/> 
             </div>
             <div class="col-md-4">
               <label>Maker token (to buy)</label>
-              <tokens-list :token='makerToken':takerTokenIsSelected='takerToken' ref="tokenRef" @updateToken='val => makerToken = val'/>
+              <tokens-list :token='makerToken' ref="makerTokenRef" @updateToken='updateMakerToken'/>
             </div>
           </div> 
           <div class="row">
@@ -43,7 +43,8 @@ export default class GetOrders extends Vue {
   makerToken: string = ''
 
   $refs: {
-    tokenRef: TokensList
+    makerTokenRef: TokensList,
+    takerTokenRef: TokensList
   }
 
   @Mutation addCodeLine
@@ -65,10 +66,12 @@ export default class GetOrders extends Vue {
 
   updateTakerToken (value : string) {
     this.takerToken = value
-    this.$refs.tokenRef.refreshToken(this.takerToken)
-    if (!this.takerToken) {
-      this.makerToken = ''
-    }
+    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
+  }
+
+  updateMakerToken (value : string) {
+    this.makerToken = value
+    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
   }
 
   mounted () {
