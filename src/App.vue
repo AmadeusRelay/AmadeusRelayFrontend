@@ -29,8 +29,6 @@
     </div>
 </template>
 
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-108007037-3"></script>
 <script>
 import { mapState, mapMutations } from 'vuex'
 import Welcome from './components/welcome/Welcome.vue'
@@ -66,16 +64,7 @@ export default {
     goToWelcomePage () {
       this.cleanCodeContainer()
       this.updatePageId(0)
-    },
-    gtag () {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(arguments);
     }
-  },
-  mounted: function () {
-    this.gtag('js', new Date());
-
-    this.gtag('config', 'UA-108007037-3');
   },
   watch: {
     code () {
