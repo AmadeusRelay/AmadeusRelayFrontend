@@ -2,19 +2,78 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Amadeus Relay</title>
+    <title>Amadeus Relay Demo</title>
     <link rel="icon" href="http://amadeusrelay.org/img/logo_circulo.png">
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+    </div>
     <!-- built files will be auto injected -->
   </body>
 </html>
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-108007037-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-108007037-3');
+</script>
+
 <style>
-  html, body {
-    margin: 0;
-    height: 100%;
-    background: url(http://amadeusrelay.org/img/waves.jpg)repeat;
+  body{
+    font-family: 'Lato';
+  }
+
+  button{
+    cursor: pointer;
+  }
+
+  button:disabled{
+    cursor: default;
+  }
+
+  .btn-documentation{
+    background-color: transparent;
+    border: solid 1px #ffffff;
+  }
+
+  .btn-start-demo{
+    background-color: #76729f;
+    border: solid 1px #76729f;
+  }
+
+  .btn-documentation,
+  .btn-start-demo{
+    border-radius: 4px;
+    height: 45px;
+    color: white;
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  .container a.btn-next-step{
+    font-size: 22px;
+    color: #ff6c72;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .container a.btn-next-step:hover{
+    color: #ff6c72;
+  }
+
+@media (max-width: 992px){
+  .btn-documentation,
+  .btn-start-demo{
+    font-size: 15px;
+  }  
+
+  .container a.btn-next-step{
+    font-size: 20px;
+  }
 }
 </style>

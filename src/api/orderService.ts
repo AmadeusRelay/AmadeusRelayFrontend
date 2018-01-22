@@ -1,186 +1,79 @@
-import { Order } from "../model/order";
-import { TokenInfo } from "../model/tokenInfo";
-import Vue from 'vue'
-import axios from 'axios';
-import { BigNumber } from 'bignumber.js';
-import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
-declare var web3;
+import {HttpClient, TokenPairsItem} from '@0xproject/connect';
+import { Order } from '../model/order';
+import { SignedOrder } from '0x.js';
+import { TokenPair } from '../model/tokenPair';
+import { ZeroXService } from './zeroXService';
 
 export class OrderService {
-    private zeroEx: ZeroEx;
+    private httpClient: HttpClient;
 
-    public constructor() {
-        this.zeroEx = new ZeroEx(web3.currentProvider);
+    public constructor(private zeroXService: ZeroXService) {
+        this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
     }
 
-    public async listOrders(tokenA?: string, tokenB?: string): Promise<Order[]> {
-        var tokenAAddress = await this.getTokenAddress(tokenA);
-        var tokenBAddress = await this.getTokenAddress(tokenB);
-        
-//        return this.getDataFromApi('http://' + process.env.AMADEUS_SERVER_HOSTNAME + ':' + process.env.AMADEUS_SERVER_PORT + '/api/v0/orders?makerTokenAddress=' + tokenA + "&takerTokenAddress=" + tokenBAddress.address, {}).then((response) => this.successGetOrder(response)); 
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/orders?makerTokenAddress=' + tokenAAddress + "&takerTokenAddress=" + tokenBAddress, {}).then((response) => this.successGetOrder(response));
+    public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
+        var takerTokenAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
+        var makerTokenAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
+
+        return new Promise<Order[]>((resolve, reject) => {
+            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress });
+            result.then(orders => {
+                resolve(this.convertOrders(orders));
+            });            
+        });
+
+    }
+    
+    public async getTokenPairs() : Promise<TokenPair[]> {
+        return new Promise<TokenPair[]>((resolve, reject) => {
+            const result: Promise<TokenPairsItem[]> = this.httpClient.getTokenPairsAsync();
+            result.then(pairs => {
+                resolve(this.convertTokenPairs(pairs));
+            });            
+        });
     }
 
-    public async checkMetamaskNetWork() {
-        let message = null
-        if (typeof web3 != 'undefined' && web3.currentProvider.isMetaMask === true) {
-            await web3.eth.getAccounts((err, accounts) => {
-                if (accounts.length == 0){
-                    alert("Please, login to MetaMask")
-                } 
-                else{
-                    web3.version.getNetwork((error, network) => {
-                        if(network != "42"){
-                            if(network == "1"){
-                                alert("You are connected to the mainnet, switch do the Kovan network to try this demo!")
-                            }
-                            else if(network == "3"){
-                                alert("You are connected to ropsten test network, switch do the Kovan network to try this demo!")
-                            }
-                            else {
-                                alert("Please connect to the Kovan network to try this demo!")
-                            }
-                        }
-                    });
-                } 
-            });
-        }
-        else {
-            alert('No web3? You should consider trying MetaMask!')
-        }
-    }
-
-    public async ensureAllowance(amount: BigNumber, tokenAddress: string) {
-        var takerAddress: string = web3.eth.coinbase
-        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
-        if (alowancedValue.comparedTo(amount) < 0) {
-            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, takerAddress);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
-        }
-    }
-
-    public async fillOrder(order: Order, takerAmount: BigNumber): Promise<any> {
-        var takerAddress: string = web3.eth.coinbase
-        
-        await this.wrapETH(takerAmount, takerAddress)
-        this.ensureAllowance(takerAmount, order.takerTokenAddress)
-
-        const txHash : string = await this.zeroEx.exchange.fillOrderAsync(this.convertToSignedOrder(order), takerAmount, true, takerAddress);
-        return this.zeroEx.awaitTransactionMinedAsync(txHash);
-    }
-
-    public async getTokenPairs(tokenA : string) : Promise<string[]> {
-        if (tokenA === "ETH") tokenA = "WETH";
-
-        return this.getDataFromApi('http://' + 'api.amadeusrelay.org' + '/api/v0/token_pairs?tokenA=' + tokenA, {}).then((response) => this.successGetTokenPair(response, tokenA));
-    }
-
-    public async getTokenSymbol(tokenAddress: string) :  Promise<string> {
-        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
-        if (tokenReceived == null) return null;
-        if (tokenReceived.symbol === 'WETH') return 'ETH'
-        return tokenReceived.symbol;
-    }
-
-    private async wrapETH(amount: BigNumber, address: string): Promise<void> {
-        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address))
-
-        if (!tokenReceived || tokenReceived.symbol != "ETH") return
-
-        const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
-        if (balance.lessThan(amount)) {
-            const tx = await this.zeroEx.etherToken.depositAsync(amount.minus(balance), address);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
-        }
-    }
-
-    private successGetOrder(response) : any{
-        return this.convertOrders(response);
-    }
-
-    private successGetTokenPair(response: any, tokenA: string) : any {
-        return this.convertTokenPairs(response, tokenA);
-    }  
-
-    private convertOrders(response: any) :  Order[]
+    private convertOrders(signedOrders: SignedOrder[]) :  Order[]
     {
         let orders: Order[] = new Array();
-        response.data.forEach((responseOrder) => {
+        signedOrders.forEach((signedOrder) => {
             orders.push({
-                maker: responseOrder.maker,
-                taker: responseOrder.taker,
-                makerFee: responseOrder.makerFee,
-                takerFee: responseOrder.takerFee,
-                makerTokenAmount: responseOrder.makerTokenAmount,
-                takerTokenAmount: responseOrder.takerTokenAmount,
-                makerTokenAddress: responseOrder.makerTokenAddress,
-                takerTokenAddress: responseOrder.takerTokenAddress,
-                ecSignature: responseOrder.ecSignature,
-                exchangeContractAddress: responseOrder.exchangeContractAddress,
-                expirationUnixTimestampSec: responseOrder.expirationUnixTimestampSec,
-                feeRecipient: responseOrder.feeRecipient,
-                salt: responseOrder.salt,
+                maker: signedOrder.maker,
+                taker: signedOrder.taker,
+                makerFee: signedOrder.makerFee.toString(),
+                takerFee: signedOrder.takerFee.toString(),
+                makerTokenAmount: signedOrder.makerTokenAmount.toString(),
+                takerTokenAmount: signedOrder.takerTokenAmount.toString(),
+                makerTokenAddress: signedOrder.makerTokenAddress,
+                takerTokenAddress: signedOrder.takerTokenAddress,
+                ecSignature: signedOrder.ecSignature,
+                exchangeContractAddress: signedOrder.exchangeContractAddress,
+                expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec.toString(),
+                feeRecipient: signedOrder.feeRecipient,
+                salt: signedOrder.salt.toString(),
                 valueRequired: ''
             });
         });
         return orders;
     }
 
-    private async convertTokenPairs(response: any, tokenA: string) :  Promise<string[]> {
-        let tokens: string[] = new Array();
-        for (let responseToken of response.data) {
-            if (!response.data) continue
+    private async convertTokenPairs(pairs: TokenPairsItem[]) :  Promise<TokenPair[]> {
+        let tokens: TokenPair[] = new Array();
+        for (let pair of pairs) {
 
-            let tokenAddress = responseToken.tokenA.address;
-            if (tokenA) {
-                tokenAddress = responseToken.tokenB.address;
-            }  
+            var tokenASymbol = await this.zeroXService.getTokenSymbol(pair.tokenA.address);
+            var tokenBSymbol = await this.zeroXService.getTokenSymbol(pair.tokenB.address);
 
-            let symbol = await this.getTokenSymbol(tokenAddress);
-            if(symbol != null && tokens.indexOf(symbol) <= -1){
-                tokens.push(symbol);
+            if (tokenASymbol && tokenBSymbol)
+            {
+                let tokenPair : TokenPair = {
+                    tokenASymbol: tokenASymbol,
+                    tokenBSymbol: tokenBSymbol
+                };
+    
+                tokens.push(tokenPair);
             }
         }
         return tokens;
-    }
-
-    private convertToSignedOrder(order: Order) :  SignedOrder
-    {
-        var signedOrder : SignedOrder = {
-                maker: order.maker,
-                taker: order.taker,
-                makerFee: new BigNumber(order.makerFee),
-                takerFee: new BigNumber(order.takerFee),
-                makerTokenAmount: new BigNumber(order.makerTokenAmount),
-                takerTokenAmount: new BigNumber(order.takerTokenAmount),
-                makerTokenAddress: order.makerTokenAddress,
-                takerTokenAddress: order.takerTokenAddress,
-                ecSignature: order.ecSignature,
-                salt: new BigNumber(order.salt),
-                exchangeContractAddress: order.exchangeContractAddress,
-                expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
-                feeRecipient: order.feeRecipient
-            };
-        return signedOrder;
-    }
-
-    private async getTokenAddress(symbol: string) : Promise<string> {
-        if (symbol === "ETH") return await this.zeroEx.etherToken.getContractAddressAsync();
-
-        var token : Token = await this.getToken(symbol);
-
-        if (token) { return token.address; }
-
-        return "";
-    }
-
-    private async getToken(symbol: string) : Promise<Token> {
-        return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
-    }
-
-    private getDataFromApi (path: string, params: any) :  Promise<any> {
-        return axios.get(path, {
-            params: params
-        })
     }
 }

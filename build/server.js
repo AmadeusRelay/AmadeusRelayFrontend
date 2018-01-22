@@ -8,6 +8,17 @@ const path = require('path');
 console.log(config.build.index);
 router.get('/', (req, res, next) => { res.sendFile(config.build.index)});
 
+app.get('*/vendor*.js', function (req, res, next) {
+  req.url = req.url + '.gz';
+  res.set('Content-Encoding', 'gzip');
+  next();
+});
+
+app.get('*/app*.js', function (req, res, next) {
+  req.url = req.url + '.gz';
+  res.set('Content-Encoding', 'gzip');
+  next();
+});
 
 /* serves all the static files */
 router.get('/static/*', (req, res, next) => { 
