@@ -9,7 +9,7 @@
       <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-10">
-          <p class="subtitle">In this demo we will walk you through how our API works and how you can integrate it with your dApp. In order to properly use all its funcionalities, you need to:</p>
+          <p class="subtitle">In this demo we will walk you through how our API works and how you can integrate it with your dApp. In order to properly use all its functionalities, you need to:</p>
         </div>
       </div>
       <div class="row">
@@ -20,12 +20,12 @@
         </div>
         <div class="col-md-12">
         <label>
-          <span class="cb-validation" v-bind:class="{'active' : metamaskLogin, 'inactive' : !metamaskLogin}"></span> Login into your Metamask account
+          <span class="cb-validation" v-bind:class="{'active' : metamaskLogin, 'inactive' : !metamaskLogin}"></span> Login to your Metamask account
         </label>
         </div>
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork, 'inactive' : !metamaskNetwork}"></span> Connect Metamast to Kovan test network
+            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork, 'inactive' : !metamaskNetwork}"></span> Connect Metamask to Kovan test network
           </label>
         </div>       
       </div>
