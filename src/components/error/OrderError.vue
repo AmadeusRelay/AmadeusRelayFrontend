@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <p>We are sorry but your operation could not be completed because the following error has ocurred:</p>
+                <p>We are sorry but your operation could not be completed because the following error has occurred:</p>
             </div>
         </div>
         <br />
@@ -66,7 +66,7 @@ export default class OrderError extends Vue {
 
   setErrorDetails () {
     if (this.errorMessage === 'ORDER_FILL_EXPIRED') {
-      this.errorDetails = "The order created by Amadeus Relay expired, because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.";
+      this.errorDetails = "The order created by Amadeus Relay expired because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.";
     } else if (this.errorMessage === 'INSUFFICIENT_TAKER_ALLOWANCE') {
       this.errorDetails = "You haven't allowed 0x to interact with your funds or allowed a lower quantity than you want to exchange.";
     } else if (this.errorMessage === 'INSUFFICIENT_TAKER_BALANCE') {
