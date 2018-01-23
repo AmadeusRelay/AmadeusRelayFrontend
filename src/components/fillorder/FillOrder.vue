@@ -10,7 +10,7 @@
             <div class="col-md-12 bottom-space">
               <label>
                 <span class="cb-validation" v-bind:class="{'active' : !needBalance, 'inactive' : needBalance}"></span>
-                Have suficient balance
+                Have sufficient balance
                 <div>
                   <div class='item-details'>Balance: {{balanceAmount}} {{token}}</div>
                 </div>
@@ -24,7 +24,7 @@
                   <a v-if='needToWrapETH && !needBalance' class="btn-action" @click="wrapETH()">Convert</a>
                 </div>
                 <div v-if='token!=="ETH"'>
-                  <div class='item-details'>The convertion is only applied to ETH token</div>
+                  <div class='item-details'>The conversion is only applied to ETH token</div>
                 </div>
             </label>
             </div>
