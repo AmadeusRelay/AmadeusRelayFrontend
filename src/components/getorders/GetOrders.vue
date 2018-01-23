@@ -3,7 +3,7 @@
       <div class="container">
           <div class="row">
             <div class="col-md-12">
-                <p>Amadeus returns an array of tokens, combined in pairs. Then the dApp choose which tokens to trade using end point <b>GET orders</b>.</p>
+                <p>Amadeus returns an array of tokens, combined in pairs. Then the dApp choose which tokens to trade using endpoint <b>GET orders</b>.</p>
             </div>
           </div>
           <div class="row">
