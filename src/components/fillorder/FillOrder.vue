@@ -110,7 +110,7 @@ export default class FillOrder extends Vue {
     this.order = this.getSelectedOrder;
     this.amount = this.getTakerAmount;
     this.zeroXService.getTokenSymbol(this.order.takerTokenAddress).then(symbol => this.setToken(symbol));
-    this.addCodeLine(new Scripts().fillOrder)
+    this.addCodeLine(new Scripts().fillOrder);
   }
 
   setToken (symbol: string) {

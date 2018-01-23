@@ -1,6 +1,6 @@
 <template>
     <div id="main-section" ref="mainsection">
-      <div class="container-fluid" v-bind:class="{'full-container': pageId == 0, 'half-container': pageId != 0}">
+      <div class="container-fluid" ref="container" v-bind:class="{'full-container': pageId == 0, 'half-container': pageId != 0}">
         <div v-if="pageId != 0" class="nav-container">
           <span v-for="n in 5" class="nav-state" v-bind:class="{'active': pageId && pageId == n}"></span>
         </div>
@@ -25,7 +25,9 @@
         <order-confirmation v-if="pageId == 5"></order-confirmation>
         <order-error v-if="pageId == 6"></order-error>
       </div>
-      <codemirror v-if="pageId != 0" ref="myCm" v-model="code"></codemirror>
+      <div class="code-container" v-if="pageId != 0">
+        <codemirror v-if="pageId != 0" ref="myCm" v-model="code"></codemirror>
+      </div>
     </div>
 </template>
 
@@ -68,7 +70,8 @@ export default {
   },
   watch: {
     code () {
-      this.$refs.myCm.codemirror.setSize('auto', '100%')
+      var height = this.$refs.container.clientHeight;
+      this.$refs.myCm.codemirror.setSize('auto', height)
     }
   }
 }
@@ -78,12 +81,8 @@ export default {
 @import '../node_modules/lato-font/css/lato-font.css';
 
 #main-section{
-  background-image: linear-gradient(to bottom, #433c7f, #2f295f);
-  background-size: cover;
-  height: 100vh;
-  overflow: hidden;
+  max-height: 400px;
 }
-
 #main-section .container-fluid {
     padding-top: 45px;
 }
@@ -91,19 +90,28 @@ export default {
 #main-section .full-container {
     width: 100%;
     padding-left: 160px;
+    min-height: 100vh;
+    height: auto;
+    background-image: linear-gradient(to bottom, #433c7f, #2f295f);
+    background-size: cover;
 }
 
 #main-section .half-container {
     width: 75%;
     padding-left: 160px;
     float: left;
+    min-height: 100vh;
+    height: 100%;
+    background-image: linear-gradient(to bottom, #433c7f, #2f295f);
+    background-size: cover;
 }
 
 #main-section .code-container {
     width: 25%;
     background-color: #26204a;
     box-shadow: inset 2px 1px 10px 0 rgba(35, 31, 32, 0.4);
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     float: right;
 }
 
