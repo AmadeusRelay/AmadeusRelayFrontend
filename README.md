@@ -210,7 +210,7 @@ The awaitTransactionMinedAsync function shows that the program have to wait the 
 In order to make sure that your exchange was successful and no errors happened in fillOrder command, you can check it in your Metamask if you're using it, and see that the quantities of the tokens chosen to be exchanged have changed. You can consult the transaction using [Etherscan](https://kovan.etherscan.io/) as well.  
 
 However some errors can occur, for example:
-- ORDER_EXPIRED: The order created by Amadeus Relay expired, because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.
+- ORDER_EXPIRED: The order created by Amadeus Relay expired because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.
 - INSUFFICIENT_TAKER_ALLOWANCE: You haven't allowed 0x to interact with your funds or allowed a lower quantity than you want to exchange.
 - INSUFFICIENT_TAKER_BALANCE: Your wallet does not have the tokens' quantity that you want to trade.
 
