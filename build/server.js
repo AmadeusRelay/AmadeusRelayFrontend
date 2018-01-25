@@ -11,12 +11,14 @@ router.get('/', (req, res, next) => { res.sendFile(config.build.index)});
 app.get('*/vendor*.js', function (req, res, next) {
   req.url = req.url + '.gz';
   res.set('Content-Encoding', 'gzip');
+  res.set('Content-Type', 'text/javascript');
   next();
 });
 
 app.get('*/app*.js', function (req, res, next) {
   req.url = req.url + '.gz';
   res.set('Content-Encoding', 'gzip');
+  res.set('Content-Type', 'text/javascript');
   next();
 });
 
