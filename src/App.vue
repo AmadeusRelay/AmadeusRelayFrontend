@@ -7,7 +7,7 @@
         <div class="col-md-12">
           <div class="row">
             <div class="col-md-4">
-              <img id="logo" src="http://amadeusrelay.org/img/logo_nome_transparente.png">
+              <img id="logo" src="./assets/logo_amadeus.png">
             </div>
             <div v-if="pageId != 0" class="col-lg-8 col-md-8">
               <div class="col-lg-3 col-md-5 pull-right">
