@@ -2,7 +2,7 @@
 
 This is the documentation created by Amadeus' team for dApps to learn how to interact with our API. Below you will find a user guide on how to consume it, but if you have any doubts feel free to contact us at team@amadeusrelay.org. 
 
-Take a look on our API on [Amadeus Relay API Docs](http://api.amadeusrelay.org/api-docs/)
+Take a look on our API on [Amadeus Relay API Docs](https://api.amadeusrelay.org/api-docs/)
 
 ### Considerations
 
@@ -37,7 +37,7 @@ import {HttpClient} from '@0xproject/connect';
 ```
 and instantiate a new HttpClient instance with Amadeus Relay url
 ```
-this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
+this.httpClient = new HttpClient('https://api.amadeusrelay.org/api');
 ``` 
 
 ### STEP 1: GET token_pairs
