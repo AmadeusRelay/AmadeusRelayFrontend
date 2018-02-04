@@ -1,7 +1,7 @@
 export class Scripts {
     public getTokenPairs : string = `// Connect to Amadeus Relay, using 0xConnect
 import {HttpClient} from '@0xproject/connect';
-this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
+this.httpClient = new HttpClient('https://api.amadeusrelay.org/api');
 
 // Load token pairs
 const tokenPairs = await this.httpClient.getTokenPairsAsync();

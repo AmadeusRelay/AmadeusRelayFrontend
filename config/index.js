@@ -19,7 +19,20 @@ module.exports = {
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
     // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report
+    bundleAnalyzerReport: process.env.npm_config_report,
+    http: {
+      use: true,
+      port: 8080
+    },
+    https: {
+      use: true,
+      port: 8081
+    },
+    DNSValidator: {
+      use: false,
+      path: '/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU',
+      response: 'BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM'
+    }
   },
   dev: {
     env: require('./dev.env'),
