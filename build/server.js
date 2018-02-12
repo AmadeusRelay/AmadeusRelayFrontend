@@ -6,20 +6,20 @@ const fs = require('fs');
 
 console.log(config.build.index);
 
+var expressServerHttp = express();
 if (config.build.http.use) {
-  var expressServerHttp = express();
-
   configureServer(expressServerHttp);
-
-  var port = config.build.http.port;
-  console.log('App running on port', port);
-
-  if (config.build.DNSValidator.use) {
-    configureDNSValidator(expressServerHttp);
-  }
-
-  expressServerHttp.listen(port);
+} else {
+  configureRedirect(expressServerHttp);
 }
+
+if (config.build.DNSValidator.use) {
+  configureDNSValidator(expressServerHttp);
+}
+
+var port = config.build.http.port;
+console.log('App running on port', port);
+expressServerHttp.listen(port);
 
 if (config.build.https.use) {
   var expressServerHttps = express();
@@ -65,5 +65,17 @@ function configureServer(app) {
 function configureDNSValidator(app) {
   app.get(config.build.DNSValidator.path, function(req, res) {
       res.send(config.build.DNSValidator.response);
+  });
+}
+
+function configureRedirect(app) {
+  app.get('*', (req, res) => {
+      var httpPort = ':' + config.build.http.port;
+      var httpsPort = ':' + config.build.https.port;
+      var host = req.headers.host;
+      if (req.headers.host.toString().indexOf(httpPort) > - 1) {
+          host = host.toString().replace(httpPort, httpsPort);
+      }
+      res.redirect('https://' + host + req.url);
   });
 }
