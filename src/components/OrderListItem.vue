@@ -3,6 +3,7 @@
         <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
         <td>{{maxAmount}}</td>
         <td>{{rate}} : 1</td>
+        <td>{{fee}}</td>
         <td>{{expiringDate}}</td>
         <td><input v-model="order.valueRequired"/></td>
         <td><a @click="fillOrder()" class="btn btn-link">Fill Order!</a></td>
@@ -30,6 +31,9 @@ export default {
     },
     rate: function () {
       return this.getRate()
+    },
+    fee: function () {
+      return this.takerFee
     }
   },
   asyncComputed: {

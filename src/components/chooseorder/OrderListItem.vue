@@ -3,6 +3,7 @@
         <td>{{takerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerSymbol}}</td>
         <td>{{maxAmount}}</td>
         <td>1 : {{rate}}</td>
+        <td>{{fee}}</td>
         <td>{{expiringDate}}</td>
         <td class="order-amount"><input v-model="order.valueRequired"/>
           <p v-if="error" class="error">{{error}}</p>
@@ -39,6 +40,9 @@ export default {
     },
     rate: function () {
       return this.getRate()
+    },
+    fee: function () {
+      return this.getFee()
     },
     value: function () {
       return this.order.valueRequired
@@ -83,6 +87,12 @@ export default {
       var conv = new BigNumber(1000000000000000000)
       BigNumber.set({ DECIMAL_PLACES: 5 })
       return makerAmount.dividedBy(conv).toFormat()
+    },
+    getFee () {
+      var fee = new BigNumber(this.order.takerFee)
+      var conv = new BigNumber(1000000000000000000)
+      BigNumber.set({ DECIMAL_PLACES: 5 })
+      return fee.dividedBy(conv).toFormat()
     },
     chooseOrder () {
       if (!this.order.valueRequired || this.order.valueRequired === '') {
