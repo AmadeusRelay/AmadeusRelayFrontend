@@ -9,10 +9,13 @@
           <div class="row">
             <div class="col-md-12 bottom-space">
               <label>
-                <span class="cb-validation" v-bind:class="{'active' : !needBalance, 'inactive' : needBalance}"></span>
-                Have sufficient balance
+                <span class="cb-validation" v-bind:class="{'active' : !needBalance && !needFeeBalance, 'inactive' : needBalance || needFeeBalance }"></span>
+                Have sufficient balances
                 <div>
                   <div class='item-details'>Balance: {{balanceAmount}} {{token}}</div>
+                </div>
+                <div>
+                  <div class='item-details'>ZRX Balance: {{feeBalanceAmount}} ZRX</div>
                 </div>
               </label>
             </div>
@@ -30,10 +33,14 @@
             </div>
             <div class="col-md-12 bottom-space">
               <label>
-                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance, 'inactive' : needToSetAllowance}"></span> Authorize 0x to interact with your funds
+                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance && !needToSetFeeAllowance, 'inactive' : needToSetAllowance || needToSetFeeAllowance}"></span> Authorize 0x to interact with your funds
                 <div>
                   <div class='item-details'>Authorized: {{authorizedAmount}} {{convertedToken}}</div>
                   <a v-if='needToSetAllowance' class="btn-action" @click="setAllowance()">Authorize</a>
+                </div>
+                <div>
+                <div class='item-details'>Authorized: {{authorizedZrxAmount}} ZRX</div>
+                  <a v-if='needToSetFeeAllowance' class="btn-action" @click="setFeeAllowance()">Authorize</a>
                 </div>
               </label>
             </div>       
@@ -45,7 +52,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': needBalance || needToWrapETH || needToSetAllowance}">FILL ORDER
+                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': needBalance || needToWrapETH || needToSetAllowance || needFeeBalance || needToSetFeeAllowance}">FILL ORDER
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -67,17 +74,22 @@ import { Scripts } from '../../utils/scripts'
 export default class FillOrder extends Vue {
   needToWrapETH: boolean = true
   needToSetAllowance: boolean = true
+  needToSetFeeAllowance: boolean = true
   needBalance: boolean = true;
+  needFeeBalance: boolean = true;
   token: string = '';
   convertedToken: string = '';
   balanceAmount: string = '';
+  feeBalanceAmount: string = '0';
   convertedAmount: string = '';
   authorizedAmount: string = '';
+  authorizedZrxAmount: string = '';
   order: Order;
   amount: BigNumber = new BigNumber(0);
   zeroXService: ZeroXService;
   isWrapping: boolean = false;
   isAuthorizing: boolean = false;
+  isAuthorizingFee: boolean = false;
   isFilling: boolean = false;
 
   @Getter getSelectedOrder
@@ -88,7 +100,7 @@ export default class FillOrder extends Vue {
   @Mutation updateLoadingState
 
   goToFinalPage () {
-    if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling) {
+    if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling || this.needFeeBalance || this.needToSetFeeAllowance) {
       return;
     }
     this.isFilling = true;
@@ -123,7 +135,9 @@ export default class FillOrder extends Vue {
       this.convertedToken = symbol;
     }
     this.isNecessaryToCheckBalance();
+    this.isNecessaryToCheckFeeBalance();
     this.isNecessaryToSetAllowance();
+    this.isNecessaryToSetFeeAllowance();
   }
 
   isNecessaryToCheckBalance () {
@@ -139,6 +153,10 @@ export default class FillOrder extends Vue {
     }
   }
 
+  isNecessaryToCheckFeeBalance () {
+    this.zeroXService.getBalance('0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570', this.zeroXService.getCoinBase()).then(amount => this.checkNecessaryFeeBalance(amount));
+  }
+
   isNecessaryToWrapETH () {
     this.zeroXService.isNecessaryToWrapETH(this.amount, this.order.takerTokenAddress).then(this.checkNecessaryToWrapETH);
   }
@@ -147,11 +165,23 @@ export default class FillOrder extends Vue {
     this.zeroXService.isNecessaryToSetAllowance(this.amount, this.order.takerTokenAddress).then(this.checkNecessaryToSetAllowance);
   }
 
+  isNecessaryToSetFeeAllowance () {
+    this.zeroXService.isNecessaryToSetAllowance(new BigNumber(this.order.takerFee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(this.checkNecessaryToSetFeeAllowance);
+  }
+
   checkNecessaryBalance (amount: BigNumber) {
     this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
     this.needBalance = !amount.greaterThan(this.amount);
     if (this.needBalance) {
       setTimeout(() => this.isNecessaryToCheckBalance(), 1000);
+    }
+  }
+
+  checkNecessaryFeeBalance (fee: BigNumber) {
+    this.feeBalanceAmount = fee.dividedBy(1000000000000000000).toFormat();
+    this.needFeeBalance = !fee.greaterThan(this.order.takerFee);
+    if (this.needFeeBalance) {
+      setTimeout(() => this.isNecessaryToCheckFeeBalance(), 1000);
     }
   }
 
@@ -168,6 +198,14 @@ export default class FillOrder extends Vue {
     this.authorizedAmount = result.currentAllowance.dividedBy(1000000000000000000).toFormat();
     if (this.needToSetAllowance) {
       setTimeout(() => this.isNecessaryToSetAllowance(), 2000);
+    }
+  }
+
+  checkNecessaryToSetFeeAllowance (result) {
+    this.needToSetFeeAllowance = result.needAllowance;
+    this.authorizedZrxAmount = result.currentAllowance.dividedBy(1000000000000000000).toFormat();
+    if (this.needToSetFeeAllowance) {
+      setTimeout(() => this.isNecessaryToSetFeeAllowance(), 2000);
     }
   }
 
@@ -204,12 +242,29 @@ export default class FillOrder extends Vue {
       return e;
     });
   }
+
+  setFeeAllowance () {
+    if (this.isAuthorizingFee) {
+      return;
+    }
+    this.isAuthorizingFee = true;
+    this.updateLoadingState(true);
+    this.zeroXService.ensureAllowance(new BigNumber(this.order.takerFee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
+      this.isNecessaryToSetFeeAllowance();
+      this.updateLoadingState(false);
+      this.isAuthorizingFee = false;
+    }).catch((e) => {
+      this.isAuthorizingFee = false;
+      this.updateLoadingState(false);
+      return e;
+    });
+  }
 }
 </script>
 
 <style scoped>
   #fill-order-section .container {
-      padding-top: 110px;
+      padding-top: 80px;
       color: white;
   }
 
