@@ -3,7 +3,7 @@
       <div class="container">
           <div class="row">
             <div class="col-md-12">
-                <p>In order to be able to fill your chosen order ({{amount.dividedBy(1000000000000000000).toFormat()}} {{token}}), you need to: </p>
+                <p>In order to be able to fill your chosen order ({{amount.dividedBy(1000000000000000000).toFormat()}} {{token}} {{feeAmount ? " - " + feeAmount.dividedBy(1000000000000000000).toFormat() + ' ZRX': ''}}), you need to: </p>
             </div>
           </div>
           <div class="row">
@@ -86,6 +86,7 @@ export default class FillOrder extends Vue {
   authorizedZrxAmount: string = '';
   order: Order;
   amount: BigNumber = new BigNumber(0);
+  feeAmount: BigNumber = null;
   zeroXService: ZeroXService;
   isWrapping: boolean = false;
   isAuthorizing: boolean = false;
@@ -123,6 +124,13 @@ export default class FillOrder extends Vue {
     this.amount = this.getTakerAmount;
     this.zeroXService.getTokenSymbol(this.order.takerTokenAddress).then(symbol => this.setToken(symbol));
     this.addCodeLine(new Scripts().fillOrder);
+    let orderFee = new BigNumber(this.order.takerFee ? this.order.takerFee : '0');
+    if (orderFee.greaterThan(0)) {
+      const orderTakerAmount = new BigNumber(this.order.takerTokenAmount);
+      this.feeAmount = orderFee.mul(this.amount).dividedBy(orderTakerAmount);
+    } else {
+      this.feeAmount = null;
+    }
   }
 
   setToken (symbol: string) {
@@ -171,7 +179,7 @@ export default class FillOrder extends Vue {
 
   checkNecessaryBalance (amount: BigNumber) {
     this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
-    this.needBalance = !amount.greaterThan(this.amount);
+    this.needBalance = !amount.greaterThanOrEqualTo(this.amount);
     if (this.needBalance) {
       setTimeout(() => this.isNecessaryToCheckBalance(), 1000);
     }
@@ -179,7 +187,11 @@ export default class FillOrder extends Vue {
 
   checkNecessaryFeeBalance (fee: BigNumber) {
     this.feeBalanceAmount = fee.dividedBy(1000000000000000000).toFormat();
-    this.needFeeBalance = !fee.greaterThan(this.order.takerFee);
+    if (this.feeAmount) {
+      this.needFeeBalance = !fee.greaterThanOrEqualTo(this.feeAmount);
+    } else {
+      this.needFeeBalance = false;
+    }
     if (this.needFeeBalance) {
       setTimeout(() => this.isNecessaryToCheckFeeBalance(), 1000);
     }
