@@ -80,7 +80,6 @@ To proceed, call API GET orders which can be used in the three scenarios describ
 3 - you want to get all available orders
 
 ```
-GET /api/v0/orders?makerTokenAddress=&takerTokenAddress=
 OR
 this.httpClient.getOrdersAsync({ makerTokenAddress: tokenAAddress, takerTokenAddress: tokenBAddress });
 ```
