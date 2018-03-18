@@ -4,7 +4,7 @@
           <div class="row">
             <div class="col-md-12">
                 <p>Our relay provides large signed orders according to the dApp needs, containing the tokens used, fees, amounts, etc. The dApp chooses an order and the amount to exchange.
-<br>In our demo API, the fee is set to 0%.</p>
+<br>The fee is charging in ZRX.</p>
             </div>
           </div>
           <div class="row">
