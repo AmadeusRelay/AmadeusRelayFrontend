@@ -10,7 +10,7 @@
             <div class="col-md-12 bottom-space">
               <label>
                 <span class="cb-validation" v-bind:class="{'active' : !needBalance && !needFeeBalance, 'inactive' : needBalance || needFeeBalance }"></span>
-                Have sufficient balances
+                Have sufficient balance
                 <div>
                   <div class='item-details'>Balance: {{balanceAmount}} {{token}}</div>
                 </div>

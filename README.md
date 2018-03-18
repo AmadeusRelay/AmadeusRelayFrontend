@@ -2,7 +2,7 @@
 
 This is the documentation created by Amadeus' team for dApps to learn how to interact with our API. Below you will find a user guide on how to consume it, but if you have any doubts feel free to contact us at team@amadeusrelay.org. 
 
-Take a look on our API on [Amadeus Relay API Docs](http://api.amadeusrelay.org/api-docs/)
+Take a look on our API on [Amadeus Relay API Docs](https://api.amadeusrelay.org/api-docs/)
 
 ### Considerations
 
@@ -37,7 +37,7 @@ import {HttpClient} from '@0xproject/connect';
 ```
 and instantiate a new HttpClient instance with Amadeus Relay url
 ```
-this.httpClient = new HttpClient('http://api.amadeusrelay.org/api');
+this.httpClient = new HttpClient('https://api.amadeusrelay.org/api');
 ``` 
 
 ### STEP 1: GET token_pairs
@@ -48,7 +48,7 @@ GET /api/v0/token_pairs?tokenA=
 OR
 this.httpClient.getTokenPairsAsync();
 ```
-This function can be called passing tokenA as empty or passing a token symbol already chosen. In the first case, you will get all token pairs that can be traded, 2-by-2. On the other one, you will get all token-pairs available that contain the chosen token. For both cases, it returns an array of token-pairs, with records similar to this JSON response:
+This function can be called passing tokenA as empty or passing a token address already chosen. In the first case, you will get all token pairs that can be traded, 2-by-2. On the other one, you will get all token-pairs available that contain the chosen token. For both cases, it returns an array of token-pairs, with records similar to this JSON response:
 
 ```
 {
@@ -67,7 +67,7 @@ This function can be called passing tokenA as empty or passing a token symbol al
 }
 ```
 
-It's important to say that our API works with "WETH" symbol instead "ETH". The reason is that ETH itself does not conform to the ERC20 token interface. Therefore, it has been established that a wrapped ether token (WETH) should be used across DApps.
+It's important to say that our API works with "WETH" token instead "ETH". The reason is that ETH itself does not conform to the ERC20 token interface. Therefore, it has been established that a wrapped ether token (WETH) should be used across DApps.
 
 At this moment, you already know how to get which coins can be traded. However, it's very important to know that you don't have to choose any tokens in fact, and you can get orders from all possible tokens. You'll see that on the next step.
 
