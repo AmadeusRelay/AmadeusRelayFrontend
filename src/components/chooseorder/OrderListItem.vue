@@ -70,6 +70,7 @@ export default {
     getRate () {
       var makerAmount = new BigNumber(this.order.makerTokenAmount)
       var takerAmount = new BigNumber(this.order.takerTokenAmount)
+      BigNumber.set({ DECIMAL_PLACES: 4 })
       return makerAmount.dividedBy(takerAmount).toFormat()
     },
     getOrderExpiringDate () {
@@ -85,13 +86,13 @@ export default {
     getMaxAmount () {
       var makerAmount = new BigNumber(this.order.takerTokenAmount)
       var conv = new BigNumber(1000000000000000000)
-      BigNumber.set({ DECIMAL_PLACES: 5 })
+      BigNumber.set({ DECIMAL_PLACES: 6 })
       return makerAmount.dividedBy(conv).toFormat()
     },
     getFee () {
       var fee = new BigNumber(this.order.takerFee)
       var conv = new BigNumber(1000000000000000000)
-      BigNumber.set({ DECIMAL_PLACES: 5 })
+      BigNumber.set({ DECIMAL_PLACES: 6 })
       return fee.dividedBy(conv).toFormat()
     },
     chooseOrder () {
