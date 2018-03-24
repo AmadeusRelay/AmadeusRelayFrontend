@@ -207,7 +207,12 @@ export default class FillOrder extends Vue {
 
   checkNecessaryToSetAllowance (result) {
     this.needToSetAllowance = result.needAllowance;
-    this.authorizedAmount = result.currentAllowance.dividedBy(1000000000000000000).toFormat();
+    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    if (amount.lessThanOrEqualTo(1000000000)) {
+      this.authorizedAmount = amount.toFormat();
+    } else {
+      this.authorizedAmount = 'more than 1 billion';
+    }
     if (this.needToSetAllowance) {
       setTimeout(() => this.isNecessaryToSetAllowance(), 2000);
     }
@@ -215,7 +220,12 @@ export default class FillOrder extends Vue {
 
   checkNecessaryToSetFeeAllowance (result) {
     this.needToSetFeeAllowance = result.needAllowance;
-    this.authorizedZrxAmount = result.currentAllowance.dividedBy(1000000000000000000).toFormat();
+    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    if (amount.lessThanOrEqualTo(1000000000)) {
+      this.authorizedZrxAmount = amount.toFormat();
+    } else {
+      this.authorizedZrxAmount = 'more than 1 billion';
+    }
     if (this.needToSetFeeAllowance) {
       setTimeout(() => this.isNecessaryToSetFeeAllowance(), 2000);
     }
