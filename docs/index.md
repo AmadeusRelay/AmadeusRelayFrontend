@@ -80,6 +80,7 @@ To proceed, call API GET orders which can be used in the three scenarios describ
 3 - you want to get all available orders
 
 ```
+GET /api/v0/orders?makerTokenAddress=&takerTokenAddress=
 OR
 this.httpClient.getOrdersAsync({ makerTokenAddress: tokenAAddress, takerTokenAddress: tokenBAddress });
 ```
@@ -168,11 +169,16 @@ await this.zeroEx.token.setProxyAllowanceAsync(order.takerTokenAddress, takerAdd
 ```
 passing the amount you want to allow. That spends less gas in one call, but you have to do it often.
 
+You'll have to do the same command using the ZRX token address, because the fee is charged in ZRX, then you need to authorize this interaction as well.
+
 ### STEP 5: Fill order
 
 Now, everything is ready to complete the order. At this point, you have to be sure that:
 - You have the token amount you want to exchange in your wallet (WETH if that's the case);
-- You allowed 0x protocol to interact with your funds.
+- You have sufficient ZRX amount to cover the fee;
+- You allowed 0x protocol to interact with your funds, for both, the token to be sold and the token for the fee collection (ZRX).
+
+There's a catch about exchanges when you want to buy ZRX. On that case, you don't need to have ZRX in your wallet to cover the fee, but it will be charged over the maker amount, which means that the fee will be deduced from what you will receive from the exchange.
 
 Once those conditions are fullfilled, call the command:
 ```
@@ -210,7 +216,10 @@ In order to make sure that your exchange was successful and no errors happened i
 
 However some errors can occur, for example:
 - ORDER_EXPIRED: The order created by Amadeus Relay expired because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.
-- INSUFFICIENT_TAKER_ALLOWANCE: You haven't allowed 0x to interact with your funds or allowed a lower quantity than you want to exchange.
+- INSUFFICIENT_TAKER_ALLOWANCE: You haven't allowed 0x to interact with your funds to exchange the token to be sold or allowed a lower quantity than you want to exchange.
+- INSUFFICIENT_FEE_ALLOWANCE: You haven't allowed 0x to interact with your funds to charge the fee or allowed a lower quantity than you want to exchange.
 - INSUFFICIENT_TAKER_BALANCE: Your wallet does not have the tokens' quantity that you want to trade.
+- INSUFFICIENT_FEE_BALANCE: Your wallet does not have sufficient ZRX to cover the fee.
+
 
 Well, that's it. With this guide you can perfectly interact with Amadeus APIs and have your tokens exchanged in an easy way.
