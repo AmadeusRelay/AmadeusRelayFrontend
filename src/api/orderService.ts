@@ -8,7 +8,7 @@ export class OrderService {
     private httpClient: HttpClient;
 
     public constructor(private zeroXService: ZeroXService) {
-        this.httpClient = new HttpClient('https://api.amadeusrelay.org/api');
+        this.httpClient = new HttpClient('https://api.amadeusrelay.org/api/v0');
     }
 
     public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
