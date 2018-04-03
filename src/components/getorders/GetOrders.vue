@@ -66,16 +66,18 @@ export default class GetOrders extends Vue {
 
   updateTakerToken (value : string) {
     this.takerToken = value
-    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
+    this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
   }
 
   updateMakerToken (value : string) {
     this.makerToken = value
-    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
+    this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
   }
 
   mounted () {
     this.addCodeLine(new Scripts().getOrders);
+    this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
+    this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
   }
 }
 </script>

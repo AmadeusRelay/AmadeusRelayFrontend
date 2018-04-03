@@ -19,20 +19,23 @@ export default class TokensList extends Vue {
   @Getter getTokenPairs
 
   mounted () {
-    this.refreshToken('', null)
     this.tokenSelected = this.token;
   }
 
-  refreshToken (tokenSelected, takerIsSelected) {
+  refreshToken (tokenSelected, fillTaker) {
     var tokens = this.getTokenPairs
     if (tokenSelected) {
-      if (takerIsSelected) {
+      if (fillTaker) {
         this.tokenList = tokens.filter(a => a.tokenASymbol === tokenSelected).map(i => i.tokenBSymbol)
       } else {
         this.tokenList = tokens.filter(a => a.tokenBSymbol === tokenSelected).map(i => i.tokenASymbol)
       }
     } else {
-      this.tokenList = tokens.map(i => i.tokenASymbol).filter((item, pos, arr) => arr.indexOf(item) === pos)
+      if (fillTaker) {
+        this.tokenList = tokens.map(i => i.tokenBSymbol).filter((item, pos, arr) => arr.indexOf(item) === pos)
+      } else {
+        this.tokenList = tokens.map(i => i.tokenASymbol).filter((item, pos, arr) => arr.indexOf(item) === pos)
+      }
     }
   }
 

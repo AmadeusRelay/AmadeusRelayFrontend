@@ -2,17 +2,21 @@
 <div id="fill-order-section">
       <div class="container">
           <div class="row">
-            <div class="col-md-12">
-                <p>In order to be able to fill your chosen order ({{amount.dividedBy(1000000000000000000).toFormat()}} {{token}}), you need to: </p>
+            <div v-if='amount && makerAmount' class="col-md-12">
+                <p>Chosen order: {{amount.dividedBy(1000000000000000000).toFormat()}} {{token}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerAmount.dividedBy(1000000000000000000).toFormat()}} {{makerToken}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(1000000000000000000).toFormat() + ' ZRX') :''}}
+                <br>In order to be able to fill the order, you need to: </p>
             </div>
           </div>
           <div class="row">
             <div class="col-md-12 bottom-space">
               <label>
-                <span class="cb-validation" v-bind:class="{'active' : !needBalance, 'inactive' : needBalance}"></span>
+                <span class="cb-validation" v-bind:class="{'active' : !needBalance && !needFeeBalance, 'inactive' : needBalance || needFeeBalance }"></span>
                 Have sufficient balance
                 <div>
                   <div class='item-details'>Balance: {{balanceAmount}} {{token}}</div>
+                </div>
+                <div v-if='feeAmount && token !== "ZRX"'>
+                  <div class='item-details'>Balance: {{this.makerToken === 'ZRX' ? 'the fee will be deduced from maker amount' : feeBalanceAmount + ' ZRX'}}</div>
                 </div>
               </label>
             </div>
@@ -30,10 +34,16 @@
             </div>
             <div class="col-md-12 bottom-space">
               <label>
-                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance, 'inactive' : needToSetAllowance}"></span> Authorize 0x to interact with your funds
+                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance && !needToSetFeeAllowance, 'inactive' : needToSetAllowance || needToSetFeeAllowance}"></span> Authorize 0x to interact with your funds
                 <div>
                   <div class='item-details'>Authorized: {{authorizedAmount}} {{convertedToken}}</div>
-                  <a v-if='needToSetAllowance' class="btn-action" @click="setAllowance()">Authorize</a>
+                    <a v-if='needToSetAllowance' class="btn-action" @click="setAllowance()">Authorize</a>
+                </div>
+                <div>
+                <div v-if='feeAmount && token !== "ZRX"'>
+                  <div class='item-details'>Authorized: {{authorizedZrxAmount}} ZRX</div>
+                    <a v-if='needToSetFeeAllowance' class="btn-action" @click="setFeeAllowance()">Authorize</a>
+                  </div>
                 </div>
               </label>
             </div>       
@@ -45,7 +55,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': needBalance || needToWrapETH || needToSetAllowance}">FILL ORDER
+                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': needBalance || needToWrapETH || needToSetAllowance || needFeeBalance || needToSetFeeAllowance}">FILL ORDER
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -67,17 +77,25 @@ import { Scripts } from '../../utils/scripts'
 export default class FillOrder extends Vue {
   needToWrapETH: boolean = true
   needToSetAllowance: boolean = true
+  needToSetFeeAllowance: boolean = true
   needBalance: boolean = true;
+  needFeeBalance: boolean = true;
   token: string = '';
+  makerToken: string = '';
   convertedToken: string = '';
   balanceAmount: string = '';
+  feeBalanceAmount: string = '0';
   convertedAmount: string = '';
   authorizedAmount: string = '';
+  authorizedZrxAmount: string = '';
   order: Order;
   amount: BigNumber = new BigNumber(0);
+  makerAmount: BigNumber = new BigNumber(0);
+  feeAmount: BigNumber = null;
   zeroXService: ZeroXService;
   isWrapping: boolean = false;
   isAuthorizing: boolean = false;
+  isAuthorizingFee: boolean = false;
   isFilling: boolean = false;
 
   @Getter getSelectedOrder
@@ -88,7 +106,7 @@ export default class FillOrder extends Vue {
   @Mutation updateLoadingState
 
   goToFinalPage () {
-    if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling) {
+    if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling || this.needFeeBalance || this.needToSetFeeAllowance) {
       return;
     }
     this.isFilling = true;
@@ -109,8 +127,17 @@ export default class FillOrder extends Vue {
     this.zeroXService = new ZeroXService();
     this.order = this.getSelectedOrder;
     this.amount = this.getTakerAmount;
+    this.makerAmount = new BigNumber(this.getTakerAmount).mul(this.order.takerTokenAmount).dividedBy(this.order.makerTokenAmount);
     this.zeroXService.getTokenSymbol(this.order.takerTokenAddress).then(symbol => this.setToken(symbol));
+    this.zeroXService.getTokenSymbol(this.order.makerTokenAddress).then(symbol => { this.makerToken = symbol; });
     this.addCodeLine(new Scripts().fillOrder);
+    let orderFee = new BigNumber(this.order.takerFee ? this.order.takerFee : '0');
+    if (orderFee.greaterThan(0)) {
+      const orderTakerAmount = new BigNumber(this.order.takerTokenAmount);
+      this.feeAmount = orderFee.mul(this.amount).dividedBy(orderTakerAmount);
+    } else {
+      this.feeAmount = null;
+    }
   }
 
   setToken (symbol: string) {
@@ -123,7 +150,9 @@ export default class FillOrder extends Vue {
       this.convertedToken = symbol;
     }
     this.isNecessaryToCheckBalance();
+    this.isNecessaryToCheckFeeBalance();
     this.isNecessaryToSetAllowance();
+    this.isNecessaryToSetFeeAllowance();
   }
 
   isNecessaryToCheckBalance () {
@@ -139,19 +168,49 @@ export default class FillOrder extends Vue {
     }
   }
 
+  isNecessaryToCheckFeeBalance () {
+    if (this.makerToken === 'ZRX') {
+      this.needFeeBalance = false;
+    } else {
+      this.zeroXService.getBalance('0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570', this.zeroXService.getCoinBase()).then(amount => this.checkNecessaryFeeBalance(amount));
+    }
+  }
+
   isNecessaryToWrapETH () {
     this.zeroXService.isNecessaryToWrapETH(this.amount, this.order.takerTokenAddress).then(this.checkNecessaryToWrapETH);
   }
 
   isNecessaryToSetAllowance () {
-    this.zeroXService.isNecessaryToSetAllowance(this.amount, this.order.takerTokenAddress).then(this.checkNecessaryToSetAllowance);
+    let necessaryAmount = this.token !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
+    this.zeroXService.isNecessaryToSetAllowance(necessaryAmount, this.order.takerTokenAddress).then(this.checkNecessaryToSetAllowance);
+  }
+
+  isNecessaryToSetFeeAllowance () {
+    if (this.token === 'ZRX' || !this.feeAmount) {
+      this.checkNecessaryToSetFeeAllowance({ needAllowance: false, currentAllowance: new BigNumber(0) });
+    } else {
+      this.zeroXService.isNecessaryToSetAllowance(new BigNumber(this.feeAmount), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(this.checkNecessaryToSetFeeAllowance);
+    }
   }
 
   checkNecessaryBalance (amount: BigNumber) {
     this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
-    this.needBalance = !amount.greaterThan(this.amount);
+    let necessaryAmount = this.token !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
+    this.needBalance = !amount.greaterThanOrEqualTo(necessaryAmount);
     if (this.needBalance) {
       setTimeout(() => this.isNecessaryToCheckBalance(), 1000);
+    }
+  }
+
+  checkNecessaryFeeBalance (fee: BigNumber) {
+    this.feeBalanceAmount = fee.dividedBy(1000000000000000000).toFormat();
+    if (this.feeAmount && this.token !== 'ZRX') {
+      this.needFeeBalance = !fee.greaterThanOrEqualTo(this.feeAmount);
+    } else {
+      this.needFeeBalance = false;
+    }
+    if (this.needFeeBalance) {
+      setTimeout(() => this.isNecessaryToCheckFeeBalance(), 1000);
     }
   }
 
@@ -165,9 +224,27 @@ export default class FillOrder extends Vue {
 
   checkNecessaryToSetAllowance (result) {
     this.needToSetAllowance = result.needAllowance;
-    this.authorizedAmount = result.currentAllowance.dividedBy(1000000000000000000).toFormat();
+    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    if (amount.lessThanOrEqualTo(1000000000)) {
+      this.authorizedAmount = amount.toFormat();
+    } else {
+      this.authorizedAmount = 'more than 1 billion';
+    }
     if (this.needToSetAllowance) {
       setTimeout(() => this.isNecessaryToSetAllowance(), 2000);
+    }
+  }
+
+  checkNecessaryToSetFeeAllowance (result) {
+    this.needToSetFeeAllowance = result.needAllowance;
+    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    if (amount.lessThanOrEqualTo(1000000000)) {
+      this.authorizedZrxAmount = amount.toFormat();
+    } else {
+      this.authorizedZrxAmount = 'more than 1 billion';
+    }
+    if (this.needToSetFeeAllowance) {
+      setTimeout(() => this.isNecessaryToSetFeeAllowance(), 2000);
     }
   }
 
@@ -204,12 +281,29 @@ export default class FillOrder extends Vue {
       return e;
     });
   }
+
+  setFeeAllowance () {
+    if (this.isAuthorizingFee) {
+      return;
+    }
+    this.isAuthorizingFee = true;
+    this.updateLoadingState(true);
+    this.zeroXService.ensureAllowance(new BigNumber(this.order.takerFee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
+      this.isNecessaryToSetFeeAllowance();
+      this.updateLoadingState(false);
+      this.isAuthorizingFee = false;
+    }).catch((e) => {
+      this.isAuthorizingFee = false;
+      this.updateLoadingState(false);
+      return e;
+    });
+  }
 }
 </script>
 
 <style scoped>
   #fill-order-section .container {
-      padding-top: 110px;
+      padding-top: 80px;
       color: white;
   }
 

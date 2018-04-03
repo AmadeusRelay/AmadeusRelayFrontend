@@ -7,6 +7,7 @@
                 <th><tr>Transaction</tr><tr>Taker <i class="fa fa-long-arrow-right" aria-hidden="true"></i> Maker</tr></th>
                 <th>Max Amount</th>
                 <th>Rate</th>
+                <th>Fee</th>
                 <th>Expiration Date</th>
                 <th>Taker Amount</th>
                 <th></th>
