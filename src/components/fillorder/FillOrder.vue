@@ -149,6 +149,7 @@ export default class FillOrder extends Vue {
       this.needToWrapETH = false;
       this.convertedToken = symbol;
     }
+
     this.isNecessaryToCheckBalance();
     this.isNecessaryToCheckFeeBalance();
     this.isNecessaryToSetAllowance();
@@ -271,7 +272,8 @@ export default class FillOrder extends Vue {
     }
     this.isAuthorizing = true;
     this.updateLoadingState(true);
-    this.zeroXService.ensureAllowance(this.amount, this.order.takerTokenAddress).then(() => {
+    const allowanceAmount = this.token !== 'ZRX' ? this.amount : this.amount.add(this.feeAmount);
+    this.zeroXService.ensureAllowance(allowanceAmount, this.order.takerTokenAddress).then(() => {
       this.isNecessaryToSetAllowance();
       this.updateLoadingState(false);
       this.isAuthorizing = false;
