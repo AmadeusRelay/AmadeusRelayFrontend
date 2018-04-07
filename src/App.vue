@@ -9,7 +9,7 @@
             <div class="col-md-4">
               <img id="logo" src="./assets/logo_amadeus.png">
             </div>
-            <div v-if="pageId != 0" class="col-lg-8 col-md-8">
+            <div v-if="pageId > 1" class="col-lg-8 col-md-8">
               <div class="col-lg-3 col-md-5 pull-right">
                 <button class="js-add btn btn-block uppercase" type="button" @click="goToWelcomePage()">Restart</button> 
               </div>
