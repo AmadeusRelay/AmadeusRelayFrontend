@@ -114,13 +114,13 @@ export default class FillOrder extends Vue {
     this.zeroXService.fillOrder(this.order, this.amount).then(this.onSuccessfullyFillOrder).catch((e) => {
       this.updateErrorMessage(e.message);
       this.updateLoadingState(false)
-      this.changePage(6);
+      this.changePage(7);
     });
   }
 
   onSuccessfullyFillOrder () {
     this.updateLoadingState(false)
-    this.changePage(5)
+    this.changePage(6)
   }
 
   mounted () {

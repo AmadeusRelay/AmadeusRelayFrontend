@@ -7,12 +7,14 @@ import { BigNumber } from 'bignumber.js'
 Vue.use(Vuex)
 
 const state = {
-    pageId: 0, 
+    pageId: 0,
+    strategyId: 0, 
     lastLineCode: 0, 
     code: '',
     tokenPairs: [],
     orders: [],
     selectedOrder: null,
+    signedOrder: null,
     takerAmount: null,
     errorMessage: null,
     loading: false
@@ -23,6 +25,9 @@ export default new Vuex.Store({
     mutations: {
         changePage (state, newPage : number) {
             state.pageId = newPage
+        },
+        chooseStrategy (state, strategy: number) {
+            state.strategyId = strategy
         },
         addCodeLine (state, newCodeLine: string) {
             state.code += newCodeLine + '\r\n'

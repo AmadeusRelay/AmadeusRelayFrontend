@@ -61,7 +61,7 @@ export default class GetOrders extends Vue {
   onSuccessfullyListOrders (orders: any) {
     this.updateOrders(orders);
     this.updateLoadingState(false)
-    this.changePage(3);
+    this.changePage(4);
   }
 
   updateTakerToken (value : string) {

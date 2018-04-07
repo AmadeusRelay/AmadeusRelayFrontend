@@ -37,7 +37,7 @@ export default class ChooseOrder extends Vue {
 
   goToFillOrderPage (order: Order) {
     this.selectOrder(order);
-    this.changePage(4)
+    this.changePage(5)
   }
 
   setTakerAmount (amount: BigNumber) {

@@ -44,11 +44,11 @@ export default class TokenPairs extends Vue {
   onSuccessfullyGetTokenPairs (tokenPairs: any) {
     this.updateTokenPairs(tokenPairs)
     this.updateLoadingState(false)
-    this.goToGetOrdersPage()
+    this.goToNextPage()
   }
 
-  goToGetOrdersPage () {
-    this.changePage(2)
+  goToNextPage () {
+    this.changePage(3)
   }
 
   mounted () {
