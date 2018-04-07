@@ -68,7 +68,8 @@ export class OrderService {
             {
                 let tokenPair : TokenPair = {
                     tokenASymbol: tokenASymbol,
-                    tokenBSymbol: tokenBSymbol
+                    tokenBSymbol: tokenBSymbol,
+                    maxTokenBAmount: pair.tokenB.maxAmount.toString()
                 };
     
                 tokens.push(tokenPair);

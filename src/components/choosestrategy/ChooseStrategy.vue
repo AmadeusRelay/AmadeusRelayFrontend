@@ -3,22 +3,31 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <p>We have implemented two different strategies, Reservae Manager and Quote Provider.</p>
-                <p>See below their characteristics and choose one to proceed.</p>
+                <p>We have implemented two different strategies, Reservae Manager and Quote Provider.
+See below their characteristics and choose one to proceed.</p>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                <a class="btn-next-step" @click="goToTokenPairsPageReserveManager()">Reserve Manager
+            <div class="col-md-2"></div>
+            <div class="col-md-8 btn-next-step" @click="goToTokenPairsPageReserveManager()">
+                <div class="btn-text">RESERVE MANAGER
+                    <p>Brief description of this strategy and why it is good</p>
+                </div>
+                <div class="btn-img">
                     <img src="../../assets/arrow-right.svg"/>
-                </a>
+                </div>
             </div>
         </div>
+        <br/>
         <div class="row">
-            <div class="col-md-12">
-                <a class="btn-next-step" @click="goToTokenPairsPageQuoteProvider()">Quote Provider
+            <div class="col-md-2"></div>
+            <div class="col-md-8 btn-next-step" @click="goToTokenPairsPageQuoteProvider()">
+                <div class="btn-text">QUOTE PROVIDER
+                    <p>Brief description of this strategy and why it is good</p>
+                </div>
+                <div class="btn-img">
                     <img src="../../assets/arrow-right.svg"/>
-                </a>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -61,7 +70,7 @@ export default class ChooseStrategy extends Vue {
 
 <style scoped>
 #choose-strategy-section .container {
-    padding-top: 120px;
+    padding-top: 100px;
     padding-right: 160px;
     text-align: center;
     color: white;
@@ -99,5 +108,40 @@ export default class ChooseStrategy extends Vue {
   font-size: 16px;
   word-wrap: none;
   word-break: keep-all;
+}
+
+#choose-strategy-section div.btn-next-step{
+    text-align: left;
+    font-size: 20px;
+    color: #ff6c72;
+    font-weight: 500;
+    cursor: pointer;
+    display: table;
+    background-color: rgba(119, 117, 144, 0.5);
+    padding: 15px;
+}
+
+#choose-strategy-section div.btn-next-step .btn-text{
+    display: table-cell;
+    width: 80%;
+}
+
+#choose-strategy-section div.btn-next-step .btn-text p{
+    margin-bottom: 0px;
+}
+
+#choose-strategy-section div.btn-next-step .btn-img{
+    display: table-cell;
+    width: 20%;
+    vertical-align: middle;
+}
+
+#choose-strategy-section div.btn-next-step .btn-img img{
+    float: right;
+}
+
+#choose-strategy-section div.btn-next-step p{
+    text-align: left;
+    font-size: 19px;
 }
 </style>
