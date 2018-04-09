@@ -13,7 +13,8 @@
             </div>
             <div class="col-md-2">
                 <label>Maker Amount</label>
-                <input class="form-control" /> 
+                <input v-model="makerAmount" class="form-control" /> 
+                <p v-if="error" class="error">{{error}}</p>
             </div>
             <div class="col-md-4">
                 <label>Taker token (to buy)</label>
@@ -27,11 +28,7 @@
         <div class="row">
             <div class="col-md-4">
                 <label>Expiration date</label>
-                <input class="form-control" /> 
-            </div>
-            <div class="col-md-2">
-                <label>Hour</label>
-                <input class="form-control"/> 
+                <datetime v-model="date" type="datetime" input-class="form-control" :min-datetime="minDate" class="theme-amadeus"></datetime>
             </div>
         </div> 
         <br />
@@ -49,17 +46,27 @@
 <script lang="ts">
 import TokensList from './../getorders/TokensList.vue'
 import { BigNumber } from 'bignumber.js'
-import { Component } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
 import { Mutation, Getter } from 'vuex-class'
+import { Datetime } from 'vue-datetime'
+import 'vue-datetime/dist/vue-datetime.css'
+import { Settings } from 'luxon'
 import Vue from 'vue'
 
+Settings.defaultLocale = 'en'
+
 @Component({
-  components: { 'tokens-list': TokensList }
+  components: { 'tokens-list': TokensList, 'datetime': Datetime }
 })
+
 export default class PostFee extends Vue {
   takerToken: string = ''
   makerToken: string = ''
   maxAmount: string = ''
+  makerAmount: string = ''
+  date: Date = new Date()
+  minDate: string = (new Date()).toISOString()
+  error: string = ''
 
   $refs: {
     makerTokenRef: TokensList,
@@ -94,14 +101,28 @@ export default class PostFee extends Vue {
       if (selectedPair != null && selectedPair.length > 0) {
         var makerAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
         var conv = new BigNumber(1000000000000000000)
+        BigNumber.config({ DECIMAL_PLACES: 4 })
         this.maxAmount = makerAmount.dividedBy(conv).toFormat()
       }
     }
   }
 
+  setError (value) {
+    this.error = value
+  }
+
   mounted () {
     this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
     this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
+  }
+
+  @Watch('makerAmount')
+  onMakerAmountChanged (val: string, oldVal: string) {
+    if (new BigNumber(val).comparedTo(new BigNumber(this.maxAmount)) === 1) {
+      this.setError('Value is greater than the max')
+    } else {
+      this.setError('')
+    }
   }
 }
 </script>
@@ -129,5 +150,13 @@ export default class PostFee extends Vue {
 
 #post-fee-section input.form-control:disabled{
   background-color: rgba(119, 117, 144, 0.1);
+}
+
+#post-fee-section p.error{
+  padding: 0px;
+  margin: 0px;
+  color: red;
+  opacity: 0.9;
+  font-size: 13px;
 }
 </style>
