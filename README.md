@@ -367,9 +367,7 @@ As already mentioned in the reserve manager strategy, you should also allow the 
 
 ```
 await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(order.makerTokenAddress, makerAddress)
-```
 OR
-```
 await this.zeroEx.token.setProxyAllowanceAsync(order.makerTokenAddress, makerAddress, amount)
 ```
 
