@@ -8,20 +8,20 @@ Take a look on our API on [Amadeus Relay API Docs](https://api.amadeusrelay.org/
 
 Amadeus Relay implements two strategies, with different operation modes, that are described below:
 
-1 - Reserve Manager: Amadeus provides large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. And you should call fillOrder filling your address as taker address to complete the order.  
-2 - Quote Provider: Amadeus provides intents to trade and specifies the fee value. You should sign the order and post it to the relayer, which is responsible to call fillOrder to complete it.
+- Reserve Manager: Amadeus provides large signed orders with short expiration times, with taker filled with 0x0000000000000000000000000000000000000000. And you should call fillOrder filling your address as taker address to complete the order.  
+- Quote Provider: Amadeus provides intents to trade and specifies the fee value. You must sign the order and post it to the relayer, who is responsible for calling fillOrder to complete it.
 
-With the reserve manager strategy, the relayer gives the signed order but you do have the responsibility to fill it, paying the gas of this operation. Besides that, in this way, you have to import the 0x.js library to your code to complete the order. On the other hand, with the quote provider strategy, you have to assemble the order, according to relayer intentions and fees, and sign it. The relayer is responsible to fill the order, and pay associated gas. Because of that, quote provider has a slightly higher fee. 
-In this strategy, you do not need to set up the 0x library in your code. 
+With the reserve manager strategy, the relayer provides the signed order but you do have the responsibility to fill it, paying the gas of this operation. Besides that, in this way, you have to import the 0x library into your code to complete the order, as will be discussed below. 
 
-You can read more about this on [0x wiki](https://0xproject.com/wiki#Quote-Provider). To work with Amadeus, you have to choose the one that suits your needs the best.
+On the other hand, with the quote provider strategy, you must assemble the order, according to relayer intentions and fees, and sign it. The relayer is responsible for filling the order, and for paying the associated gas. Because of that, quote provider has a slightly higher fee than reserve manager. In this strategy, you do not need to set up the 0x library in your code. 
+
+You can read more about this on [0x wiki](https://0xproject.com/wiki#Quote-Provider). To work with Amadeus, you have to choose the strategy that suits your needs the best.
 
 ### Considerations
 
 It is important to note that the API is in alpha version and we’re using [Metamask](https://metamask.io/) on the [Kovan testnet](https://kovan.etherscan.io/), so if your DApp runs in a browser in order to use the API you should (i) have Metamask installed in it, (ii) log in into your account and (iii) connect Metamask to Kovan test network.
 
-
-If you choose to work with Reserve Manager strategy, you will have to install and import 0x.js in order to use some functions to interact with tokens and orders:
+if you chose the reserve manager strategy or simply want to use some 0x functions to interact with tokens and orders, you should install and import the library into your code:
 ```
 npm install 0x.js --save
 ```
@@ -240,7 +240,7 @@ However, some errors can occur, for example:
 
 #### Note
 
-Amadeus Relay development team has developed a library that encapsulates steps 1, 2 and 3 of this tutorial and also does the step 4. The team found it interesting to provide a simpler way of putting together an order and signing it. To view the code and the readme to install it, you can access the [0xOrderBuilder](https://github.com/AmadeusRelay/0xOrderBuilder).
+Amadeus Relay development team has developed a library that encapsulates steps 1, 2 and 3 of this tutorial and also does the step 4. The team found it interesting to provide a simpler way of putting together an order and signing it. To view the code and the readme to install it, you can access the [0xOrderBuilder](https://github.com/AmadeusRelay/0xOrderBuilder) library.
 
 #### STEP 1: GET token_pairs
 
@@ -294,7 +294,7 @@ OR
 this.httpClient.getFeesAsync(request: FeesRequest): Promise<FeesResponse>
 ```
 
-passing a request that is exactly the assembled order, i.e., for example:
+passing a request that is exactly the assembled order, i.e.:
 
 ```
 {
@@ -382,7 +382,7 @@ Now, everything is ready to complete the order. At this point, as well as the re
 
 There's a catch about exchanges when you want to buy ZRX. On that case, you don't need to have ZRX in your wallet to cover the fee, but it will be charged over the maker amount, which means that the fee will be deduced from what you will receive from the exchange.
 
-Once those conditions are fulfilled, you can call the API POST order, to give responsibility to the relayer to complete the order:
+Once those conditions are fulfilled, you can call the API POST order, to give responsibility for the relayer to complete the order:
 
 ```
 POST /api/v0/order
