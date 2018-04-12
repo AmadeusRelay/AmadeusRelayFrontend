@@ -25,7 +25,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Scripts } from '../../utils/scripts'
-import { OrderService, ZeroXService } from '../../api'
+import { OrderService, ZeroXService, BuildOrderService } from '../../api'
 import { Mutation } from 'vuex-class'
 
 @Component
@@ -36,7 +36,7 @@ export default class TokenPairs extends Vue {
   @Mutation updateLoadingState
 
   getTokenPairs () {
-    var orderService : OrderService = new OrderService(new ZeroXService())
+    var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService())
     this.updateLoadingState(true)
     orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs)
   }

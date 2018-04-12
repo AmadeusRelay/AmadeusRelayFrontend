@@ -21,7 +21,7 @@ module.exports = merge(baseWebpackConfig, {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': config.dev.env,
-      'process.env.AMADEUS_SERVER_HOSTNAME': JSON.stringify('api.amadeusrelay.org'),
+      'process.env.AMADEUS_SERVER_HOSTNAME': JSON.stringify('localhost:3000'),
       'process.env.AMADEUS_SERVER_PORT': JSON.stringify('80')
     }),
     // https://github.com/glenjamin/webpack-hot-middleware#installation--usage

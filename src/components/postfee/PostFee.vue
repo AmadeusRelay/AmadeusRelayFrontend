@@ -56,6 +56,7 @@ import { Datetime } from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
 import { Settings } from 'luxon'
 import Vue from 'vue'
+import { OrderService, ZeroXService, BuildOrderService } from '../../api'
 
 Settings.defaultLocale = 'en'
 
@@ -64,10 +65,13 @@ Settings.defaultLocale = 'en'
 })
 
 export default class PostFee extends Vue {
+  zeroXService: ZeroXService;
   takerToken: string = ''
   makerToken: string = ''
   maxAmount: string = ''
   makerAmount: string = ''
+  makerTokenAddress: string = ''
+  takerTokenAddress: string = ''
   date: string = ''
   minDate: string = (new Date()).toISOString()
 
@@ -83,11 +87,27 @@ export default class PostFee extends Vue {
 
   @Mutation changePage
   @Getter getTokenPairs
+  @Mutation updateErrorMessage
+  @Mutation updateLoadingState
 
   goToSignOrderPage () {
     if (this.validateRequiredFields()) {
-      this.changePage(4);
+      var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
+      this.updateLoadingState(true);
+      const timestamp = Math.floor(new Date(this.date).getTime() / 1000);
+      orderService.postFee(this.makerTokenAddress, new BigNumber(this.makerAmount), this.takerTokenAddress, new BigNumber(0), this.zeroXService.getCoinBase(), new BigNumber(timestamp))
+        .then(this.onSuccessfullyPostFee)
+        .catch((e) => {
+          this.updateErrorMessage(e.message)
+          this.updateLoadingState(false)
+          this.changePage(7)
+        });
     }
+  }
+
+  onSuccessfullyPostFee () {
+    this.updateLoadingState(false)
+    this.changePage(4)
   }
 
   validateRequiredFields () {
@@ -103,7 +123,7 @@ export default class PostFee extends Vue {
     if (this.makerAmount === null || this.makerAmount === '') {
       this.makerAmountError = 'required'
       valid = false
-    } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) === 1) {
+    } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount.replace(',', ''))) === 1) {
       this.makerAmountError = 'Value is greater than max'
       valid = false
     }
@@ -117,13 +137,23 @@ export default class PostFee extends Vue {
   updateTakerToken (value : string) {
     this.takerToken = value
     this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
+    this.zeroXService.getTokenAddress(value).then(address => this.updateTakerTokenAddress(address));
     this.updateMaxAmount()
+  }
+
+  updateTakerTokenAddress (address: string) {
+    this.takerTokenAddress = address
   }
 
   updateMakerToken (value : string) {
     this.makerToken = value
     this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
+    this.zeroXService.getTokenAddress(value).then(address => this.updateMakerTokenAddress(address));
     this.updateMaxAmount()
+  }
+
+  updateMakerTokenAddress (address: string) {
+    this.makerTokenAddress = address
   }
 
   updateMaxAmount () {
@@ -144,11 +174,12 @@ export default class PostFee extends Vue {
   mounted () {
     this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
     this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
+    this.zeroXService = new ZeroXService()
   }
 
   @Watch('makerAmount')
   onMakerAmountChanged (val: string, oldVal: string) {
-    if (val !== null && val !== '' && new BigNumber(val).comparedTo(new BigNumber(this.maxAmount)) !== 1) {
+    if (val !== null && val !== '' && new BigNumber(val).comparedTo(new BigNumber(this.maxAmount.replace(',', ''))) !== 1) {
       this.makerAmountError = ''
     }
   }
