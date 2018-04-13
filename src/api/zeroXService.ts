@@ -122,4 +122,7 @@ export class ZeroXService {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
+    public async getExchangeContractAddress() : Promise<string> {
+        return await this.zeroEx.exchange.getContractAddressAsync();
+    }
 }

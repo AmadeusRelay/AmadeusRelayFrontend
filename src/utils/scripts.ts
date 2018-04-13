@@ -30,5 +30,27 @@ await this.zeroEx.awaitTransactionMinedAsync(tx);
 // Fill order
 tx = await this.zeroEx.exchange.fillOrderAsync(order[j], amount, true, web3.eth.coinbase);
 await this.zeroEx.awaitTransactionMinedAsync(tx);
+`;  
+
+    public maxAmount : string = `//get maxAmount
+const maxAmount = tokenPairs[i].tokenB.maxAmount;
 `;
+
+    public postFee : string = `//post fee
+const exchangeContractAddress = await this.zeroEx.exchange.getContractAddressAsync();
+let feeResponse = await this.httpClient.getFeesAsync({
+    exchangeContractAddress : exchangeContractAddress,
+    expirationUnixTimestampSec : expirationDate,
+    maker : maker,
+    taker : '0x0000000000000000000000000000000000000000',
+    makerTokenAddress : makerTokenAddress,
+    makerTokenAmount : makerTokenAmount,
+    takerTokenAddress : takerTokenAddress,
+    takerTokenAmount : takerTokenAmount,
+    salt : new BigNumber(0)
+})
+    `;
+
+
+
 }

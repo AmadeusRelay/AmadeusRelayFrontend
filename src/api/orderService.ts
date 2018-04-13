@@ -35,32 +35,21 @@ export class OrderService {
     }
 
     public async postFee(makerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAddress: string, takerTokenAmount: BigNumber, maker: string, expirationUnixTimestampSec: BigNumber) : Promise<Order> {
-        const takerAmount = await this.getTakerAmount(takerTokenAddress, makerTokenAddress);
-        const x = new BigNumber(takerAmount[0].makerTokenAmount).mul(makerTokenAmount).dividedBy(makerTokenAmount)
-
+        const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
         const fee = await this.httpClient.getFeesAsync({
-            exchangeContractAddress : '0x90fe2af704b34e0224bf2299c838e04d4dcf1364',
+            exchangeContractAddress : exchangeContractAddress,
             expirationUnixTimestampSec : expirationUnixTimestampSec,
             maker : maker,
             taker : '0x0000000000000000000000000000000000000000',
             makerTokenAddress : makerTokenAddress,
             makerTokenAmount : makerTokenAmount,
             takerTokenAddress : takerTokenAddress,
-            takerTokenAmount : x,
+            takerTokenAmount : takerTokenAmount,
             salt : new BigNumber(0)
         })
 
         return this.buildOrderService.createOrder(makerTokenAddress, makerTokenAmount, takerTokenAddress, 
             takerTokenAmount, maker, '', expirationUnixTimestampSec, fee.makerFee, fee.takerFee, fee.feeRecipient);
-    }
-
-    private async getTakerAmount (takerTokenAddress: string, makerTokenAddress: string) : Promise<Order[]>{
-        return new Promise<Order[]>((resolve, reject) => {
-            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress });
-            result.then(orders => {
-                resolve(this.convertOrders(orders));
-            });            
-        });
     }
 
     private convertOrders(signedOrders: SignedOrder[]) :  Order[]
@@ -99,7 +88,8 @@ export class OrderService {
                 let tokenPair : TokenPair = {
                     tokenASymbol: tokenASymbol,
                     tokenBSymbol: tokenBSymbol,
-                    maxTokenBAmount: pair.tokenB.maxAmount.toString()
+                    maxTokenBAmount: pair.tokenB.maxAmount.toString(),
+                    maxTokenAAmount: pair.tokenA.maxAmount.toString()
                 };
     
                 tokens.push(tokenPair);

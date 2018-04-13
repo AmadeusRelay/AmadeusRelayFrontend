@@ -57,6 +57,8 @@ import 'vue-datetime/dist/vue-datetime.css'
 import { Settings } from 'luxon'
 import Vue from 'vue'
 import { OrderService, ZeroXService, BuildOrderService } from '../../api'
+import { Order } from '../../model/order'
+import { Scripts } from '../../utils/scripts'
 
 Settings.defaultLocale = 'en'
 
@@ -74,6 +76,8 @@ export default class PostFee extends Vue {
   takerTokenAddress: string = ''
   date: string = ''
   minDate: string = (new Date()).toISOString()
+  price: BigNumber = new BigNumber(1)
+  takerAmount: BigNumber = null
 
   takerTokenError: string = ''
   makerTokenError: string = ''
@@ -85,17 +89,19 @@ export default class PostFee extends Vue {
     takerTokenRef: TokensList
   }
 
+  @Mutation addCodeLine
   @Mutation changePage
   @Getter getTokenPairs
   @Mutation updateErrorMessage
   @Mutation updateLoadingState
+  @Mutation selectOrder
 
   goToSignOrderPage () {
     if (this.validateRequiredFields()) {
       var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
       this.updateLoadingState(true);
       const timestamp = Math.floor(new Date(this.date).getTime() / 1000);
-      orderService.postFee(this.makerTokenAddress, new BigNumber(this.makerAmount), this.takerTokenAddress, new BigNumber(0), this.zeroXService.getCoinBase(), new BigNumber(timestamp))
+      orderService.postFee(this.makerTokenAddress, new BigNumber(this.makerAmount), this.takerTokenAddress, this.takerAmount, this.zeroXService.getCoinBase(), new BigNumber(timestamp))
         .then(this.onSuccessfullyPostFee)
         .catch((e) => {
           this.updateErrorMessage(e.message)
@@ -105,8 +111,10 @@ export default class PostFee extends Vue {
     }
   }
 
-  onSuccessfullyPostFee () {
+  onSuccessfullyPostFee (order: Order) {
     this.updateLoadingState(false)
+    this.selectOrder(order)
+    this.addCodeLine(new Scripts().postFee)
     this.changePage(4)
   }
 
@@ -138,7 +146,7 @@ export default class PostFee extends Vue {
     this.takerToken = value
     this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
     this.zeroXService.getTokenAddress(value).then(address => this.updateTakerTokenAddress(address));
-    this.updateMaxAmount()
+    this.updateMaxAmountAndPrice()
   }
 
   updateTakerTokenAddress (address: string) {
@@ -149,25 +157,27 @@ export default class PostFee extends Vue {
     this.makerToken = value
     this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
     this.zeroXService.getTokenAddress(value).then(address => this.updateMakerTokenAddress(address));
-    this.updateMaxAmount()
+    this.updateMaxAmountAndPrice()
   }
 
   updateMakerTokenAddress (address: string) {
     this.makerTokenAddress = address
   }
 
-  updateMaxAmount () {
+  updateMaxAmountAndPrice () {
     if (this.makerToken !== '' && this.takerToken !== '') {
       var tokens = this.getTokenPairs
       var selectedPair = tokens.filter(function (token) {
         return token.tokenASymbol === this.makerToken && token.tokenBSymbol === this.takerToken;
       }.bind(this));
       if (selectedPair != null && selectedPair.length > 0) {
-        var makerAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
+        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
         var conv = new BigNumber(1000000000000000000)
         BigNumber.config({ DECIMAL_PLACES: 4 })
-        this.maxAmount = makerAmount.dividedBy(conv).toFormat()
+        this.maxAmount = makerMaxAmount.dividedBy(conv).toFormat()
+        this.price = makerMaxAmount.dividedBy(new BigNumber(selectedPair[0].maxTokenAAmount))
       }
+      this.addCodeLine(new Scripts().maxAmount)
     }
   }
 
@@ -179,8 +189,11 @@ export default class PostFee extends Vue {
 
   @Watch('makerAmount')
   onMakerAmountChanged (val: string, oldVal: string) {
-    if (val !== null && val !== '' && new BigNumber(val).comparedTo(new BigNumber(this.maxAmount.replace(',', ''))) !== 1) {
-      this.makerAmountError = ''
+    if (val !== null && val !== '') {
+      if (new BigNumber(val).comparedTo(new BigNumber(this.maxAmount.replace(',', ''))) !== 1) {
+        this.makerAmountError = ''
+      }
+      this.takerAmount = new BigNumber(val).mul(this.price)
     }
   }
 
