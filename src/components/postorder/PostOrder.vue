@@ -19,11 +19,16 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Mutation } from 'vuex-class'
+import { Mutation, Getter } from 'vuex-class'
 
 @Component
 export default class PostOrder extends Vue {
   @Mutation changePage
+  @Getter getSignedOrder
+
+  get signedOrder () {
+    return this.getSignedOrder()
+  }
 
   goToFinalPage () {
     this.changePage(6);

@@ -48,8 +48,8 @@ export class OrderService {
             salt : new BigNumber(0)
         })
 
-        return this.buildOrderService.createOrder(makerTokenAddress, makerTokenAmount, takerTokenAddress, 
-            takerTokenAmount, maker, '', expirationUnixTimestampSec, fee.makerFee, fee.takerFee, fee.feeRecipient);
+        return this.buildOrderService.createOrder(exchangeContractAddress, makerTokenAddress, makerTokenAmount, takerTokenAddress, 
+            takerTokenAmount, maker, '0x0000000000000000000000000000000000000000', expirationUnixTimestampSec, fee.makerFee, fee.takerFee, fee.feeRecipient);
     }
 
     private convertOrders(signedOrders: SignedOrder[]) :  Order[]

@@ -21,7 +21,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{takerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerSymbol}}</td>
+                            <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
                             <td>{{expiringDate}}</td>
                             <td>1 : {{rate}}</td>
                             <td>{{fee}}</td>
@@ -34,7 +34,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToPostOrderPage()">SIGN ORDER
+                <a class="btn-next-step" @click="signOrder()">SIGN ORDER
                     <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -55,6 +55,7 @@ export default class SignOrder extends Vue {
   makerSymbol: string = ''
 
   @Mutation changePage
+  @Mutation updateSignOrder
   @Getter getSelectedOrder
 
   mounted () {
@@ -92,17 +93,13 @@ export default class SignOrder extends Vue {
   }
 
   get makerAmount () {
-    var makerAmount = new BigNumber(this.order.makerTokenAmount)
-    var conv = new BigNumber(1000000000000000000)
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return makerAmount.dividedBy(conv).toFormat()
+    return new BigNumber(this.order.makerTokenAmount).toFormat()
   }
 
   get takerAmount () {
-    var takerAmount = new BigNumber(this.order.takerTokenAmount)
-    var conv = new BigNumber(1000000000000000000)
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return takerAmount.dividedBy(conv).toFormat()
+    return new BigNumber(this.order.takerTokenAmount).toFormat()
   }
 
   setTakerSymbol () {
@@ -117,6 +114,16 @@ export default class SignOrder extends Vue {
     zeroXService.getTokenSymbol(this.order.makerTokenAddress).then((response) => {
       this.makerSymbol = response
     })
+  }
+
+  signOrder () {
+    var zeroXService = new ZeroXService()
+    zeroXService.signOrder(this.order).then(signedOrder => this.onSuccessfullySignOrder(signedOrder))
+  }
+
+  onSuccessfullySignOrder (signedOrder: any) {
+    this.updateSignOrder(signedOrder)
+    this.goToPostOrderPage()
   }
 
   goToPostOrderPage () {
@@ -136,5 +143,17 @@ export default class SignOrder extends Vue {
     font-size: 21px;
     color: #ffffff;
     font-weight: 300;
+}
+
+table td{
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+table {
+    text-align: center;
+}
+
+table.table th{
+    border: none;
 }
 </style>

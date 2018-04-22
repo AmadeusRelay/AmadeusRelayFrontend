@@ -3,7 +3,9 @@ import { TokenPair } from "../model/tokenPair";
 import Vue from 'vue'
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
+import { SignUtil } from 'eth-sig-util';
 declare var web3;
+const Eth = require('ethjs')
 
 export class ZeroXService {
     private zeroEx: ZeroEx;
@@ -124,5 +126,31 @@ export class ZeroXService {
 
     public async getExchangeContractAddress() : Promise<string> {
         return await this.zeroEx.exchange.getContractAddressAsync();
+    }
+
+    public async signOrder(order: Order) : Promise<SignedOrder> {
+        var salt = ZeroEx.generatePseudoRandomSalt();
+        const hash = ZeroEx.getOrderHashHex({
+            maker: order.maker,
+            taker: order.taker,
+            makerFee: new BigNumber(order.makerFee),
+            takerFee: new BigNumber(order.takerFee),
+            makerTokenAmount: new BigNumber(order.makerTokenAmount),
+            takerTokenAmount: new BigNumber(order.takerTokenAmount),
+            makerTokenAddress: order.makerTokenAddress,
+            takerTokenAddress: order.takerTokenAddress,
+            salt: salt,
+            exchangeContractAddress: order.exchangeContractAddress,
+            feeRecipient: order.feeRecipient,
+            expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
+        });
+        var from = web3.eth.accounts[0]
+        var params = [from, hash]
+          
+        // Now with Eth.js
+        var eth = new Eth(web3.currentProvider)        
+        order.ecSignature = await eth.personal_sign(hash, from);
+        order.salt = salt.toString();
+        return this.convertToSignedOrder(order);
     }
 }

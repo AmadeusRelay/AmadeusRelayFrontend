@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import { TokenPair } from "../model/tokenPair";
 import { Order } from '../model/order'
 import { BigNumber } from 'bignumber.js'
+import { SignedOrder } from '@0xproject/connect';
 
 Vue.use(Vuex)
 
@@ -52,6 +53,9 @@ export default new Vuex.Store({
         },
         updateLoadingState(state, loading: boolean){
             state.loading = loading
+        },
+        updateSignOrder(state, signedOrder: SignedOrder){
+            state.signedOrder = signedOrder
         }
     },
     getters: {
@@ -63,6 +67,9 @@ export default new Vuex.Store({
         },
         getSelectedOrder () : Order {
             return state.selectedOrder
+        },
+        getSignedOrder () : SignedOrder {
+            return state.signedOrder
         },
         getTakerAmount () : BigNumber {
             return state.takerAmount
