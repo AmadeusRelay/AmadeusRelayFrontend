@@ -53,10 +53,15 @@ import { BigNumber } from 'bignumber.js'
 export default class SignOrder extends Vue {
   takerSymbol: string = ''
   makerSymbol: string = ''
+  hasToChangePage: boolean = false
 
+  @Getter getSelectedOrder
   @Mutation changePage
   @Mutation updateSignOrder
-  @Getter getSelectedOrder
+  @Mutation updateTokenSold
+  @Mutation updateTokenBought
+  @Mutation updateFeeToPay
+  @Mutation updateTokenSoldAmount
 
   mounted () {
     this.setTakerSymbol();
@@ -123,11 +128,44 @@ export default class SignOrder extends Vue {
 
   onSuccessfullySignOrder (signedOrder: any) {
     this.updateSignOrder(signedOrder)
-    this.goToPostOrderPage()
+
+    const zeroXService = new ZeroXService();
+    zeroXService.getTokenSymbol(signedOrder.makerTokenAddress).then(symbol => this.setTokenSold(symbol));
+    zeroXService.getTokenSymbol(signedOrder.takerTokenAddress).then(symbol => this.setTokenBought(symbol));
+
+    this.setFeeToPay();
+  }
+
+  setTokenSold (symbol: string) {
+    this.updateTokenSold({
+      symbol: symbol,
+      address: this.order.makerTokenAddress,
+      fee: this.order.makerFee
+    });
+    this.updateTokenSoldAmount(new BigNumber(this.order.makerTokenAmount))
+    this.goToPostOrderPage();
+  }
+
+  setTokenBought (symbol: string) {
+    this.updateTokenBought({
+      symbol: symbol,
+      address: this.order.takerTokenAddress,
+      fee: this.order.takerFee
+    });
+    this.goToPostOrderPage();
   }
 
   goToPostOrderPage () {
-    this.changePage(5);
+    if (!this.hasToChangePage) {
+      this.hasToChangePage = true;
+    } else {
+      this.changePage(5);
+    }
+  }
+
+  setFeeToPay () {
+    const orderFee = new BigNumber(this.order.makerFee ? this.order.makerFee : '0');
+    this.updateFeeToPay(orderFee);
   }
 }
 </script>

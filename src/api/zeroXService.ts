@@ -55,7 +55,7 @@ export class ZeroXService {
     public async isNecessaryToSetAllowance(amount: BigNumber, tokenAddress: string) : Promise< { needAllowance: boolean, currentAllowance: BigNumber }> {
         var takerAddress: string = web3.eth.coinbase
         const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
-        return { needAllowance: alowancedValue.comparedTo(amount) < 0, currentAllowance: alowancedValue };
+        return { needAllowance: alowancedValue.truncated().comparedTo(amount) < 0, currentAllowance: alowancedValue.truncated() };
     }
 
     public getBalance(tokenAddress: string, address: string) : Promise<BigNumber> {

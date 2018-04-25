@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { TokenPair } from "../model/tokenPair";
 import { Order } from '../model/order'
+import { TokenInfo } from '../model/tokeninfo'
 import { BigNumber } from 'bignumber.js'
 import { SignedOrder } from '@0xproject/connect';
 
@@ -16,9 +17,17 @@ const state = {
     orders: [],
     selectedOrder: null,
     signedOrder: null,
-    takerAmount: null,
+    tokenSoldAmount: null,
     errorMessage: null,
-    loading: false
+    loading: false,
+    tokenSold: null,
+    tokenBought: null,
+    feeToPay: null,
+    needBalance: false,
+    needToSetFeeAllowance: false,
+    needToSetAllowance: false,
+    needToWrapEth: false,
+    needFeeBalance: false
 }
   
 export default new Vuex.Store({
@@ -42,8 +51,8 @@ export default new Vuex.Store({
         selectOrder (state, order : Order) {
             state.selectedOrder = order
         },
-        updateTakerAmount(state, takerAmount: BigNumber) {
-            state.takerAmount = takerAmount
+        updateTokenSoldAmount(state, tokenSoldAmount: BigNumber) {
+            state.tokenSoldAmount = tokenSoldAmount
         },
         cleanCodeLine (state) {
             state.code = ''
@@ -56,7 +65,31 @@ export default new Vuex.Store({
         },
         updateSignOrder(state, signedOrder: SignedOrder){
             state.signedOrder = signedOrder
-        }
+        },
+        updateTokenSold(state, tokenSold: TokenInfo){
+            state.tokenSold = tokenSold
+        },
+        updateTokenBought(state, tokenBought: TokenInfo){
+            state.tokenBought = tokenBought
+        },
+        updateFeeToPay(state, feeToPay: BigNumber){
+            state.feeToPay = feeToPay
+        },
+        updateNeedBalance (state, needBalance: boolean){
+            state.needBalance = needBalance
+        },
+        updateNeedFeeBalance (state, needFeeBalance: boolean){
+            state.needFeeBalance = needFeeBalance
+        },
+        updateNeedToSetFeeAllowance (state, needToSetFeeAllowance: boolean){
+            state.needToSetFeeAllowance = needToSetFeeAllowance
+        },
+        updateNeedToSetAllowance (state, needToSetAllowance: boolean){
+            state.needToSetAllowance = needToSetAllowance
+        },
+        updateNeedToWrapEth (state, needToWrapEth: boolean){
+            state.needToWrapEth = needToWrapEth
+        },
     },
     getters: {
         getTokenPairs () : TokenPair[] {
@@ -71,11 +104,35 @@ export default new Vuex.Store({
         getSignedOrder () : SignedOrder {
             return state.signedOrder
         },
-        getTakerAmount () : BigNumber {
-            return state.takerAmount
+        getTokenSoldAmount () : BigNumber {
+            return state.tokenSoldAmount
+        },
+        getTokenSold () : TokenInfo {
+            return state.tokenSold
+        },
+        getTokenBought () : TokenInfo {
+            return state.tokenBought
+        },
+        getFeeToPay () : TokenInfo {
+            return state.feeToPay
         },
         getErrorMessage () : string {
             return state.errorMessage;
+        },
+        getNeedBalance () : boolean {
+            return state.needBalance;
+        },
+        getNeedFeeBalance () : boolean {
+            return state.needFeeBalance;
+        },
+        getNeedToSetFeeAllowance () : boolean {
+            return state.needToSetFeeAllowance;
+        },
+        getNeedToSetAllowance () : boolean {
+            return state.needToSetAllowance;
+        },
+        getNeedToWrapEth () : boolean {
+            return state.needToWrapEth;
         }
     }
 })

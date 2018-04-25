@@ -5,6 +5,7 @@ import { TokenPair } from '../model/tokenPair';
 import { ZeroXService } from './zeroXService';
 import { BigNumber } from 'bignumber.js';
 import { BuildOrderService } from './buildOrderService';
+const ethUtil = require("ethereumjs-util");
 
 export class OrderService {
     private httpClient: HttpClient;
@@ -36,6 +37,8 @@ export class OrderService {
 
     public async postFee(makerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAddress: string, takerTokenAmount: BigNumber, maker: string, expirationUnixTimestampSec: BigNumber) : Promise<Order> {
         const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
+        makerTokenAmount = new BigNumber(1000000000000000000).mul(makerTokenAmount);
+        takerTokenAmount = new BigNumber(1000000000000000000).mul(takerTokenAmount);
         const fee = await this.httpClient.getFeesAsync({
             exchangeContractAddress : exchangeContractAddress,
             expirationUnixTimestampSec : expirationUnixTimestampSec,
@@ -50,6 +53,26 @@ export class OrderService {
 
         return this.buildOrderService.createOrder(exchangeContractAddress, makerTokenAddress, makerTokenAmount, takerTokenAddress, 
             takerTokenAmount, maker, '0x0000000000000000000000000000000000000000', expirationUnixTimestampSec, fee.makerFee, fee.takerFee, fee.feeRecipient);
+    }
+
+    public async postOrder(signedOrder: SignedOrder) : Promise<void> {
+        debugger;
+        const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
+        const fee = await this.httpClient.submitOrderAsync({
+            ecSignature: ethUtil.fromRpcSig(signedOrder.ecSignature),
+            exchangeContractAddress: signedOrder.exchangeContractAddress,
+            feeRecipient: signedOrder.feeRecipient,
+            expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec,
+            maker: signedOrder.maker,
+            makerFee: signedOrder.makerFee,
+            makerTokenAddress: signedOrder.makerTokenAddress,
+            makerTokenAmount: signedOrder.makerTokenAmount,
+            salt: signedOrder.salt,
+            taker: signedOrder.taker,
+            takerFee: signedOrder.takerFee,
+            takerTokenAddress: signedOrder.takerTokenAddress,
+            takerTokenAmount: signedOrder.takerTokenAmount
+        });
     }
 
     private convertOrders(signedOrders: SignedOrder[]) :  Order[]

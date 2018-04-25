@@ -32,6 +32,8 @@ tx = await this.zeroEx.exchange.fillOrderAsync(order[j], amount, true, web3.eth.
 await this.zeroEx.awaitTransactionMinedAsync(tx);
 `;  
 
+    public postOrder : string = `//post order`;
+
     public maxAmount : string = `//get maxAmount
 const maxAmount = tokenPairs[i].tokenB.maxAmount;
 `;
