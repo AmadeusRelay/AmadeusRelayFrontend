@@ -99,12 +99,12 @@ export default class SignOrder extends Vue {
 
   get makerAmount () {
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return new BigNumber(this.order.makerTokenAmount).toFormat()
+    return new BigNumber(this.order.makerTokenAmount).dividedBy(new BigNumber(1000000000000000000)).toFormat()
   }
 
   get takerAmount () {
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return new BigNumber(this.order.takerTokenAmount).toFormat()
+    return new BigNumber(this.order.takerTokenAmount).dividedBy(new BigNumber(1000000000000000000)).toFormat()
   }
 
   setTakerSymbol () {

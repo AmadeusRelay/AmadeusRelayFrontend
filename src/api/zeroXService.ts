@@ -4,8 +4,10 @@ import Vue from 'vue'
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
 import { SignUtil } from 'eth-sig-util';
+import { ECSignature } from "../model/ecSignature";
 declare var web3;
-const Eth = require('ethjs')
+const ethUtil = require("ethereumjs-util");
+const promisify = require('es6-promisify');
 
 export class ZeroXService {
     private zeroEx: ZeroEx;
@@ -144,13 +146,22 @@ export class ZeroXService {
             feeRecipient: order.feeRecipient,
             expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
         });
+
+        var signature = '';
         var from = web3.eth.accounts[0]
-        var params = [from, hash]
-          
-        // Now with Eth.js
-        var eth = new Eth(web3.currentProvider)        
-        order.ecSignature = await eth.personal_sign(hash, from);
+        const signData = await promisify(web3.eth.sign)(from, hash);
+        order.ecSignature = this.parseSignatureHexAsRSV(signData);
         order.salt = salt.toString();
         return this.convertToSignedOrder(order);
+    }
+
+    private parseSignatureHexAsRSV(signatureHex: string): ECSignature {
+        const {v, r, s} = ethUtil.fromRpcSig(signatureHex);
+        const ecSignature: ECSignature = {
+            v,
+            r: ethUtil.bufferToHex(r),
+            s: ethUtil.bufferToHex(s),
+        };
+        return ecSignature;
     }
 }
