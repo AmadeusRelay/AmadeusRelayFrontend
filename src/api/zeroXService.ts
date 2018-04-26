@@ -6,8 +6,6 @@ import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0
 import { SignUtil } from 'eth-sig-util';
 import { ECSignature } from "../model/ecSignature";
 declare var web3;
-const ethUtil = require("ethereumjs-util");
-const promisify = require('es6-promisify');
 
 export class ZeroXService {
     private zeroEx: ZeroEx;
@@ -147,21 +145,9 @@ export class ZeroXService {
             expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
         });
 
-        var signature = '';
-        var from = web3.eth.accounts[0]
-        const signData = await promisify(web3.eth.sign)(from, hash);
-        order.ecSignature = this.parseSignatureHexAsRSV(signData);
+        var from = this.getCoinBase();
+        order.ecSignature = await this.zeroEx.signOrderHashAsync(hash, from);
         order.salt = salt.toString();
         return this.convertToSignedOrder(order);
-    }
-
-    private parseSignatureHexAsRSV(signatureHex: string): ECSignature {
-        const {v, r, s} = ethUtil.fromRpcSig(signatureHex);
-        const ecSignature: ECSignature = {
-            v,
-            r: ethUtil.bufferToHex(r),
-            s: ethUtil.bufferToHex(s),
-        };
-        return ecSignature;
     }
 }
