@@ -11,7 +11,7 @@ export class OrderService {
     private httpClient: HttpClient;
 
     public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
-        this.httpClient = new HttpClient('http://localhost:3000/api');
+        this.httpClient = new HttpClient('http://localhost:3000/api/v0');
     }
 
     public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
@@ -39,40 +39,53 @@ export class OrderService {
         const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
         makerTokenAmount = new BigNumber(1000000000000000000).mul(makerTokenAmount);
         takerTokenAmount = new BigNumber(1000000000000000000).mul(takerTokenAmount);
-        const fee = await this.httpClient.getFeesAsync({
-            exchangeContractAddress : exchangeContractAddress,
-            expirationUnixTimestampSec : expirationUnixTimestampSec,
-            maker : maker,
-            taker : '0x0000000000000000000000000000000000000000',
-            makerTokenAddress : makerTokenAddress,
-            makerTokenAmount : makerTokenAmount,
-            takerTokenAddress : takerTokenAddress,
-            takerTokenAmount : takerTokenAmount,
-            salt : new BigNumber(0)
-        })
+        try {
+            const fee = await this.httpClient.getFeesAsync({
+                exchangeContractAddress : exchangeContractAddress,
+                expirationUnixTimestampSec : expirationUnixTimestampSec,
+                maker : maker,
+                taker : '0x0000000000000000000000000000000000000000',
+                makerTokenAddress : makerTokenAddress,
+                makerTokenAmount : makerTokenAmount,
+                takerTokenAddress : takerTokenAddress,
+                takerTokenAmount : takerTokenAmount,
+                salt : new BigNumber(0)
+            })
+    
+            return this.buildOrderService.createOrder(exchangeContractAddress, makerTokenAddress, makerTokenAmount, takerTokenAddress, 
+                takerTokenAmount, maker, '0x0000000000000000000000000000000000000000', expirationUnixTimestampSec, fee.makerFee, fee.takerFee, fee.feeRecipient);
 
-        return this.buildOrderService.createOrder(exchangeContractAddress, makerTokenAddress, makerTokenAmount, takerTokenAddress, 
-            takerTokenAmount, maker, '0x0000000000000000000000000000000000000000', expirationUnixTimestampSec, fee.makerFee, fee.takerFee, fee.feeRecipient);
+        } catch (error) {
+            this.errorHandler(error)
+        }
     }
 
     public async postOrder(signedOrder: SignedOrder) : Promise<void> {
-        debugger;
         const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
-        const fee = await this.httpClient.submitOrderAsync({
-            ecSignature: ethUtil.fromRpcSig(signedOrder.ecSignature),
-            exchangeContractAddress: signedOrder.exchangeContractAddress,
-            feeRecipient: signedOrder.feeRecipient,
-            expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec,
-            maker: signedOrder.maker,
-            makerFee: signedOrder.makerFee,
-            makerTokenAddress: signedOrder.makerTokenAddress,
-            makerTokenAmount: signedOrder.makerTokenAmount,
-            salt: signedOrder.salt,
-            taker: signedOrder.taker,
-            takerFee: signedOrder.takerFee,
-            takerTokenAddress: signedOrder.takerTokenAddress,
-            takerTokenAmount: signedOrder.takerTokenAmount
-        });
+        try {
+            const fee = await this.httpClient.submitOrderAsync({
+                ecSignature: signedOrder.ecSignature,
+                exchangeContractAddress: signedOrder.exchangeContractAddress,
+                feeRecipient: signedOrder.feeRecipient,
+                expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec,
+                maker: signedOrder.maker,
+                makerFee: signedOrder.makerFee,
+                makerTokenAddress: signedOrder.makerTokenAddress,
+                makerTokenAmount: signedOrder.makerTokenAmount,
+                salt: signedOrder.salt,
+                taker: signedOrder.taker,
+                takerFee: signedOrder.takerFee,
+                takerTokenAddress: signedOrder.takerTokenAddress,
+                takerTokenAmount: signedOrder.takerTokenAmount
+            });
+        } catch (error) {
+            this.errorHandler(error)
+        }
+    }
+
+    private errorHandler(error) {
+        const errorSplit = error.message.split('\n');
+        throw JSON.parse(errorSplit[errorSplit.length - 1])
     }
 
     private convertOrders(signedOrders: SignedOrder[]) :  Order[]

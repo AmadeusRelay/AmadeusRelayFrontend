@@ -32,7 +32,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Mutation } from 'vuex-class'
 import { BuildOrderService, OrderService, ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
-import { TokenInfo } from '../../model/tokeninfo'
+import { TokenInfo } from '../../model/tokenInfo'
 import { Scripts } from '../../utils/scripts'
 
 @Component({
@@ -62,8 +62,8 @@ export default class PostOrder extends Vue {
   @Getter getTokenBought
   @Mutation addCodeLine
   @Mutation changePage
-  @Mutation updateErrorMessage
   @Mutation updateLoadingState
+  @Mutation updateErrorModel
 
   get signedOrder () {
     debugger;
@@ -85,9 +85,9 @@ export default class PostOrder extends Vue {
     this.isPosting = true;
     this.updateLoadingState(true)
     this.orderService.postOrder(this.signedOrder).then(this.onSuccessfullyPostOrder).catch((e) => {
-      this.updateErrorMessage(e.message);
+      this.updateErrorModel(e);
       this.updateLoadingState(false)
-      this.changePage(7);
+      this.isPosting = false;
     });
   }
 

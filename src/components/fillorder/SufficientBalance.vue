@@ -18,7 +18,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Mutation } from 'vuex-class'
 import { ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
-import { TokenInfo } from '../../model/tokeninfo'
+import { TokenInfo } from '../../model/tokenInfo'
 
 @Component
 export default class SufficientBalance extends Vue {

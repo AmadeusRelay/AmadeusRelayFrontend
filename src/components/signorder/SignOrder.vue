@@ -88,12 +88,12 @@ export default class SignOrder extends Vue {
   get rate () {
     var makerAmount = new BigNumber(this.order.makerTokenAmount)
     var takerAmount = new BigNumber(this.order.takerTokenAmount)
-    BigNumber.config({ DECIMAL_PLACES: 4 })
-    return makerAmount.dividedBy(takerAmount).toFormat()
+    BigNumber.config({ DECIMAL_PLACES: 5 })
+    return takerAmount.dividedBy(makerAmount).toFormat()
   }
 
   get fee () {
-    var fee = new BigNumber(this.order.takerFee)
+    var fee = new BigNumber(this.order.makerFee)
     var conv = new BigNumber(1000000000000000000)
     BigNumber.config({ DECIMAL_PLACES: 6 })
     return fee.dividedBy(conv).toFormat()

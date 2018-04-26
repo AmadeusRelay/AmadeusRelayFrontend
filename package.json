@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "0x.js": "^0.22.4",
-    "@0xproject/connect": "^0.3.1",
+    "@0xproject/connect": "^0.6.6",
     "axios": "^0.17.0",
     "bignumber.js": "^4.1.0",
     "bootstrap": "^4.0.0-beta.2",

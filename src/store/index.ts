@@ -2,8 +2,11 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { TokenPair } from "../model/tokenPair";
 import { Order } from '../model/order'
-import { TokenInfo } from '../model/tokeninfo'
+import { TokenInfo } from '../model/tokenInfo'
 import { BigNumber } from 'bignumber.js'
+import { ErrorModel } from '../model/errorModel';
+import { ErrorCode } from '../model/errorCode';
+import { ValidationErrorCode } from '../model/validationErrorCode';
 import { SignedOrder } from '@0xproject/connect';
 
 Vue.use(Vuex)
@@ -20,6 +23,7 @@ const state = {
     tokenSoldAmount: null,
     errorMessage: null,
     loading: false,
+    errorModel: null,
     tokenSold: null,
     tokenBought: null,
     feeToPay: null,
@@ -59,6 +63,30 @@ export default new Vuex.Store({
         },
         updateErrorMessage(state, errorMessage: string) {
             state.errorMessage = errorMessage;
+        },
+        updateErrorModel(state, error: any) {
+            let errorModel: ErrorModel = null
+            if (error) {
+                if (error.code) {
+                    errorModel = error;
+                } else {
+                    errorModel = {
+                      code: ErrorCode.UnknownError,
+                      reason: error,
+                      title: ValidationErrorCode[ErrorCode.UnknownError],
+                      validationErrors: []
+                    };
+                }
+            }
+            state.errorModel = errorModel;
+            if (state.errorModel) {
+                state.errorModel.title = ErrorCode[state.errorModel.code] || state.errorModel.code;
+                if (state.errorModel.validationErrors) {
+                    state.errorModel.validationErrors.forEach(validationError => {
+                        validationError.title = ValidationErrorCode[validationError.code] || validationError.code;
+                    });
+                }
+            }
         },
         updateLoadingState(state, loading: boolean){
             state.loading = loading
@@ -133,6 +161,9 @@ export default new Vuex.Store({
         },
         getNeedToWrapEth () : boolean {
             return state.needToWrapEth;
+        },
+        getPopupErrorModel () : ErrorModel {
+            return state.errorModel;
         }
     }
 })

@@ -95,6 +95,7 @@ export default class PostFee extends Vue {
   @Mutation updateErrorMessage
   @Mutation updateLoadingState
   @Mutation selectOrder
+  @Mutation updateErrorModel
 
   goToSignOrderPage () {
     if (this.validateRequiredFields()) {
@@ -104,9 +105,8 @@ export default class PostFee extends Vue {
       orderService.postFee(this.makerTokenAddress, new BigNumber(this.makerAmount), this.takerTokenAddress, this.takerAmount, this.zeroXService.getCoinBase(), new BigNumber(timestamp))
         .then(this.onSuccessfullyPostFee)
         .catch((e) => {
-          this.updateErrorMessage(e.message)
+          this.updateErrorModel(e);
           this.updateLoadingState(false)
-          this.changePage(7)
         });
     }
   }
@@ -131,7 +131,7 @@ export default class PostFee extends Vue {
     if (this.makerAmount === null || this.makerAmount === '') {
       this.makerAmountError = 'required'
       valid = false
-    } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount.replace(',', ''))) === 1) {
+    } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) === 1) {
       this.makerAmountError = 'Value is greater than max'
       valid = false
     }
@@ -171,11 +171,17 @@ export default class PostFee extends Vue {
         return token.tokenASymbol === this.makerToken && token.tokenBSymbol === this.takerToken;
       }.bind(this));
       if (selectedPair != null && selectedPair.length > 0) {
-        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
+        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenAAmount)
         var conv = new BigNumber(1000000000000000000)
-        BigNumber.config({ DECIMAL_PLACES: 4 })
+        BigNumber.config({ DECIMAL_PLACES: 8 })
         this.maxAmount = makerMaxAmount.dividedBy(conv).toFormat()
-        this.price = makerMaxAmount.dividedBy(new BigNumber(selectedPair[0].maxTokenAAmount))
+        this.price = new BigNumber(selectedPair[0].maxTokenBAmount).dividedBy(makerMaxAmount)
+        if (this.makerAmount !== null && this.makerAmount !== '') {
+          if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) !== 1) {
+            this.makerAmountError = ''
+          }
+          this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
+        }
       }
       this.addCodeLine(new Scripts().maxAmount)
     }
@@ -190,7 +196,7 @@ export default class PostFee extends Vue {
   @Watch('makerAmount')
   onMakerAmountChanged (val: string, oldVal: string) {
     if (val !== null && val !== '') {
-      if (new BigNumber(val).comparedTo(new BigNumber(this.maxAmount.replace(',', ''))) !== 1) {
+      if (new BigNumber(val).comparedTo(new BigNumber(this.maxAmount)) !== 1) {
         this.makerAmountError = ''
       }
       this.takerAmount = new BigNumber(val).mul(this.price)

@@ -38,7 +38,7 @@ import { Getter, Mutation } from 'vuex-class'
 import { ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
 import { Order } from '../../model/order'
-import { TokenInfo } from '../../model/tokeninfo'
+import { TokenInfo } from '../../model/tokenInfo'
 import { Scripts } from '../../utils/scripts'
 
 @Component({

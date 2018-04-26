@@ -16,7 +16,8 @@
             </div>
           </div>
         </div>
-        <loading v-if="loading"></loading>
+        <loading v-if="loading && pageId !== 0"></loading>
+        <popup-error v-if="errorModel !== null"></popup-error>
         <welcome v-if="pageId == 0"></welcome>
         <choose-strategy v-if="pageId == 1"></choose-strategy>
         <token-pairs v-if="pageId == 2"></token-pairs>
@@ -45,6 +46,7 @@ import FillOrder from './components/fillorder/FillOrder.vue'
 import OrderConfirmation from './components/confirmation/OrderConfirmation.vue'
 import OrderError from './components/error/OrderError.vue'
 import Loading from './components/shared/Loading.vue'
+import PopupError from './components/shared/PopupError.vue'
 import ChooseStrategy from './components/choosestrategy/ChooseStrategy.vue'
 import PostFee from './components/postfee/PostFee.vue'
 import SignOrder from './components/signorder/SignOrder.vue'
@@ -63,13 +65,15 @@ export default {
     ChooseStrategy,
     PostFee,
     SignOrder,
+    PopupError,
     PostOrder
   },
   computed: mapState({
     pageId: state => state.pageId,
     strategyId: state => state.strategyId,
     code: state => state.code,
-    loading: state => state.loading
+    loading: state => state.loading,
+    errorModel: state => state.errorModel
   }),
   methods: {
     ...mapMutations({
