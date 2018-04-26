@@ -62,6 +62,8 @@ export default class SignOrder extends Vue {
   @Mutation updateTokenBought
   @Mutation updateFeeToPay
   @Mutation updateTokenSoldAmount
+  @Mutation updateLoadingState
+  @Mutation updateErrorMessage
 
   mounted () {
     this.setTakerSymbol();
@@ -123,16 +125,22 @@ export default class SignOrder extends Vue {
 
   signOrder () {
     var zeroXService = new ZeroXService()
-    zeroXService.signOrder(this.order).then(signedOrder => this.onSuccessfullySignOrder(signedOrder))
+    this.updateLoadingState(true);
+    zeroXService.signOrder(this.order)
+    .then(signedOrder => this.onSuccessfullySignOrder(signedOrder))
+    .catch((e) => {
+      this.updateErrorMessage(e.message)
+      this.updateLoadingState(false)
+      this.changePage(7)
+    });
   }
 
   onSuccessfullySignOrder (signedOrder: any) {
     this.updateSignOrder(signedOrder)
-
     const zeroXService = new ZeroXService();
     zeroXService.getTokenSymbol(signedOrder.makerTokenAddress).then(symbol => this.setTokenSold(symbol));
     zeroXService.getTokenSymbol(signedOrder.takerTokenAddress).then(symbol => this.setTokenBought(symbol));
-
+    this.updateLoadingState(false)
     this.setFeeToPay();
   }
 
