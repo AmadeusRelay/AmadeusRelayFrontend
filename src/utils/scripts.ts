@@ -32,8 +32,6 @@ tx = await this.zeroEx.exchange.fillOrderAsync(order[j], amount, true, web3.eth.
 await this.zeroEx.awaitTransactionMinedAsync(tx);
 `;  
 
-    public postOrder : string = `//post order`;
-
     public maxAmount : string = `//get maxAmount
 const maxAmount = tokenPairs[i].tokenB.maxAmount;
 `;
@@ -53,6 +51,37 @@ let feeResponse = await this.httpClient.getFeesAsync({
 })
     `;
 
+    public postOrder : string = `//Using 0x.js
+import { ZeroEx } from '0x.js';
+this.zeroEx = new ZeroEx(web3.currentProvider);
 
+// Convert ETH -> WETH
+let tx = await this.zeroEx.etherToken.depositAsync(amount, web3.eth.coinbase);
+await this.zeroEx.awaitTransactionMinedAsync(tx); // Wait mining
 
+// Set Maker allowance 
+tx = await this.zeroEx.token.setProxyAllowanceAsync(orders[j].makerTokenAddress, web3.eth.coinbase, amount);
+await this.zeroEx.awaitTransactionMinedAsync(tx);
+
+// Set Fee allowance
+tx = await this.zeroEx.token.setProxyAllowanceAsync(zeroExTokenAddress, web3.eth.coinbase, feeAmount);
+await this.zeroEx.awaitTransactionMinedAsync(tx);
+
+// Post order
+await this.httpClient.submitOrderAsync({
+    ecSignature: signedOrder.ecSignature,
+    exchangeContractAddress: signedOrder.exchangeContractAddress,
+    feeRecipient: signedOrder.feeRecipient,
+    expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec,
+    maker: signedOrder.maker,
+    makerFee: signedOrder.makerFee,
+    makerTokenAddress: signedOrder.makerTokenAddress,
+    makerTokenAmount: signedOrder.makerTokenAmount,
+    salt: signedOrder.salt,
+    taker: signedOrder.taker,
+    takerFee: signedOrder.takerFee,
+    takerTokenAddress: signedOrder.takerTokenAddress,
+    takerTokenAmount: signedOrder.takerTokenAmount
+});
+    `;
 }
