@@ -10,8 +10,8 @@ const ethUtil = require("ethereumjs-util");
 export class OrderService {
     private httpClient: HttpClient;
 
-    public constructor(private zeroXService: ZeroXService) {
-        this.httpClient = new HttpClient('https://api.amadeusrelay.org/api');
+    public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
+        this.httpClient = new HttpClient('http://localhost:3000/api/v0');
     }
 
     public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
@@ -134,6 +134,3 @@ export class OrderService {
         return tokens;
     }
 }
-
-    public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
-        this.httpClient = new HttpClient('http://localhost:3000/api/v0');
