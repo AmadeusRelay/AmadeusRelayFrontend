@@ -34,7 +34,9 @@ and in the class constructor where you will use it, initialize
 private zeroEx: ZeroEx;
 
 public constructor() {
-	this.zeroEx = new ZeroEx(web3.currentProvider);
+	this.zeroEx = new ZeroEx(web3.currentProvider,  {
+              "networkId": 42   // that informs you're using Kovan test network
+            });
 }
 ```
 The ZeroEx must receive a [Web3 object](https://github.com/ethereum/wiki/wiki/Javascript-API) with access to your account. If you are using Metamask, it exposes the standard Ethereum web3 API, so you don't have to declare it before. The currentProvider returns the provider that is in use, making sure the API and client are in the same network.
@@ -49,7 +51,7 @@ import {HttpClient} from '@0xproject/connect';
 ```
 and instantiate a new HttpClient instance with Amadeus Relay url
 ```
-this.httpClient = new HttpClient('https://api.amadeusrelay.org/api');
+this.httpClient = new HttpClient('https://api.amadeusrelay.org/api/v0');
 ```
 
 ### Reserve Manager
@@ -67,16 +69,16 @@ This function can be called passing tokenA as empty or passing a token address a
 ```
 {
     "tokenA": {
-      "address": "0x05d090b51c40b020eab3bfcb6a2dff130df22e9c",
-      "minAmount": "0",
-      "maxAmount": "700000000000000000",
-      "precision": 6
+      "address": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
+      "minAmount": "100000000000",
+      "maxAmount": "2002000000000000",
+      "precision": 8
     },
     "tokenB": {
       "address": "0xb18845c260f680d5b9d84649638813e342e4f8c9",
-      "minAmount": "0",
-      "maxAmount": "40000000000000000000",
-      "precision": 6
+      "minAmount": "1310000000000",
+      "maxAmount": "26326070000000000",
+      "precision": 8
     }
 }
 ```
@@ -129,13 +131,13 @@ Now you are almost ready to fill the real value you want to trade and complete t
 
 #### STEP 3: Filling value and converting ETH in WETH
 
-After getting the orders, you can choose the most interesting order to complete by filling the value you want to exchange in the Order's Table.
+After getting the orders, you can choose the most interesting order to complete by filling the value you want to exchange.
 
 Let's see an example:
 - Our relay posted an order to sell 100000 ZRX in exchange for 100 WETH
 - In this order, the maker is ZRX and the taker is WETH
 - As you're the taker, you can sell your WETH in exchange to relayer's ZRX
-- To do this, you must fill the value you want to exchange in the Order's Table
+- To do this, you must fill the value you want to exchange
 - If you choose to put 10 WETH, you will receive 10000 ZRX in exchange
 
 There're an important point at this step. If you don't have WETH itself, only ETH, you have to exchange both with a command similar to this:
@@ -192,7 +194,7 @@ Now, everything is ready to complete the order. At this point, you have to be su
 - You have sufficient ZRX amount to cover the fee;
 - You allowed the 0x protocol to interact with your funds, for both, the token to be sold and the token for the fee collection (ZRX).
 
-There's a catch about exchanges when you want to buy ZRX. On that case, you don't need to have ZRX in your wallet to cover the fee, but it will be charged over the maker amount, which means that the fee will be deduced from what you will receive from the exchange.
+There's a catch about exchanges when you want to buy ZRX. On that case, you don't need to have ZRX in your wallet to cover the fee, but it will be charged over the maker amount, which means that the fee will be deduced from what you will receive from the relayer.
 
 Once those conditions are fulfilled, call the command:
 ```
@@ -251,16 +253,16 @@ Using the same route described in the reserve manager strategy, you can calculat
 ```
 {
     "tokenA": {
-      "address": "0x05d090b51c40b020eab3bfcb6a2dff130df22e9c",
-      "minAmount": "0",
-      "maxAmount": "700000000000000000",
-      "precision": 6
+      "address": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
+      "minAmount": "100000000000",
+      "maxAmount": "2002000000000000",
+      "precision": 8
     },
     "tokenB": {
       "address": "0xb18845c260f680d5b9d84649638813e342e4f8c9",
-      "minAmount": "0",
-      "maxAmount": "40000000000000000000",
-      "precision": 6
+      "minAmount": "1310000000000",
+      "maxAmount": "26326070000000000",
+      "precision": 8
     }
 }
 ```
@@ -272,15 +274,15 @@ At this moment, you already know how to get which coins can be traded and the re
 
 As has already been said, 0xOrderBuilder.js facilitates the assembly of the order. However, if you do not want to use it, you must know how to specify the fields of your order. The fields are:
 
-"exchangeContractAddress": The address of the 0x protocol exchange smart contract, based on your ethereum network.
-"maker": yours eth wallet address
-"taker": "0x0000000000000000000000000000000000000000" or Amadeus Relay address
-"makerTokenAddress": the token address you wish to sell
-"takerTokenAddress": the token address you wish to buy
-"makerTokenAmount": the amount you wish to sell (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));
-"takerTokenAmount": the amount you wish to buy (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));,
-"expirationUnixTimestampSec": order expiration,
-"salt": randomic number, that can be generate by calling 0x.js method generatePseudoRandomSalt
+* "exchangeContractAddress": The address of the 0x protocol exchange smart contract, based on your ethereum network.
+* "maker": yours eth wallet address
+* "taker": "0x0000000000000000000000000000000000000000" or Amadeus Relay address
+* "makerTokenAddress": the token address you wish to sell
+* "takerTokenAddress": the token address you wish to buy
+* "makerTokenAmount": the amount you wish to sell (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));
+* "takerTokenAmount": the amount you wish to buy (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));,
+* "expirationUnixTimestampSec": order expiration,
+* "salt": randomic number, that can be generate by calling 0x.js method generatePseudoRandomSalt
 
 and with them, you can get the order fee, as we'll see in the next step.
 
@@ -348,7 +350,7 @@ public async signOrder(order: Order, privateKey): Promise<SignedOrder> {
 		feeRecipient: order.feeRecipient,
 		expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
 	});
-	const signature = await this.zeroEx.signOrderHashAsync(hash, privateKey);
+	const signature = await this.zeroEx.signOrderHashAsync(hash, privateKey, true);
 	return Object.assign({}, order, { ecSignature: signature });
 }
 ```
@@ -380,7 +382,7 @@ Now, everything is ready to complete the order. At this point, as well as the re
 - You have sufficient ZRX amount to cover the fee;
 - You allowed the 0x protocol to interact with your funds, for both, the token to be sold and the token for the fee collection (ZRX).
 
-There's a catch about exchanges when you want to buy ZRX. On that case, you don't need to have ZRX in your wallet to cover the fee, but it will be charged over the maker amount, which means that the fee will be deduced from what you will receive from the exchange.
+There's a catch about exchanges when you want to buy ZRX. On that case, you don't need to have ZRX in your wallet to cover the fee, but it will be charged over the taker amount, which means that the fee will be deduced from what you will receive from the relayer.
 
 Once those conditions are fulfilled, you can call the API POST order, to give responsibility for the relayer to complete the order:
 
