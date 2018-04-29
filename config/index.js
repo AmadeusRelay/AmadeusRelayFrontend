@@ -21,11 +21,11 @@ module.exports = {
     // Set to `true` or `false` to always turn it on or off
     bundleAnalyzerReport: process.env.npm_config_report,
     http: {
-      use: true,
+      use: false,
       port: 8080
     },
     https: {
-      use: false,
+      use: true,
       port: 8081
     },
     DNSValidator: {

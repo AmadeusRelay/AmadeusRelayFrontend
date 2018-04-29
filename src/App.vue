@@ -1,37 +1,32 @@
 <template>
     <div id="main-section" ref="mainsection">
-      <div class="container-fluid" ref="container" v-bind:class="{'full-container': pageId <= 1, 'half-container': pageId > 1}">
-        <div v-if="pageId > 1" class="nav-container">
-          <span v-for="n in [2, 3, 4, 5, 6]" :key="n" class="nav-state" v-bind:class="{'active': pageId && pageId == n}"></span>
+      <div class="container-fluid" ref="container" v-bind:class="{'full-container': pageId == 0, 'half-container': pageId != 0}">
+        <div v-if="pageId != 0" class="nav-container">
+          <span v-for="n in 5" class="nav-state" v-bind:class="{'active': pageId && pageId == n}"></span>
         </div>
         <div class="col-md-12">
           <div class="row">
             <div class="col-md-4">
               <img id="logo" src="./assets/logo_amadeus.png">
             </div>
-            <div v-if="pageId > 1" class="col-lg-8 col-md-8">
+            <div v-if="pageId != 0" class="col-lg-8 col-md-8">
               <div class="col-lg-3 col-md-5 pull-right">
                 <button class="js-add btn btn-block uppercase" type="button" @click="goToWelcomePage()">Restart</button> 
               </div>
             </div>
           </div>
         </div>
-        <loading v-if="loading && pageId !== 0"></loading>
-        <popup-error v-if="errorModel !== null"></popup-error>
+        <loading v-if="loading"></loading>
         <welcome v-if="pageId == 0"></welcome>
-        <choose-strategy v-if="pageId == 1"></choose-strategy>
-        <token-pairs v-if="pageId == 2"></token-pairs>
-        <get-orders v-if="pageId == 3 && strategyId == 1"></get-orders>
-        <post-fee v-if="pageId == 3 && strategyId == 2"></post-fee>
-        <choose-order v-if="pageId == 4 && strategyId == 1"></choose-order>
-        <sign-order v-if="pageId == 4 && strategyId == 2"></sign-order>
-        <fill-order v-if="pageId == 5 && strategyId == 1"></fill-order>
-        <post-order v-if="pageId == 5 && strategyId == 2"></post-order>
-        <order-confirmation v-if="pageId == 6"></order-confirmation>
-        <order-error v-if="pageId == 7"></order-error>
+        <token-pairs v-if="pageId == 1"></token-pairs>
+        <get-orders v-if="pageId == 2"></get-orders>
+        <choose-order v-if="pageId == 3"></choose-order>
+        <fill-order v-if="pageId == 4"></fill-order>
+        <order-confirmation v-if="pageId == 5"></order-confirmation>
+        <order-error v-if="pageId == 6"></order-error>
       </div>
-      <div class="code-container" v-if="pageId > 1">
-        <codemirror v-if="pageId > 1" ref="myCm" v-model="code"></codemirror>
+      <div class="code-container" v-if="pageId != 0">
+        <codemirror v-if="pageId != 0" ref="myCm" v-model="code"></codemirror>
       </div>
     </div>
 </template>
@@ -46,11 +41,6 @@ import FillOrder from './components/fillorder/FillOrder.vue'
 import OrderConfirmation from './components/confirmation/OrderConfirmation.vue'
 import OrderError from './components/error/OrderError.vue'
 import Loading from './components/shared/Loading.vue'
-import PopupError from './components/shared/PopupError.vue'
-import ChooseStrategy from './components/choosestrategy/ChooseStrategy.vue'
-import PostFee from './components/postfee/PostFee.vue'
-import SignOrder from './components/signorder/SignOrder.vue'
-import PostOrder from './components/postorder/PostOrder.vue'
 
 export default {
   components: {
@@ -61,30 +51,21 @@ export default {
     FillOrder,
     OrderConfirmation,
     OrderError,
-    Loading,
-    ChooseStrategy,
-    PostFee,
-    SignOrder,
-    PopupError,
-    PostOrder
+    Loading
   },
   computed: mapState({
     pageId: state => state.pageId,
-    strategyId: state => state.strategyId,
     code: state => state.code,
-    loading: state => state.loading,
-    errorModel: state => state.errorModel
+    loading: state => state.loading
   }),
   methods: {
     ...mapMutations({
       updatePageId: 'changePage',
-      cleanCodeContainer: 'cleanCodeLine',
-      updateLoadingState: 'updateLoadingState'
+      cleanCodeContainer: 'cleanCodeLine'
     }),
     goToWelcomePage () {
       this.cleanCodeContainer()
       this.updatePageId(0)
-      this.updateLoadingState(false)
     }
   },
   watch: {

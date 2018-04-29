@@ -2,15 +2,51 @@
 <div id="fill-order-section">
       <div class="container">
           <div class="row">
-            <div v-if='takerAmount && makerAmount' class="col-md-12">
-                <p>Chosen order: {{takerAmount.dividedBy(1000000000000000000).toFormat()}} {{tokenSold.symbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerAmount.dividedBy(1000000000000000000).toFormat()}} {{tokenBought.symbol}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(1000000000000000000).toFormat() + ' ZRX') :''}}
+            <div v-if='amount && makerAmount' class="col-md-12">
+                <p>Chosen order: {{amount.dividedBy(1000000000000000000).toFormat()}} {{token}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerAmount.dividedBy(1000000000000000000).toFormat()}} {{makerToken}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(1000000000000000000).toFormat() + ' ZRX') :''}}
                 <br>In order to be able to fill the order, you need to: </p>
             </div>
           </div>
           <div class="row">
-            <sufficient-balance/>
-            <wrap-eth/>
-            <set-allowance/>
+            <div class="col-md-12 bottom-space">
+              <label>
+                <span class="cb-validation" v-bind:class="{'active' : !needBalance && !needFeeBalance, 'inactive' : needBalance || needFeeBalance }"></span>
+                Have sufficient balance
+                <div>
+                  <div class='item-details'>Balance: {{balanceAmount}} {{token}}</div>
+                </div>
+                <div v-if='feeAmount && token !== "ZRX"'>
+                  <div class='item-details'>Balance: {{this.makerToken === 'ZRX' ? 'the fee will be deduced from maker amount' : feeBalanceAmount + ' ZRX'}}</div>
+                </div>
+              </label>
+            </div>
+            <div class="col-md-12 bottom-space">
+            <label>
+              <span class="cb-validation" v-bind:class="{'active' : !needToWrapETH, 'inactive' :needToWrapETH}"></span> Convert ETH in WETH
+                <div v-if='token==="ETH"'>
+                  <div class='item-details'>Converted: {{convertedAmount}} {{convertedToken}}</div>
+                  <a v-if='needToWrapETH && !needBalance' class="btn-action" @click="wrapETH()">Convert</a>
+                </div>
+                <div v-if='token!=="ETH"'>
+                  <div class='item-details'>The conversion is only applied to ETH token</div>
+                </div>
+            </label>
+            </div>
+            <div class="col-md-12 bottom-space">
+              <label>
+                <span class="cb-validation" v-bind:class="{'active' : !needToSetAllowance && !needToSetFeeAllowance, 'inactive' : needToSetAllowance || needToSetFeeAllowance}"></span> Authorize 0x to interact with your funds
+                <div>
+                  <div class='item-details'>Authorized: {{authorizedAmount}} {{convertedToken}}</div>
+                    <a v-if='needToSetAllowance' class="btn-action" @click="setAllowance()">Authorize</a>
+                </div>
+                <div>
+                <div v-if='feeAmount && token !== "ZRX"'>
+                  <div class='item-details'>Authorized: {{authorizedZrxAmount}} ZRX</div>
+                    <a v-if='needToSetFeeAllowance' class="btn-action" @click="setFeeAllowance()">Authorize</a>
+                  </div>
+                </div>
+              </label>
+            </div>       
           </div>
           <div class="row">
             <div class="col-md-12">
@@ -19,7 +55,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': getNeedBalance || getNeedToWrapEth || getNeedToSetAllowance || getNeedFeeBalance || getNeedToSetFeeAllowance}">FILL ORDER
+                <a class="btn-next-step" @click="goToFinalPage()" v-bind:class="{'inactive': needBalance || needToWrapETH || needToSetAllowance || needFeeBalance || needToSetFeeAllowance}">FILL ORDER
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -30,77 +66,239 @@
 
 
 <script lang="ts">
-import SufficientBalance from './SufficientBalance.vue'
-import WrapEth from './WrapEth.vue'
-import SetAllowance from './SetAllowance.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Mutation } from 'vuex-class'
 import { ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
 import { Order } from '../../model/order'
-import { TokenInfo } from '../../model/tokenInfo'
 import { Scripts } from '../../utils/scripts'
 
-@Component({
-  components:
-  {
-    'sufficient-balance': SufficientBalance,
-    'wrap-eth': WrapEth,
-    'set-allowance': SetAllowance
-  }
-})
+@Component
 export default class FillOrder extends Vue {
+  needToWrapETH: boolean = true
+  needToSetAllowance: boolean = true
+  needToSetFeeAllowance: boolean = true
+  needBalance: boolean = true;
+  needFeeBalance: boolean = true;
+  token: string = '';
+  makerToken: string = '';
+  convertedToken: string = '';
+  balanceAmount: string = '';
+  feeBalanceAmount: string = '0';
+  convertedAmount: string = '';
+  authorizedAmount: string = '';
+  authorizedZrxAmount: string = '';
   order: Order;
-  takerAmount: BigNumber = new BigNumber(0);
+  amount: BigNumber = new BigNumber(0);
   makerAmount: BigNumber = new BigNumber(0);
   feeAmount: BigNumber = null;
   zeroXService: ZeroXService;
+  isWrapping: boolean = false;
+  isAuthorizing: boolean = false;
+  isAuthorizingFee: boolean = false;
   isFilling: boolean = false;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
-  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
 
   @Getter getSelectedOrder
-  @Getter getTokenSoldAmount
-  @Getter getFeeToPay
-  @Getter getNeedToSetFeeAllowance
-  @Getter getNeedToSetAllowance
-  @Getter getNeedBalance
-  @Getter getNeedFeeBalance
-  @Getter getNeedToWrapEth
-  @Getter getTokenSold
-  @Getter getTokenBought
+  @Getter getTakerAmount
   @Mutation addCodeLine
   @Mutation changePage
   @Mutation updateErrorMessage
   @Mutation updateLoadingState
 
-  mounted () {
-    this.zeroXService = new ZeroXService();
-    this.order = this.getSelectedOrder;
-    this.takerAmount = this.getTokenSoldAmount;
-    this.feeAmount = this.getFeeToPay;
-    this.makerAmount = new BigNumber(this.getTokenSoldAmount).mul(this.order.takerTokenAmount).dividedBy(this.order.makerTokenAmount);
-    this.tokenSold = this.getTokenSold;
-    this.tokenBought = this.getTokenBought;
-    this.addCodeLine(new Scripts().fillOrder);
-  }
-
   goToFinalPage () {
-    if (this.getNeedToWrapEth || this.getNeedToSetAllowance || this.getNeedBalance || this.isFilling || this.getNeedFeeBalance || this.getNeedToSetFeeAllowance) {
+    if (this.needToWrapETH || this.needToSetAllowance || this.needBalance || this.isFilling || this.needFeeBalance || this.needToSetFeeAllowance) {
       return;
     }
     this.isFilling = true;
     this.updateLoadingState(true)
-    this.zeroXService.fillOrder(this.order, this.takerAmount).then(this.onSuccessfullyFillOrder).catch((e) => {
+    this.zeroXService.fillOrder(this.order, this.amount).then(this.onSuccessfullyFillOrder).catch((e) => {
       this.updateErrorMessage(e.message);
       this.updateLoadingState(false)
-      this.changePage(7);
+      this.changePage(6);
     });
   }
 
   onSuccessfullyFillOrder () {
     this.updateLoadingState(false)
-    this.changePage(6)
+    this.changePage(5)
+  }
+
+  mounted () {
+    this.zeroXService = new ZeroXService();
+    this.order = this.getSelectedOrder;
+    this.amount = this.getTakerAmount;
+    this.makerAmount = new BigNumber(this.getTakerAmount).mul(this.order.takerTokenAmount).dividedBy(this.order.makerTokenAmount);
+    this.zeroXService.getTokenSymbol(this.order.takerTokenAddress).then(symbol => this.setToken(symbol));
+    this.zeroXService.getTokenSymbol(this.order.makerTokenAddress).then(symbol => { this.makerToken = symbol; });
+    this.addCodeLine(new Scripts().fillOrder);
+    let orderFee = new BigNumber(this.order.takerFee ? this.order.takerFee : '0');
+    if (orderFee.greaterThan(0)) {
+      const orderTakerAmount = new BigNumber(this.order.takerTokenAmount);
+      this.feeAmount = orderFee.mul(this.amount).dividedBy(orderTakerAmount);
+    } else {
+      this.feeAmount = null;
+    }
+  }
+
+  setToken (symbol: string) {
+    this.token = symbol;
+    if (this.token === 'ETH') {
+      this.isNecessaryToWrapETH();
+      this.convertedToken = 'WETH';
+    } else {
+      this.needToWrapETH = false;
+      this.convertedToken = symbol;
+    }
+
+    this.isNecessaryToCheckBalance();
+    this.isNecessaryToCheckFeeBalance();
+    this.isNecessaryToSetAllowance();
+    this.isNecessaryToSetFeeAllowance();
+  }
+
+  isNecessaryToCheckBalance () {
+    if (this.token === 'ETH') {
+      this.zeroXService.getBalance(this.order.takerTokenAddress, this.zeroXService.getCoinBase()).then(amount => {
+        var wethAmount: BigNumber = amount;
+        this.zeroXService.getEthBalance().then(amount => {
+          this.checkNecessaryBalance(wethAmount.add(amount))
+        });
+      });
+    } else {
+      this.zeroXService.getBalance(this.order.takerTokenAddress, this.zeroXService.getCoinBase()).then(amount => this.checkNecessaryBalance(amount));
+    }
+  }
+
+  isNecessaryToCheckFeeBalance () {
+    if (this.makerToken === 'ZRX') {
+      this.needFeeBalance = false;
+    } else {
+      this.zeroXService.getBalance('0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570', this.zeroXService.getCoinBase()).then(amount => this.checkNecessaryFeeBalance(amount));
+    }
+  }
+
+  isNecessaryToWrapETH () {
+    this.zeroXService.isNecessaryToWrapETH(this.amount, this.order.takerTokenAddress).then(this.checkNecessaryToWrapETH);
+  }
+
+  isNecessaryToSetAllowance () {
+    let necessaryAmount = this.token !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
+    this.zeroXService.isNecessaryToSetAllowance(necessaryAmount, this.order.takerTokenAddress).then(this.checkNecessaryToSetAllowance);
+  }
+
+  isNecessaryToSetFeeAllowance () {
+    if (this.token === 'ZRX' || !this.feeAmount) {
+      this.checkNecessaryToSetFeeAllowance({ needAllowance: false, currentAllowance: new BigNumber(0) });
+    } else {
+      this.zeroXService.isNecessaryToSetAllowance(new BigNumber(this.feeAmount), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(this.checkNecessaryToSetFeeAllowance);
+    }
+  }
+
+  checkNecessaryBalance (amount: BigNumber) {
+    this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
+    let necessaryAmount = this.token !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
+    this.needBalance = !amount.greaterThanOrEqualTo(necessaryAmount);
+    if (this.needBalance) {
+      setTimeout(() => this.isNecessaryToCheckBalance(), 1000);
+    }
+  }
+
+  checkNecessaryFeeBalance (fee: BigNumber) {
+    this.feeBalanceAmount = fee.dividedBy(1000000000000000000).toFormat();
+    if (this.feeAmount && this.token !== 'ZRX') {
+      this.needFeeBalance = !fee.greaterThanOrEqualTo(this.feeAmount);
+    } else {
+      this.needFeeBalance = false;
+    }
+    if (this.needFeeBalance) {
+      setTimeout(() => this.isNecessaryToCheckFeeBalance(), 1000);
+    }
+  }
+
+  checkNecessaryToWrapETH (result) {
+    this.needToWrapETH = result.needWrap;
+    this.convertedAmount = result.currentWrapped.dividedBy(1000000000000000000).toFormat();
+    if (this.needToWrapETH) {
+      setTimeout(() => this.isNecessaryToWrapETH(), 2000);
+    }
+  }
+
+  checkNecessaryToSetAllowance (result) {
+    this.needToSetAllowance = result.needAllowance;
+    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    if (amount.lessThanOrEqualTo(1000000000)) {
+      this.authorizedAmount = amount.toFormat();
+    } else {
+      this.authorizedAmount = 'more than 1 billion';
+    }
+    if (this.needToSetAllowance) {
+      setTimeout(() => this.isNecessaryToSetAllowance(), 2000);
+    }
+  }
+
+  checkNecessaryToSetFeeAllowance (result) {
+    this.needToSetFeeAllowance = result.needAllowance;
+    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    if (amount.lessThanOrEqualTo(1000000000)) {
+      this.authorizedZrxAmount = amount.toFormat();
+    } else {
+      this.authorizedZrxAmount = 'more than 1 billion';
+    }
+    if (this.needToSetFeeAllowance) {
+      setTimeout(() => this.isNecessaryToSetFeeAllowance(), 2000);
+    }
+  }
+
+  wrapETH () {
+    if (this.isWrapping) {
+      return;
+    }
+    this.isWrapping = true;
+    this.updateLoadingState(true);
+    this.zeroXService.wrapETH(this.amount, this.order.takerTokenAddress).then(() => {
+      this.isNecessaryToWrapETH();
+      this.updateLoadingState(false);
+      this.isWrapping = false;
+    }).catch((e) => {
+      this.isWrapping = false;
+      this.updateLoadingState(false);
+      return e;
+    });
+  }
+
+  setAllowance () {
+    if (this.isAuthorizing) {
+      return;
+    }
+    this.isAuthorizing = true;
+    this.updateLoadingState(true);
+    const allowanceAmount = this.token !== 'ZRX' ? this.amount : this.amount.add(this.feeAmount);
+    this.zeroXService.ensureAllowance(allowanceAmount, this.order.takerTokenAddress).then(() => {
+      this.isNecessaryToSetAllowance();
+      this.updateLoadingState(false);
+      this.isAuthorizing = false;
+    }).catch((e) => {
+      this.isAuthorizing = false;
+      this.updateLoadingState(false);
+      return e;
+    });
+  }
+
+  setFeeAllowance () {
+    if (this.isAuthorizingFee) {
+      return;
+    }
+    this.isAuthorizingFee = true;
+    this.updateLoadingState(true);
+    this.zeroXService.ensureAllowance(new BigNumber(this.order.takerFee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
+      this.isNecessaryToSetFeeAllowance();
+      this.updateLoadingState(false);
+      this.isAuthorizingFee = false;
+    }).catch((e) => {
+      this.isAuthorizingFee = false;
+      this.updateLoadingState(false);
+      return e;
+    });
   }
 }
 </script>

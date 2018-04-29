@@ -25,7 +25,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Scripts } from '../../utils/scripts'
-import { OrderService, ZeroXService, BuildOrderService } from '../../api'
+import { OrderService, ZeroXService } from '../../api'
 import { Mutation } from 'vuex-class'
 
 @Component
@@ -34,25 +34,21 @@ export default class TokenPairs extends Vue {
   @Mutation changePage
   @Mutation updateTokenPairs
   @Mutation updateLoadingState
-  @Mutation updateErrorModel
 
   getTokenPairs () {
-    var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService())
+    var orderService : OrderService = new OrderService(new ZeroXService())
     this.updateLoadingState(true)
-    orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs).catch((e) => {
-      this.updateErrorModel(e);
-      this.updateLoadingState(false)
-    })
+    orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs)
   }
 
   onSuccessfullyGetTokenPairs (tokenPairs: any) {
     this.updateTokenPairs(tokenPairs)
     this.updateLoadingState(false)
-    this.goToNextPage()
+    this.goToGetOrdersPage()
   }
 
-  goToNextPage () {
-    this.changePage(3)
+  goToGetOrdersPage () {
+    this.changePage(2)
   }
 
   mounted () {
