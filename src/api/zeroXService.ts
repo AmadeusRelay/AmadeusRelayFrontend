@@ -3,6 +3,8 @@ import { TokenPair } from "../model/tokenPair";
 import Vue from 'vue'
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
+import { SignUtil } from 'eth-sig-util';
+import { ECSignature } from "../model/ecSignature";
 declare var web3;
 
 export class ZeroXService {
@@ -53,7 +55,7 @@ export class ZeroXService {
     public async isNecessaryToSetAllowance(amount: BigNumber, tokenAddress: string) : Promise< { needAllowance: boolean, currentAllowance: BigNumber }> {
         var takerAddress: string = web3.eth.coinbase
         const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
-        return { needAllowance: alowancedValue.comparedTo(amount) < 0, currentAllowance: alowancedValue };
+        return { needAllowance: alowancedValue.truncated().comparedTo(amount) < 0, currentAllowance: alowancedValue.truncated() };
     }
 
     public getBalance(tokenAddress: string, address: string) : Promise<BigNumber> {
@@ -122,4 +124,30 @@ export class ZeroXService {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
+    public getExchangeContractAddress() : string {
+        return this.zeroEx.exchange.getContractAddress();
+    }
+
+    public async signOrder(order: Order) : Promise<SignedOrder> {
+        var salt = ZeroEx.generatePseudoRandomSalt();
+        const hash = ZeroEx.getOrderHashHex({
+            maker: order.maker,
+            taker: order.taker,
+            makerFee: new BigNumber(order.makerFee),
+            takerFee: new BigNumber(order.takerFee),
+            makerTokenAmount: new BigNumber(order.makerTokenAmount),
+            takerTokenAmount: new BigNumber(order.takerTokenAmount),
+            makerTokenAddress: order.makerTokenAddress,
+            takerTokenAddress: order.takerTokenAddress,
+            salt: salt,
+            exchangeContractAddress: order.exchangeContractAddress,
+            feeRecipient: order.feeRecipient,
+            expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
+        });
+
+        var from = this.getCoinBase();
+        order.ecSignature = await this.zeroEx.signOrderHashAsync(hash, from, true);
+        order.salt = salt.toString();
+        return this.convertToSignedOrder(order);
+    }
 }

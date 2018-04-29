@@ -32,7 +32,7 @@
 import TokensList from './TokensList.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
-import { OrderService, ZeroXService } from '../../api'
+import { OrderService, ZeroXService, BuildOrderService } from '../../api'
 import { Scripts } from '../../utils/scripts'
 
 @Component({
@@ -51,17 +51,21 @@ export default class GetOrders extends Vue {
   @Mutation changePage
   @Mutation updateOrders
   @Mutation updateLoadingState
+  @Mutation updateErrorModel
 
   goToChooseOrdersPage () {
-    var orderService : OrderService = new OrderService(new ZeroXService());
+    var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
     this.updateLoadingState(true)
-    orderService.listOrders(this.takerToken, this.makerToken).then(this.onSuccessfullyListOrders);
+    orderService.listOrders(this.takerToken, this.makerToken).then(this.onSuccessfullyListOrders).catch((e) => {
+      this.updateErrorModel(e);
+      this.updateLoadingState(false)
+    });
   }
 
   onSuccessfullyListOrders (orders: any) {
     this.updateOrders(orders);
     this.updateLoadingState(false)
-    this.changePage(3);
+    this.changePage(4);
   }
 
   updateTakerToken (value : string) {

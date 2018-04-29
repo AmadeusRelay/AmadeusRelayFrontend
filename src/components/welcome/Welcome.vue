@@ -36,7 +36,7 @@
           <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-5">
-          <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToTokenPairsPage()" :disabled="!metamaskInstalled || !metamaskLogin || !metamaskNetwork">LET'S GO!</button>
+          <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToChooseStrategyPage()" :disabled="!metamaskInstalled || !metamaskLogin || !metamaskNetwork">LET'S GO!</button>
         </div>
       </div>
       <div class="row">
@@ -69,7 +69,7 @@ export default class Welcome extends Vue {
 
   @Mutation changePage
 
-  goToTokenPairsPage () {
+  goToChooseStrategyPage () {
     this.changePage(1)
   }
 
