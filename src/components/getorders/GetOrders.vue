@@ -51,11 +51,15 @@ export default class GetOrders extends Vue {
   @Mutation changePage
   @Mutation updateOrders
   @Mutation updateLoadingState
+  @Mutation updateErrorModel
 
   goToChooseOrdersPage () {
     var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
     this.updateLoadingState(true)
-    orderService.listOrders(this.takerToken, this.makerToken).then(this.onSuccessfullyListOrders);
+    orderService.listOrders(this.takerToken, this.makerToken).then(this.onSuccessfullyListOrders).catch((e) => {
+      this.updateErrorModel(e);
+      this.updateLoadingState(false)
+    });
   }
 
   onSuccessfullyListOrders (orders: any) {

@@ -78,11 +78,13 @@ export default {
   methods: {
     ...mapMutations({
       updatePageId: 'changePage',
-      cleanCodeContainer: 'cleanCodeLine'
+      cleanCodeContainer: 'cleanCodeLine',
+      updateLoadingState: 'updateLoadingState'
     }),
     goToWelcomePage () {
       this.cleanCodeContainer()
       this.updatePageId(0)
+      this.updateLoadingState(false)
     }
   },
   watch: {

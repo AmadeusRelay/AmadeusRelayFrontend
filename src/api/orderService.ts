@@ -22,7 +22,7 @@ export class OrderService {
             const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress });
             result.then(orders => {
                 resolve(this.convertOrders(orders));
-            });            
+            }).catch(e => reject(e));            
         });
     }
     
@@ -31,12 +31,12 @@ export class OrderService {
             const result: Promise<TokenPairsItem[]> = this.httpClient.getTokenPairsAsync();
             result.then(pairs => {
                 resolve(this.convertTokenPairs(pairs));
-            });            
+            }).catch((e) => reject(e));            
         });
     }
 
     public async postFee(makerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAddress: string, takerTokenAmount: BigNumber, maker: string, expirationUnixTimestampSec: BigNumber) : Promise<Order> {
-        const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
+        const exchangeContractAddress = this.zeroXService.getExchangeContractAddress();
         makerTokenAmount = new BigNumber(1000000000000000000).mul(makerTokenAmount);
         takerTokenAmount = new BigNumber(1000000000000000000).mul(takerTokenAmount);
         try {
@@ -61,7 +61,7 @@ export class OrderService {
     }
 
     public async postOrder(signedOrder: SignedOrder) : Promise<void> {
-        const exchangeContractAddress = await this.zeroXService.getExchangeContractAddress();
+        const exchangeContractAddress = this.zeroXService.getExchangeContractAddress();
         try {
             const fee = await this.httpClient.submitOrderAsync({
                 ecSignature: signedOrder.ecSignature,

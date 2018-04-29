@@ -34,11 +34,15 @@ export default class TokenPairs extends Vue {
   @Mutation changePage
   @Mutation updateTokenPairs
   @Mutation updateLoadingState
+  @Mutation updateErrorModel
 
   getTokenPairs () {
     var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService())
     this.updateLoadingState(true)
-    orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs)
+    orderService.getTokenPairs().then(this.onSuccessfullyGetTokenPairs).catch((e) => {
+      this.updateErrorModel(e);
+      this.updateLoadingState(false)
+    })
   }
 
   onSuccessfullyGetTokenPairs (tokenPairs: any) {

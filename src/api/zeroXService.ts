@@ -124,8 +124,8 @@ export class ZeroXService {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
-    public async getExchangeContractAddress() : Promise<string> {
-        return await this.zeroEx.exchange.getContractAddressAsync();
+    public getExchangeContractAddress() : string {
+        return this.zeroEx.exchange.getContractAddress();
     }
 
     public async signOrder(order: Order) : Promise<SignedOrder> {
@@ -146,7 +146,7 @@ export class ZeroXService {
         });
 
         var from = this.getCoinBase();
-        order.ecSignature = await this.zeroEx.signOrderHashAsync(hash, from);
+        order.ecSignature = await this.zeroEx.signOrderHashAsync(hash, from, true);
         order.salt = salt.toString();
         return this.convertToSignedOrder(order);
     }

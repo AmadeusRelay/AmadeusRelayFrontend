@@ -72,7 +72,7 @@ export default new Vuex.Store({
                 } else {
                     errorModel = {
                       code: ErrorCode.UnknownError,
-                      reason: error,
+                      reason: error.message || error.reason || error,
                       title: ValidationErrorCode[ErrorCode.UnknownError],
                       validationErrors: []
                     };
