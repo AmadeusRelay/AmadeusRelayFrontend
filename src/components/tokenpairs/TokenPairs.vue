@@ -3,7 +3,7 @@
   <div class="container">
     <div class="row">
         <div class="col-md-12">
-          <p>You can interact with Amadeus Relay using our <a class="external-links" target="_blank" href="http://api.amadeusrelay.org/api-docs/">Rest API</a> or the <a class="external-links" target="_blank" href="https://0xproject.com/docs/connect">0xConnect</a> library.</p>
+          <p>You can interact with Amadeus Relay using our <a class="external-links" target="_blank" href="https://api.amadeusrelay.org/api-docs/">Rest API</a> or the <a class="external-links" target="_blank" href="https://0xproject.com/docs/connect">0xConnect</a> library.</p>
       </div>
     </div>
     <div class="row">

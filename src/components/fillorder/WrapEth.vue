@@ -38,6 +38,7 @@ export default class WrapEth extends Vue {
   @Getter getNeedBalance
   @Mutation updateLoadingState
   @Mutation updateNeedToWrapEth
+  @Mutation updateErrorModel
 
   mounted () {
     this.zeroXService = new ZeroXService();
@@ -49,7 +50,7 @@ export default class WrapEth extends Vue {
   isNecessaryToWrapETH () {
     this.needBalance = this.getNeedBalance;
     if (this.tokenSold.symbol === 'ETH') {
-      this.zeroXService.isNecessaryToWrapETH(this.amount, this.tokenSold.address).then(this.checkNecessaryToWrapETH);
+      this.zeroXService.isNecessaryToWrapETH(this.amount.dividedBy(1000000000000000000), this.tokenSold.address).then(this.checkNecessaryToWrapETH);
       this.convertedToken = 'WETH';
     } else {
       this.needToWrapETH = false;
@@ -61,26 +62,26 @@ export default class WrapEth extends Vue {
   checkNecessaryToWrapETH (result) {
     this.needToWrapETH = result.needWrap;
     this.updateNeedToWrapEth(result.needWrap);
-    this.convertedAmount = result.currentWrapped.dividedBy(1000000000000000000).toFormat();
+    this.convertedAmount = result.currentWrapped.toFormat();
     if (this.needToWrapETH) {
       setTimeout(() => this.isNecessaryToWrapETH(), 2000);
     }
   }
 
   wrapETH () {
-    debugger;
     if (this.isWrapping) {
       return;
     }
     this.isWrapping = true;
     this.updateLoadingState(true);
-    this.zeroXService.wrapETH(this.amount, this.tokenSold.address).then(() => {
+    this.zeroXService.wrapETH(this.amount.dividedBy(1000000000000000000), this.tokenSold.address).then(() => {
       this.isNecessaryToWrapETH();
       this.updateLoadingState(false);
       this.isWrapping = false;
     }).catch((e) => {
       this.isWrapping = false;
       this.updateLoadingState(false);
+      this.updateErrorModel(e);
       return e;
     });
   }

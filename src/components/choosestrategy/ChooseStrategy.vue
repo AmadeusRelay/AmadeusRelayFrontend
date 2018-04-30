@@ -11,7 +11,7 @@ See below their characteristics and choose one to proceed.</p>
             <div class="col-md-2"></div>
             <div class="col-md-8 btn-next-step" @click="goToTokenPairsPageReserveManager()">
                 <div class="btn-text">RESERVE MANAGER
-                    <p>Brief description of this strategy and why it is good</p>
+                    <p>Amadeus provides large signed orders with short expiration times. You should call fillOrder filling your address as taker address to complete the order</p>
                 </div>
                 <div class="btn-img">
                     <img src="../../assets/arrow-right.svg"/>
@@ -23,7 +23,7 @@ See below their characteristics and choose one to proceed.</p>
             <div class="col-md-2"></div>
             <div class="col-md-8 btn-next-step" @click="goToTokenPairsPageQuoteProvider()">
                 <div class="btn-text">QUOTE PROVIDER
-                    <p>Brief description of this strategy and why it is good</p>
+                    <p>Amadeus provides intents to trade and specifies the fee value. You must sign the order and post it to the relayer, who calls fillOrder to complete it</p>
                 </div>
                 <div class="btn-img">
                     <img src="../../assets/arrow-right.svg"/>
@@ -70,7 +70,7 @@ export default class ChooseStrategy extends Vue {
 
 <style scoped>
 #choose-strategy-section .container {
-    padding-top: 100px;
+    padding-top: 80px;
     padding-right: 160px;
     text-align: center;
     color: white;
@@ -132,7 +132,7 @@ export default class ChooseStrategy extends Vue {
 
 #choose-strategy-section div.btn-next-step .btn-img{
     display: table-cell;
-    width: 20%;
+    width: 5%;
     vertical-align: middle;
 }
 
@@ -142,6 +142,6 @@ export default class ChooseStrategy extends Vue {
 
 #choose-strategy-section div.btn-next-step p{
     text-align: left;
-    font-size: 19px;
+    font-size: 17px;
 }
 </style>
