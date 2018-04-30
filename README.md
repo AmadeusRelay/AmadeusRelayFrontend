@@ -246,7 +246,7 @@ Amadeus Relay development team has developed a library that encapsulates steps 1
 
 #### STEP 1: GET token_pairs
 
-For quote provider strategy, the first step is also to get token pairs to trade. This is important for dApp to know which conversion price the relayer is working with. 
+For the quote provider strategy, the first step is also to get token pairs to trade. This allows the dApp to know which conversion price the relayer is working with. 
 
 Using the same route described in the reserve manager strategy, you can calculate the price charged. From the same example of the response, you have:
 
@@ -268,23 +268,23 @@ Using the same route described in the reserve manager strategy, you can calculat
 ```
 and with a simple division of the maximum amounts of tokens, you can obtain the practiced price.
 
-At this moment, you already know how to get which coins can be traded and the related price. This is the beginning to be able to mount an order. On the next step, you'll see how to assemble the order, but still without the fee information.
+At this moment, you already know how to get which coins can be traded and the related price. On the next step, you'll see how to assemble the order, but still without the fee information.
 
 #### STEP 2: Mount the order
 
 As has already been said, 0xOrderBuilder.js facilitates the assembly of the order. However, if you do not want to use it, you must know how to specify the fields of your order. The fields are:
 
-* "exchangeContractAddress": The address of the 0x protocol exchange smart contract, based on your ethereum network.
+* "exchangeContractAddress": The address of the 0x protocol exchange smart contract, based on your ethereum network
 * "maker": yours eth wallet address
 * "taker": "0x0000000000000000000000000000000000000000" or Amadeus Relay address
 * "makerTokenAddress": the token address you wish to sell
 * "takerTokenAddress": the token address you wish to buy
 * "makerTokenAmount": the amount you wish to sell (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));
-* "takerTokenAmount": the amount you wish to buy (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));,
-* "expirationUnixTimestampSec": order expiration,
+* "takerTokenAmount": the amount you wish to buy (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));
+* "expirationUnixTimestampSec": order expiration
 * "salt": randomic number, that can be generate by calling 0x.js method generatePseudoRandomSalt
 
-and with them, you can get the order fee, as we'll see in the next step.
+and with them, you can get the order fee, as we'll see further.
 
 #### STEP 3: POST fees
 
@@ -312,7 +312,7 @@ passing a request that is exactly the assembled order, i.e.:
 }
 ```
 
-This method does some input validations, such as checking whether the relayer supports the specified token exchange and its quantities. If all is correct, the rate is calculated based on a percentage of ZRX from the proposed conversion, and the response is exemplified below. In this strategy, the maker's fee is the one that will be paid by dApp.
+This method does some input validations, such as checking whether the relayer supports the specified token exchange and its quantities. If all is correct, the rate is calculated based on a percentage of ZRX from the proposed conversion, and the response is exemplified below. In this strategy, the maker's fee is the one that will be paid by the dApp.
 
 ```
 {
@@ -357,7 +357,7 @@ public async signOrder(order: Order, privateKey): Promise<SignedOrder> {
 
 given that for the second alternative, the private key would be obtained by some configuration of the system and for the third, would be obtained through web3, using web3.eth.coinbase. 
 
-With the signed order, the next step is to convert ETH in WETH, if you need to, allow the 0x to interact with your funds and post the order for the relayer to complete it
+With the signed order, the next step are convert ETH in WETH (if you need to), allow the 0x to interact with your funds and post the order for the relayer to complete it
 
 #### STEP 5: Converting ETH in WETH
 
@@ -373,7 +373,7 @@ OR
 await this.zeroEx.token.setProxyAllowanceAsync(order.makerTokenAddress, makerAddress, amount)
 ```
 
-You'll have to do the same command using the ZRX token address, because the fee is charged in ZRX, then you need to authorize this interaction as well.
+You'll have to do the same command using the ZRX token address, since the fee is charged in ZRX, then you need to authorize this interaction as well.
 
 #### STEP 7: POST order
 
