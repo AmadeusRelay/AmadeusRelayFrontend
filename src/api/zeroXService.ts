@@ -111,7 +111,9 @@ export class ZeroXService {
     }
 
     public async getTokenAddress(symbol: string) : Promise<string> {
-        if (symbol === "ETH") return this.zeroEx.etherToken.getContractAddressIfExists();
+        if (symbol === "ETH") {
+            symbol = "WETH";
+        };
 
         var token : Token = await this.getToken(symbol);
 
