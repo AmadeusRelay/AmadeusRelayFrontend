@@ -62,7 +62,7 @@ export default class WrapEth extends Vue {
   checkNecessaryToWrapETH (result) {
     this.needToWrapETH = result.needWrap;
     this.updateNeedToWrapEth(result.needWrap);
-    this.convertedAmount = result.currentWrapped.toFormat();
+    this.convertedAmount = result.currentWrapped.dividedBy(1000000000000000000).toFormat();
     if (this.needToWrapETH) {
       setTimeout(() => this.isNecessaryToWrapETH(), 2000);
     }
@@ -74,7 +74,7 @@ export default class WrapEth extends Vue {
     }
     this.isWrapping = true;
     this.updateLoadingState(true);
-    this.zeroXService.wrapETH(this.amount.dividedBy(1000000000000000000), this.tokenSold.address).then(() => {
+    this.zeroXService.wrapETH(this.amount, this.tokenSold.address).then(() => {
       this.isNecessaryToWrapETH();
       this.updateLoadingState(false);
       this.isWrapping = false;

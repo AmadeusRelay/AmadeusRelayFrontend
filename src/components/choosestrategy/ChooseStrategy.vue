@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <p>We have implemented two different strategies, Reservae Manager and Quote Provider.
+                <p>We have implemented two different strategies, Reserve Manager and Quote Provider.
 See below their characteristics and choose one to proceed.</p>
             </div>
         </div>
