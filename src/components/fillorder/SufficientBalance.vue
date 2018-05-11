@@ -31,6 +31,7 @@ export default class SufficientBalance extends Vue {
   zeroXService: ZeroXService;
   tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
   tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  isDestroyed: boolean = false;
 
   @Getter getTokenSold
   @Getter getTokenBought
@@ -45,12 +46,19 @@ export default class SufficientBalance extends Vue {
     this.tokenSold = this.getTokenSold;
     this.tokenBought = this.getTokenBought;
     this.feeAmount = this.getFeeToPay;
+    this.isDestroyed = false;
 
     this.isNecessaryToCheckBalance();
     this.isNecessaryToCheckFeeBalance();
   }
 
+  destroyed () {
+    this.isDestroyed = true;
+  }
+
   isNecessaryToCheckBalance () {
+    if (this.isDestroyed) return;
+
     if (this.tokenSold.symbol === 'ETH') {
       this.zeroXService.getBalance(this.tokenSold.address, this.zeroXService.getCoinBase()).then(amount => {
         var wethAmount: BigNumber = amount;
@@ -64,6 +72,8 @@ export default class SufficientBalance extends Vue {
   }
 
   isNecessaryToCheckFeeBalance () {
+    if (this.isDestroyed) return;
+
     if (this.tokenBought.symbol === 'ZRX') {
       this.needFeeBalance = false;
       this.updateNeedFeeBalance(false);

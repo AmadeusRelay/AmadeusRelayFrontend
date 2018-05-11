@@ -30,6 +30,7 @@ export default class WrapEth extends Vue {
   zeroXService: ZeroXService;
   isWrapping: boolean = false;
   tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  isDestroyed: boolean = false;
 
   @Getter getTokenSold
   @Getter getTokenBought
@@ -44,10 +45,18 @@ export default class WrapEth extends Vue {
     this.zeroXService = new ZeroXService();
     this.amount = this.getTokenSoldAmount;
     this.tokenSold = this.getTokenSold;
+    this.isDestroyed = false;
+
     this.isNecessaryToWrapETH();
   }
 
+  destroyed () {
+    this.isDestroyed = true;
+  }
+
   isNecessaryToWrapETH () {
+    if (this.isDestroyed) return;
+
     this.needBalance = this.getNeedBalance;
     if (this.tokenSold.symbol === 'ETH') {
       this.zeroXService.isNecessaryToWrapETH(this.amount.dividedBy(1000000000000000000), this.tokenSold.address).then(this.checkNecessaryToWrapETH);
