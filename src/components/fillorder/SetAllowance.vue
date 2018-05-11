@@ -141,7 +141,7 @@ export default class SetAllowance extends Vue {
     }
     this.isAuthorizingFee = true;
     this.updateLoadingState(true);
-    this.zeroXService.ensureAllowance(this.tokenSold.fee, '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
+    this.zeroXService.ensureAllowance(new BigNumber(this.tokenSold.fee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
       this.isNecessaryToSetFeeAllowance();
       this.updateLoadingState(false);
       this.isAuthorizingFee = false;
