@@ -139,7 +139,11 @@ export default class PostFee extends Vue {
     if (this.date === null || this.date === '') {
       this.dateError = 'required'
       valid = false
+    } else if (new Date(this.date) <= new Date()) {
+      this.dateError = 'invalid date'
+      valid = false
     }
+
     return valid
   }
 
