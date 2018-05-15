@@ -37,6 +37,7 @@ export default class SetAllowance extends Vue {
   isAuthorizingFee: boolean = false;
   tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
   tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  isDestroyed: boolean = false;
 
   @Getter getTokenSoldAmount
   @Getter getFeeToPay
@@ -52,10 +53,15 @@ export default class SetAllowance extends Vue {
     this.tokenSold = this.getTokenSold;
     this.tokenBought = this.getTokenBought;
     this.feeAmount = this.getFeeToPay;
+    this.isDestroyed = false;
     this.setConvertedToken();
 
     this.isNecessaryToSetAllowance();
     this.isNecessaryToSetFeeAllowance();
+  }
+
+  destroyed () {
+    this.isDestroyed = true;
   }
 
   setConvertedToken () {
@@ -67,11 +73,15 @@ export default class SetAllowance extends Vue {
   }
 
   isNecessaryToSetAllowance () {
+    if (this.isDestroyed) return;
+
     let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
     this.zeroXService.isNecessaryToSetAllowance(necessaryAmount, this.tokenSold.address).then(this.checkNecessaryToSetAllowance);
   }
 
   isNecessaryToSetFeeAllowance () {
+    if (this.isDestroyed) return;
+
     if (this.tokenSold.symbol === 'ZRX' || !this.feeAmount) {
       this.checkNecessaryToSetFeeAllowance({ needAllowance: false, currentAllowance: new BigNumber(0) });
     } else {
@@ -131,7 +141,7 @@ export default class SetAllowance extends Vue {
     }
     this.isAuthorizingFee = true;
     this.updateLoadingState(true);
-    this.zeroXService.ensureAllowance(this.tokenSold.fee, '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
+    this.zeroXService.ensureAllowance(new BigNumber(this.tokenSold.fee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
       this.isNecessaryToSetFeeAllowance();
       this.updateLoadingState(false);
       this.isAuthorizingFee = false;

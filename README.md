@@ -19,7 +19,7 @@ You can read more about this on [0x wiki](https://0xproject.com/wiki#Quote-Provi
 
 ### Considerations
 
-It is important to note that the API is in alpha version and we’re using [Metamask](https://metamask.io/) on the [Kovan testnet](https://kovan.etherscan.io/), so if your DApp runs in a browser in order to use the API you should (i) have Metamask installed in it, (ii) log in into your account and (iii) connect Metamask to Kovan test network.
+It is important to note that the API is in beta version and we’re using [Metamask](https://metamask.io/) on the [Kovan testnet](https://kovan.etherscan.io/), so if your DApp runs in a browser in order to use the API you should (i) have Metamask installed in it, (ii) log in into your account and (iii) connect Metamask to Kovan test network.
 
 if you chose the reserve manager strategy or simply want to use some 0x functions to interact with tokens and orders, you should install and import the library into your code:
 ```
