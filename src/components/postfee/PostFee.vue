@@ -38,7 +38,7 @@
         <br />
         <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToSignOrderPage()">POST FEE
+                <a class="btn-next-step" @click="goToSignOrderPage()">GET FEE
                     <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
