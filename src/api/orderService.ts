@@ -11,7 +11,7 @@ export class OrderService {
     private httpClient: HttpClient;
 
     public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
-        this.httpClient = new HttpClient('http://35.224.4.121/api/v0');
+        this.httpClient = new HttpClient('https://kovan.amadeusrelay.org/api/v0');
     }
 
     public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {

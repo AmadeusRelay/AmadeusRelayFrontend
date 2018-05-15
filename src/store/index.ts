@@ -164,6 +164,9 @@ export default new Vuex.Store({
         },
         getPopupErrorModel () : ErrorModel {
             return state.errorModel;
+        },
+        getStrategyId () : number {
+            return state.strategyId;
         }
     }
 })

@@ -1,7 +1,7 @@
 <template>
   <div class="form-group">
     <select v-model="tokenSelected" class="form-control">
-      <option value="">All tokens</option>
+      <option value="">{{ emptyOption }}</option>
       <option v-for="(coin, index) in tokenList" :value="coin" :key="coin">{{ coin }}</option>
     </select>
   </div>
@@ -17,9 +17,18 @@ export default class TokensList extends Vue {
   tokenSelected = ''
 
   @Getter getTokenPairs
+  @Getter getStrategyId
 
   mounted () {
     this.tokenSelected = this.token;
+  }
+
+  get emptyOption () {
+    if (this.getStrategyId === 1) {
+      return 'All tokens';
+    } else {
+      return 'Select token';
+    }
   }
 
   refreshToken (tokenSelected, fillTaker) {

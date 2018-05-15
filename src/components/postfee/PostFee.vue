@@ -78,6 +78,7 @@ export default class PostFee extends Vue {
   minDate: string = (new Date()).toISOString()
   price: BigNumber = new BigNumber(1)
   takerAmount: BigNumber = null
+  maxAmountCodeAdded: boolean = false
 
   takerTokenError: string = ''
   makerTokenError: string = ''
@@ -183,7 +184,14 @@ export default class PostFee extends Vue {
           this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
         }
       }
+      this.addMaxAmountCodeLine();
+    }
+  }
+
+  addMaxAmountCodeLine () {
+    if (!this.maxAmountCodeAdded) {
       this.addCodeLine(new Scripts().maxAmount)
+      this.maxAmountCodeAdded = true
     }
   }
 
