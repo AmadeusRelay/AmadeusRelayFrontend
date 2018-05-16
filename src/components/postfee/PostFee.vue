@@ -10,16 +10,14 @@
             <div class="col-md-4">
                 <label>Maker token (to sell)</label>
                 <tokens-list :token='makerToken' ref='makerTokenRef' @updateToken='updateMakerToken'/> 
-                <p v-if="makerTokenError" class="error">{{makerTokenError}}</p>
             </div>
             <div class="col-md-4">
                 <label>Taker token (to buy)</label>
                 <tokens-list :token='takerToken' ref="takerTokenRef" @updateToken='updateTakerToken'/>
-                <p v-if="takerTokenError" class="error">{{takerTokenError}}</p>
             </div>
             <div class="col-md-2">
                 <label>Max Amount</label>
-                <input class="form-control" v-model="maxAmount" disabled/> 
+                <input class="form-control" v-model="maxAmountString" disabled/> 
             </div>
             <div class="col-md-2 div-maker-amount">
                 <label>Maker Amount</label>
@@ -70,7 +68,8 @@ export default class PostFee extends Vue {
   zeroXService: ZeroXService;
   takerToken: string = ''
   makerToken: string = ''
-  maxAmount: string = ''
+  maxAmount: BigNumber = null
+  maxAmountString: string = ''
   makerAmount: string = ''
   makerTokenAddress: string = ''
   takerTokenAddress: string = ''
@@ -128,7 +127,7 @@ export default class PostFee extends Vue {
     }
     if (this.makerAmount === null || this.makerAmount === '') {
       valid = false
-    } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) === 1) {
+    } else if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) === 1) {
       this.makerAmountError = 'Value is greater than max'
       valid = false
     }
@@ -174,10 +173,11 @@ export default class PostFee extends Vue {
         var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
         var conv = new BigNumber(1000000000000000000)
         BigNumber.config({ DECIMAL_PLACES: 8 })
-        this.maxAmount = makerMaxAmount.dividedBy(conv).toFormat()
+        this.maxAmount = makerMaxAmount.dividedBy(conv)
+        this.maxAmountString = this.maxAmount.toFormat()
         this.price = new BigNumber(selectedPair[0].maxTokenAAmount).dividedBy(makerMaxAmount)
         if (this.makerAmount !== null && this.makerAmount !== '') {
-          if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) !== 1) {
+          if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) !== 1) {
             this.makerAmountError = ''
           }
           this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
@@ -203,7 +203,7 @@ export default class PostFee extends Vue {
   @Watch('makerAmount')
   onMakerAmountChanged (val: string, oldVal: string) {
     if (val !== null && val !== '') {
-      if (new BigNumber(val).comparedTo(new BigNumber(this.maxAmount)) !== 1) {
+      if (new BigNumber(val).comparedTo(this.maxAmount) !== 1) {
         this.makerAmountError = ''
       }
       this.takerAmount = new BigNumber(val).mul(this.price)
