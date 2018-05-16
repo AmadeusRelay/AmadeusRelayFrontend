@@ -12,11 +12,6 @@
                 <tokens-list :token='makerToken' ref='makerTokenRef' @updateToken='updateMakerToken'/> 
                 <p v-if="makerTokenError" class="error">{{makerTokenError}}</p>
             </div>
-            <div class="col-md-2">
-                <label>Maker Amount</label>
-                <input v-model="makerAmount" class="form-control" /> 
-                <p v-if="makerAmountError" class="error">{{makerAmountError}}</p>
-            </div>
             <div class="col-md-4">
                 <label>Taker token (to buy)</label>
                 <tokens-list :token='takerToken' ref="takerTokenRef" @updateToken='updateTakerToken'/>
@@ -25,6 +20,11 @@
             <div class="col-md-2">
                 <label>Max Amount</label>
                 <input class="form-control" v-model="maxAmount" disabled/> 
+            </div>
+            <div class="col-md-2 div-maker-amount">
+                <label>Maker Amount</label>
+                <input v-model="makerAmount" class="form-control" /> 
+                <p v-if="makerAmountError" class="error">{{makerAmountError}}</p>
             </div>
         </div> 
         <br/>
@@ -38,7 +38,7 @@
         <br />
         <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToSignOrderPage()">POST FEE
+                <a class="btn-next-step" @click="goToSignOrderPage()" v-bind:class="{'inactive': !enablePostFee}">GET FEE
                     <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -74,13 +74,13 @@ export default class PostFee extends Vue {
   makerAmount: string = ''
   makerTokenAddress: string = ''
   takerTokenAddress: string = ''
-  date: string = ''
+  date: string = new Date((new Date()).getTime() + 10 * 60000).toISOString()
   minDate: string = (new Date()).toISOString()
   price: BigNumber = new BigNumber(1)
   takerAmount: BigNumber = null
+  maxAmountCodeAdded: boolean = false
+  enablePostFee: boolean = false
 
-  takerTokenError: string = ''
-  makerTokenError: string = ''
   makerAmountError: string = ''
   dateError: string = ''
 
@@ -121,24 +121,24 @@ export default class PostFee extends Vue {
   validateRequiredFields () {
     var valid = true;
     if (this.takerToken === null || this.takerToken === '') {
-      this.takerTokenError = 'required'
       valid = false
     }
     if (this.makerToken === null || this.makerToken === '') {
-      this.makerTokenError = 'required'
       valid = false
     }
     if (this.makerAmount === null || this.makerAmount === '') {
-      this.makerAmountError = 'required'
       valid = false
     } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) === 1) {
       this.makerAmountError = 'Value is greater than max'
       valid = false
     }
     if (this.date === null || this.date === '') {
-      this.dateError = 'required'
+      valid = false
+    } else if (new Date(this.date) <= new Date()) {
+      this.dateError = 'invalid date'
       valid = false
     }
+    this.enablePostFee = valid;
     return valid
   }
 
@@ -183,7 +183,14 @@ export default class PostFee extends Vue {
           this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
         }
       }
+      this.addMaxAmountCodeLine();
+    }
+  }
+
+  addMaxAmountCodeLine () {
+    if (!this.maxAmountCodeAdded) {
       this.addCodeLine(new Scripts().maxAmount)
+      this.maxAmountCodeAdded = true
     }
   }
 
@@ -201,20 +208,17 @@ export default class PostFee extends Vue {
       }
       this.takerAmount = new BigNumber(val).mul(this.price)
     }
+    this.validateRequiredFields();
   }
 
   @Watch('makerToken')
   onMakerTokenChanged (val: string, oldVal: string) {
-    if (val !== null && val !== '') {
-      this.makerTokenError = ''
-    }
+    this.validateRequiredFields();
   }
 
   @Watch('takerToken')
   onTakerTokenChanged (val: string, oldVal: string) {
-    if (val !== null && val !== '') {
-      this.takerTokenError = ''
-    }
+    this.validateRequiredFields();
   }
 
   @Watch('date')
@@ -222,6 +226,7 @@ export default class PostFee extends Vue {
     if (val !== null && val !== '') {
       this.dateError = ''
     }
+    this.validateRequiredFields();
   }
 }
 </script>
@@ -261,6 +266,15 @@ export default class PostFee extends Vue {
 
 #post-fee-section .form-group{
   margin-bottom: 0px;
+}
+
+#post-fee-section .div-maker-amount{
+  padding-right: 0px;
+}
+
+#post-fee-section .btn-next-step.inactive{
+  opacity: 0.5;
+  cursor: default;
 }
 
 </style>

@@ -4,10 +4,10 @@
         <span class="cb-validation" v-bind:class="{'active' : !needBalance && !needFeeBalance, 'inactive' : needBalance || needFeeBalance }"></span>
         Have sufficient balance
         <div>
-            <div class='item-details'>Balance: {{balanceAmount}} {{tokenSold.symbol}}</div>
+            <div class='item-details'>Your transaction balance: {{balanceAmount}} {{tokenSold.symbol}}</div>
         </div>
         <div v-if='feeAmount && tokenSold.symbol !== "ZRX"'>
-            <div class='item-details'>Balance: {{this.tokenBought.symbol === 'ZRX' ? 'the fee will be deduced from maker amount' : feeBalanceAmount + ' ZRX'}}</div>
+            <div class='item-details'>Your fee balance: {{this.tokenBought.symbol === 'ZRX' ? 'don\'t worry! The fee will be deduced from maker amount' : feeBalanceAmount + ' ZRX'}}</div>
         </div>
         </label>
     </div>
