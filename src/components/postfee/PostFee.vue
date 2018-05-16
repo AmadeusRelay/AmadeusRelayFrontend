@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <p>The DApps needs to choose the token and the amount it wants to sell as well as the token to buy. We will return the maximum amount we are willing to sell.</p>
+                <p>The DApp needs to choose the token and the amount it wants to sell as well as the token to buy. We will return the maximum amount we are willing to buy.</p>
             </div>
         </div>
         <div class="row">
@@ -144,7 +144,7 @@ export default class PostFee extends Vue {
 
   updateTakerToken (value : string) {
     this.takerToken = value
-    this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
+    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
     this.zeroXService.getTokenAddress(value).then(address => this.updateTakerTokenAddress(address));
     this.updateMaxAmountAndPrice()
   }
@@ -155,7 +155,7 @@ export default class PostFee extends Vue {
 
   updateMakerToken (value : string) {
     this.makerToken = value
-    this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
+    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
     this.zeroXService.getTokenAddress(value).then(address => this.updateMakerTokenAddress(address));
     this.updateMaxAmountAndPrice()
   }
@@ -168,14 +168,14 @@ export default class PostFee extends Vue {
     if (this.makerToken !== '' && this.takerToken !== '') {
       var tokens = this.getTokenPairs
       var selectedPair = tokens.filter(function (token) {
-        return token.tokenASymbol === this.makerToken && token.tokenBSymbol === this.takerToken;
+        return token.tokenBSymbol === this.makerToken && token.tokenASymbol === this.takerToken;
       }.bind(this));
       if (selectedPair != null && selectedPair.length > 0) {
-        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenAAmount)
+        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
         var conv = new BigNumber(1000000000000000000)
         BigNumber.config({ DECIMAL_PLACES: 8 })
         this.maxAmount = makerMaxAmount.dividedBy(conv).toFormat()
-        this.price = new BigNumber(selectedPair[0].maxTokenBAmount).dividedBy(makerMaxAmount)
+        this.price = new BigNumber(selectedPair[0].maxTokenAAmount).dividedBy(makerMaxAmount)
         if (this.makerAmount !== null && this.makerAmount !== '') {
           if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) !== 1) {
             this.makerAmountError = ''
@@ -188,8 +188,8 @@ export default class PostFee extends Vue {
   }
 
   mounted () {
-    this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
-    this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
+    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
+    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
     this.zeroXService = new ZeroXService()
   }
 

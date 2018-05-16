@@ -79,7 +79,7 @@ export default class FillOrder extends Vue {
     this.order = this.getSelectedOrder;
     this.takerAmount = this.getTokenSoldAmount;
     this.feeAmount = this.getFeeToPay;
-    this.makerAmount = new BigNumber(this.getTokenSoldAmount).mul(this.order.takerTokenAmount).dividedBy(this.order.makerTokenAmount);
+    this.makerAmount = new BigNumber(this.getTokenSoldAmount).mul(this.order.makerTokenAmount).dividedBy(this.order.takerTokenAmount);
     this.tokenSold = this.getTokenSold;
     this.tokenBought = this.getTokenBought;
     this.addCodeLine(new Scripts().fillOrder);
