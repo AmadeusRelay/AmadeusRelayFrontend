@@ -4,5 +4,7 @@ export interface TokenPair {
     tokenASymbol : string,
     tokenBSymbol : string,
     maxTokenBAmount: string,
-    maxTokenAAmount: string
+    maxTokenAAmount: string,
+    minTokenBAmount: string,
+    minTokenAAmount: string
 }

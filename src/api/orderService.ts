@@ -125,7 +125,9 @@ export class OrderService {
                     tokenASymbol: tokenASymbol,
                     tokenBSymbol: tokenBSymbol,
                     maxTokenBAmount: pair.tokenB.maxAmount.toString(),
-                    maxTokenAAmount: pair.tokenA.maxAmount.toString()
+                    maxTokenAAmount: pair.tokenA.maxAmount.toString(),
+                    minTokenAAmount: pair.tokenA.minAmount.toString(),
+                    minTokenBAmount: pair.tokenB.minAmount.toString()
                 };
     
                 tokens.push(tokenPair);

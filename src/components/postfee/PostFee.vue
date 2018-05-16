@@ -175,7 +175,7 @@ export default class PostFee extends Vue {
         BigNumber.config({ DECIMAL_PLACES: 8 })
         this.maxAmount = makerMaxAmount.dividedBy(conv)
         this.maxAmountString = this.maxAmount.toFormat()
-        this.price = new BigNumber(selectedPair[0].maxTokenAAmount).dividedBy(makerMaxAmount)
+        this.price = new BigNumber(selectedPair[0].minTokenAAmount).dividedBy(selectedPair[0].minTokenBAmount)
         if (this.makerAmount !== null && this.makerAmount !== '') {
           if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) !== 1) {
             this.makerAmountError = ''

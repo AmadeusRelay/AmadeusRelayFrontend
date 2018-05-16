@@ -15,29 +15,37 @@
                 <div class="row">
                     <div class="col-md-1">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 align-center">
                         <img src="../../assets/fill-1.svg"/>
                     </div>
                     <div class="col-md-1">
                         <div class="row">
-                            <img class="arrow-right" src="../../assets/arrow-right.svg"/>
+                            <div class="col-md-12 align-center">
+                                <img class="arrow-right" src="../../assets/arrow-right.svg"/>
+                            </div>
                         </div>
                         <div class="row">
-                            <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                            <div class="col-md-12 align-center">
+                                <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-3">
+                    <div class="col-lg-2 col-md-3 align-center">
                         <img src="../../assets/logo.svg"/>
                     </div>
                     <div class="col-md-1">
                         <div class="row">
-                            <img class="arrow-right" src="../../assets/arrow-right.svg"/>
+                            <div class="col-md-12 align-center">
+                                <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                            </div>
                         </div>
                         <div class="row">
-                            <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                            <div class="col-md-12 align-center">
+                                <img class="arrow-left" src="../../assets/arrow-right.svg"/>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 align-center">
                         <img src="../../assets/page-1.svg"/>
                     </div>
                 </div>
@@ -108,6 +116,10 @@ export default class OrderConfirmation extends Vue {
   height: 18px;
   object-fit: contain;
   transform: rotate(180deg);
+}
+
+.align-center{
+    text-align: center;
 }
 
 @media (max-width: 992px){
