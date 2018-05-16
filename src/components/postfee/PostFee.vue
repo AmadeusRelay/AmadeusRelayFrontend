@@ -38,7 +38,7 @@
         <br />
         <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToSignOrderPage()">GET FEE
+                <a class="btn-next-step" @click="goToSignOrderPage()" v-bind:class="{'inactive': !enablePostFee}">GET FEE
                     <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -79,9 +79,8 @@ export default class PostFee extends Vue {
   price: BigNumber = new BigNumber(1)
   takerAmount: BigNumber = null
   maxAmountCodeAdded: boolean = false
+  enablePostFee: boolean = false
 
-  takerTokenError: string = ''
-  makerTokenError: string = ''
   makerAmountError: string = ''
   dateError: string = ''
 
@@ -122,28 +121,24 @@ export default class PostFee extends Vue {
   validateRequiredFields () {
     var valid = true;
     if (this.takerToken === null || this.takerToken === '') {
-      this.takerTokenError = 'required'
       valid = false
     }
     if (this.makerToken === null || this.makerToken === '') {
-      this.makerTokenError = 'required'
       valid = false
     }
     if (this.makerAmount === null || this.makerAmount === '') {
-      this.makerAmountError = 'required'
       valid = false
     } else if (new BigNumber(this.makerAmount).comparedTo(new BigNumber(this.maxAmount)) === 1) {
       this.makerAmountError = 'Value is greater than max'
       valid = false
     }
     if (this.date === null || this.date === '') {
-      this.dateError = 'required'
       valid = false
     } else if (new Date(this.date) <= new Date()) {
       this.dateError = 'invalid date'
       valid = false
     }
-
+    this.enablePostFee = valid;
     return valid
   }
 
@@ -213,20 +208,17 @@ export default class PostFee extends Vue {
       }
       this.takerAmount = new BigNumber(val).mul(this.price)
     }
+    this.validateRequiredFields();
   }
 
   @Watch('makerToken')
   onMakerTokenChanged (val: string, oldVal: string) {
-    if (val !== null && val !== '') {
-      this.makerTokenError = ''
-    }
+    this.validateRequiredFields();
   }
 
   @Watch('takerToken')
   onTakerTokenChanged (val: string, oldVal: string) {
-    if (val !== null && val !== '') {
-      this.takerTokenError = ''
-    }
+    this.validateRequiredFields();
   }
 
   @Watch('date')
@@ -234,6 +226,7 @@ export default class PostFee extends Vue {
     if (val !== null && val !== '') {
       this.dateError = ''
     }
+    this.validateRequiredFields();
   }
 }
 </script>
@@ -277,6 +270,11 @@ export default class PostFee extends Vue {
 
 #post-fee-section .div-maker-amount{
   padding-right: 0px;
+}
+
+#post-fee-section .btn-next-step.inactive{
+  opacity: 0.5;
+  cursor: default;
 }
 
 </style>
