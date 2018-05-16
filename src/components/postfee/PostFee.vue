@@ -74,7 +74,7 @@ export default class PostFee extends Vue {
   makerAmount: string = ''
   makerTokenAddress: string = ''
   takerTokenAddress: string = ''
-  date: string = ''
+  date: string = new Date((new Date()).getTime() + 10 * 60000).toISOString()
   minDate: string = (new Date()).toISOString()
   price: BigNumber = new BigNumber(1)
   takerAmount: BigNumber = null
