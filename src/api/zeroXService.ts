@@ -110,6 +110,10 @@ export class ZeroXService {
         );
     }
 
+    public getZeroXAddress(): Promise<string> {
+        return this.zeroEx.tokenRegistry.getTokenAddressBySymbolIfExistsAsync("ZRX");
+    }
+
     public async getTokenAddress(symbol: string) : Promise<string> {
         if (symbol === "ETH") {
             symbol = "WETH";

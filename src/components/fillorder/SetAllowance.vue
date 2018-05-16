@@ -85,7 +85,9 @@ export default class SetAllowance extends Vue {
     if (this.tokenSold.symbol === 'ZRX' || !this.feeAmount) {
       this.checkNecessaryToSetFeeAllowance({ needAllowance: false, currentAllowance: new BigNumber(0) });
     } else {
-      this.zeroXService.isNecessaryToSetAllowance(this.feeAmount, '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(this.checkNecessaryToSetFeeAllowance);
+      this.zeroXService.getZeroXAddress().then(address => {
+        this.zeroXService.isNecessaryToSetAllowance(this.feeAmount, address).then(this.checkNecessaryToSetFeeAllowance);
+      })
     }
   }
 
@@ -141,14 +143,16 @@ export default class SetAllowance extends Vue {
     }
     this.isAuthorizingFee = true;
     this.updateLoadingState(true);
-    this.zeroXService.ensureAllowance(new BigNumber(this.tokenSold.fee), '0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570').then(() => {
-      this.isNecessaryToSetFeeAllowance();
-      this.updateLoadingState(false);
-      this.isAuthorizingFee = false;
-    }).catch((e) => {
-      this.isAuthorizingFee = false;
-      this.updateLoadingState(false);
-      return e;
+    this.zeroXService.getZeroXAddress().then(address => {
+      this.zeroXService.ensureAllowance(new BigNumber(this.tokenSold.fee), address).then(() => {
+        this.isNecessaryToSetFeeAllowance();
+        this.updateLoadingState(false);
+        this.isAuthorizingFee = false;
+      }).catch((e) => {
+        this.isAuthorizingFee = false;
+        this.updateLoadingState(false);
+        return e;
+      });
     });
   }
 }

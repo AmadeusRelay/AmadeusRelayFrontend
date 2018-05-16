@@ -78,7 +78,9 @@ export default class SufficientBalance extends Vue {
       this.needFeeBalance = false;
       this.updateNeedFeeBalance(false);
     } else {
-      this.zeroXService.getBalance('0x6ff6c0ff1d68b964901f986d4c9fa3ac68346570', this.zeroXService.getCoinBase()).then(amount => this.checkNecessaryFeeBalance(amount));
+      this.zeroXService.getZeroXAddress().then(address => {
+        this.zeroXService.getBalance(address, this.zeroXService.getCoinBase()).then(amount => this.checkNecessaryFeeBalance(amount));
+      });
     }
   }
 
