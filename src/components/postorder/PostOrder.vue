@@ -66,7 +66,6 @@ export default class PostOrder extends Vue {
   @Mutation updateErrorModel
 
   get signedOrder () {
-    debugger;
     return this.getSignedOrder
   }
 
