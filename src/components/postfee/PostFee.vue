@@ -12,11 +12,6 @@
                 <tokens-list :token='makerToken' ref='makerTokenRef' @updateToken='updateMakerToken'/> 
                 <p v-if="makerTokenError" class="error">{{makerTokenError}}</p>
             </div>
-            <div class="col-md-2">
-                <label>Maker Amount</label>
-                <input v-model="makerAmount" class="form-control" /> 
-                <p v-if="makerAmountError" class="error">{{makerAmountError}}</p>
-            </div>
             <div class="col-md-4">
                 <label>Taker token (to buy)</label>
                 <tokens-list :token='takerToken' ref="takerTokenRef" @updateToken='updateTakerToken'/>
@@ -25,6 +20,11 @@
             <div class="col-md-2">
                 <label>Max Amount</label>
                 <input class="form-control" v-model="maxAmount" disabled/> 
+            </div>
+            <div class="col-md-2 div-maker-amount">
+                <label>Maker Amount</label>
+                <input v-model="makerAmount" class="form-control" /> 
+                <p v-if="makerAmountError" class="error">{{makerAmountError}}</p>
             </div>
         </div> 
         <br/>
@@ -273,6 +273,10 @@ export default class PostFee extends Vue {
 
 #post-fee-section .form-group{
   margin-bottom: 0px;
+}
+
+#post-fee-section .div-maker-amount{
+  padding-right: 0px;
 }
 
 </style>
