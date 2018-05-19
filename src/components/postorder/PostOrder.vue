@@ -84,7 +84,6 @@ export default class PostOrder extends Vue {
     this.isPosting = true;
     this.updateLoadingState(true)
     this.orderService.postOrder(this.signedOrder).then(this.onSuccessfullyPostOrder).catch((e) => {
-      debugger;
       this.updateErrorModel(e);
       this.updateLoadingState(false)
       this.isPosting = false;
