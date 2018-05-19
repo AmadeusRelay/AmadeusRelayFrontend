@@ -44,8 +44,8 @@ export class ZeroXService {
         return tokenReceived.symbol;
     }
 
-    public async isNecessaryToWrapETH(amount: BigNumber, tokenAddress: string) : Promise< { needWrap: boolean, currentWrapped: BigNumber }> {
-        const balance = await this.getBalanceToWrapETH(tokenAddress);
+    public async isNecessaryToWrapETH(amount: BigNumber) : Promise< { needWrap: boolean, currentWrapped: BigNumber }> {
+        const balance = await this.getBalanceToWrapETH();
         if (balance) {
             return { needWrap : balance.lessThan(amount), currentWrapped: balance};
         }
@@ -62,20 +62,18 @@ export class ZeroXService {
         return this.zeroEx.token.getBalanceAsync(tokenAddress, address);
     }
 
-    private async getBalanceToWrapETH(address: string) : Promise<BigNumber> {
-        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address))
+    private async getBalanceToWrapETH() : Promise<BigNumber> {
+        let tokenAddress = await this.getTokenAddress("WETH");        
+        var address: string = web3.eth.coinbase;
         
-        var takerAddress: string = web3.eth.coinbase
-        if (!tokenReceived || tokenReceived.symbol !== 'WETH') return undefined;
-        
-        return await this.zeroEx.token.getBalanceAsync(this.zeroEx.etherToken.getContractAddressIfExists(), takerAddress);
+        return await this.zeroEx.token.getBalanceAsync(tokenAddress, address);
     }
 
-    public async wrapETH(amount: BigNumber, address: string): Promise<any> {
-        const balance = await this.getBalanceToWrapETH(address)
+    public async wrapETH(amount: BigNumber): Promise<any> {
+        const balance = await this.getBalanceToWrapETH()
         if (balance) {
             if (balance.lessThan(amount)) {
-				const tx = await this.zeroEx.etherToken.depositAsync(this.zeroEx.etherToken.getContractAddressIfExists(), amount.minus(balance), web3.eth.coinbase);
+				const tx = await this.zeroEx.etherToken.depositAsync(await this.getTokenAddress("WETH"), amount.minus(balance), web3.eth.coinbase);
                 return this.zeroEx.awaitTransactionMinedAsync(tx);
             }
         }
