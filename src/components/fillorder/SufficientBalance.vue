@@ -86,7 +86,7 @@ export default class SufficientBalance extends Vue {
 
   checkNecessaryBalance (amount: BigNumber) {
     this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
-    let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount.dividedBy(1000000000000000000) : this.amount.dividedBy(1000000000000000000).plus(this.feeAmount);
+    let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
     this.needBalance = !amount.greaterThanOrEqualTo(necessaryAmount);
     this.updateNeedBalance(this.needBalance);
     if (this.needBalance) {
