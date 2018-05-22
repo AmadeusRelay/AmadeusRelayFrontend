@@ -58,6 +58,8 @@ export default class FillOrder extends Vue {
   isFilling: boolean = false;
   tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
   tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  takerTokenUnit: BigNumber = new BigNumber(0);
+  makerTokenUnit: BigNumber = new BigNumber(0);
 
   @Getter getSelectedOrder
   @Getter getTokenSoldAmount
@@ -76,6 +78,12 @@ export default class FillOrder extends Vue {
 
   mounted () {
     this.zeroXService = new ZeroXService();
+    this.zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(response => {
+      this.takerTokenUnit = response
+    })
+    this.zeroXService.getTokenUnitByAddress(this.order.makerTokenAddress).then(response => {
+      this.makerTokenUnit = response
+    })
     this.order = this.getSelectedOrder;
     this.takerAmount = this.getTokenSoldAmount;
     this.feeAmount = this.getFeeToPay;

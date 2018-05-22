@@ -44,6 +44,18 @@ export class ZeroXService {
         return tokenReceived.symbol;
     }
 
+    public async getTokenUnitByAddress(tokenAddress: string) :  Promise<BigNumber> {
+        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
+        if (tokenReceived == null) return null;
+        return new BigNumber(10* tokenReceived.decimals);
+    }
+
+    public async getTokenUnitBySymbol(tokenSymbol: string) :  Promise<BigNumber> {
+        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(tokenSymbol))
+        if (tokenReceived == null) return null;
+        return new BigNumber(10* tokenReceived.decimals);
+    }
+
     public async isNecessaryToWrapETH(amount: BigNumber, tokenAddress: string) : Promise< { needWrap: boolean, currentWrapped: BigNumber }> {
         const balance = await this.getBalanceToWrapETH(tokenAddress);
         if (balance) {

@@ -84,16 +84,20 @@ export default {
       return month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
     },
     getMaxAmount () {
-      var makerAmount = new BigNumber(this.order.takerTokenAmount)
-      var conv = new BigNumber(1000000000000000000)
-      BigNumber.set({ DECIMAL_PLACES: 6 })
-      return makerAmount.dividedBy(conv).toFormat()
+      var maxAmount = new BigNumber(this.order.takerTokenAmount)
+      var zeroXService = new ZeroXService()
+      zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(unitValue => {
+        BigNumber.set({ DECIMAL_PLACES: 6 })
+        return maxAmount.dividedBy(unitValue).toFormat()
+      });
     },
     getFee () {
       var fee = new BigNumber(this.order.takerFee)
-      var conv = new BigNumber(1000000000000000000)
-      BigNumber.set({ DECIMAL_PLACES: 6 })
-      return fee.dividedBy(conv).toFormat()
+      var zeroXService = new ZeroXService()
+      zeroXService.getTokenUnitBySymbol('ZRX').then(unitValue => {
+        BigNumber.set({ DECIMAL_PLACES: 6 })
+        return fee.dividedBy(unitValue).toFormat()
+      });
     },
     chooseOrder () {
       if (!this.order.valueRequired || this.order.valueRequired === '') {
@@ -101,8 +105,11 @@ export default {
         return;
       }
       try {
-        var value = (new BigNumber(1000000000000000000)).mul(this.order.valueRequired);
-        this.$emit('setTakerAmount', value);
+        var zeroXService = new ZeroXService()
+        zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(unitValue => {
+          var value = unitValue.mul(this.order.valueRequired);
+          this.$emit('setTakerAmount', value);
+        })
       } catch (error) {
         this.setError('The value is not valid.')
         return;
