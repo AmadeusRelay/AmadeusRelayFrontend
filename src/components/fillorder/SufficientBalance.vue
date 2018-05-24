@@ -7,7 +7,7 @@
             <div class='item-details'>Your transaction balance: {{balanceAmount}} {{tokenSold.symbol}}</div>
         </div>
         <div v-if='feeAmount && tokenSold.symbol !== "ZRX"'>
-            <div class='item-details'>Your fee balance: {{this.tokenBought.symbol === 'ZRX' ? 'don\'t worry! The fee will be deduced from maker amount' : feeBalanceAmount + ' ZRX'}}</div>
+            <div class='item-details'>Your fee balance: {{this.tokenBought.symbol === 'ZRX' ? 'don\'t worry! The fee will be deduced from ' + (this.isQuoteProvider? 'taker amount' : 'maker amount') : feeBalanceAmount + ' ZRX'}}</div>
         </div>
         </label>
     </div>
@@ -32,6 +32,7 @@ export default class SufficientBalance extends Vue {
   tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
   tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
   isDestroyed: boolean = false;
+  isQuoteProvider = false;
 
   @Getter getTokenSold
   @Getter getTokenBought
@@ -39,6 +40,7 @@ export default class SufficientBalance extends Vue {
   @Getter getTokenSoldAmount
   @Mutation updateNeedBalance
   @Mutation updateNeedFeeBalance
+  @Getter getStrategyId
 
   mounted () {
     this.zeroXService = new ZeroXService();
@@ -47,7 +49,7 @@ export default class SufficientBalance extends Vue {
     this.tokenBought = this.getTokenBought;
     this.feeAmount = this.getFeeToPay;
     this.isDestroyed = false;
-
+    this.isQuoteProvider = this.getStrategyId === 2;
     this.isNecessaryToCheckBalance();
     this.isNecessaryToCheckFeeBalance();
   }
