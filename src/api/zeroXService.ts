@@ -3,6 +3,8 @@ import { TokenPair } from "../model/tokenPair";
 import Vue from 'vue'
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
+import { SignUtil } from 'eth-sig-util';
+import { ECSignature } from "../model/ecSignature";
 declare var web3;
 
 export class ZeroXService {
@@ -10,7 +12,7 @@ export class ZeroXService {
 
     public constructor() {
         this.zeroEx = new ZeroEx(web3.currentProvider,  {
-              "etherTokenContractAddress": "0xd0a1e359811322d97991e03f863a0c30c2cf029c"
+              "networkId": 42
             });
     }
 
@@ -42,8 +44,8 @@ export class ZeroXService {
         return tokenReceived.symbol;
     }
 
-    public async isNecessaryToWrapETH(amount: BigNumber, tokenAddress: string) : Promise< { needWrap: boolean, currentWrapped: BigNumber }> {
-        const balance = await this.getBalanceToWrapETH(tokenAddress);
+    public async isNecessaryToWrapETH(amount: BigNumber) : Promise< { needWrap: boolean, currentWrapped: BigNumber }> {
+        const balance = await this.getBalanceToWrapETH();
         if (balance) {
             return { needWrap : balance.lessThan(amount), currentWrapped: balance};
         }
@@ -53,27 +55,25 @@ export class ZeroXService {
     public async isNecessaryToSetAllowance(amount: BigNumber, tokenAddress: string) : Promise< { needAllowance: boolean, currentAllowance: BigNumber }> {
         var takerAddress: string = web3.eth.coinbase
         const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, takerAddress);
-        return { needAllowance: alowancedValue.comparedTo(amount) < 0, currentAllowance: alowancedValue };
+        return { needAllowance: alowancedValue.truncated().comparedTo(amount) < 0, currentAllowance: alowancedValue.truncated() };
     }
 
     public getBalance(tokenAddress: string, address: string) : Promise<BigNumber> {
         return this.zeroEx.token.getBalanceAsync(tokenAddress, address);
     }
 
-    private async getBalanceToWrapETH(address: string) : Promise<BigNumber> {
-        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address))
+    private async getBalanceToWrapETH() : Promise<BigNumber> {
+        let tokenAddress = await this.getTokenAddress("WETH");        
+        var address: string = web3.eth.coinbase;
         
-        var takerAddress: string = web3.eth.coinbase
-        if (!tokenReceived || tokenReceived.symbol !== 'WETH') return undefined;
-        
-        return await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), takerAddress);
+        return await this.zeroEx.token.getBalanceAsync(tokenAddress, address);
     }
 
-    public async wrapETH(amount: BigNumber, address: string): Promise<any> {
-        const balance = await this.getBalanceToWrapETH(address)
+    public async wrapETH(amount: BigNumber): Promise<any> {
+        const balance = await this.getBalanceToWrapETH()
         if (balance) {
             if (balance.lessThan(amount)) {
-                const tx = await this.zeroEx.etherToken.depositAsync(amount.minus(balance), web3.eth.coinbase);
+				const tx = await this.zeroEx.etherToken.depositAsync(await this.getTokenAddress("WETH"), amount.minus(balance), web3.eth.coinbase);
                 return this.zeroEx.awaitTransactionMinedAsync(tx);
             }
         }
@@ -108,8 +108,14 @@ export class ZeroXService {
         );
     }
 
+    public getZeroXAddress(): Promise<string> {
+        return this.zeroEx.tokenRegistry.getTokenAddressBySymbolIfExistsAsync("ZRX");
+    }
+
     public async getTokenAddress(symbol: string) : Promise<string> {
-        if (symbol === "ETH") return await this.zeroEx.etherToken.getContractAddressAsync();
+        if (symbol === "ETH") {
+            symbol = "WETH";
+        };
 
         var token : Token = await this.getToken(symbol);
 
@@ -122,4 +128,30 @@ export class ZeroXService {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
+    public getExchangeContractAddress() : string {
+        return this.zeroEx.exchange.getContractAddress();
+    }
+
+    public async signOrder(order: Order) : Promise<SignedOrder> {
+        var salt = ZeroEx.generatePseudoRandomSalt();
+        const hash = ZeroEx.getOrderHashHex({
+            maker: order.maker,
+            taker: order.taker,
+            makerFee: new BigNumber(order.makerFee),
+            takerFee: new BigNumber(order.takerFee),
+            makerTokenAmount: new BigNumber(order.makerTokenAmount),
+            takerTokenAmount: new BigNumber(order.takerTokenAmount),
+            makerTokenAddress: order.makerTokenAddress,
+            takerTokenAddress: order.takerTokenAddress,
+            salt: salt,
+            exchangeContractAddress: order.exchangeContractAddress,
+            feeRecipient: order.feeRecipient,
+            expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
+        });
+
+        var from = this.getCoinBase();
+        order.ecSignature = await this.zeroEx.signOrderHashAsync(hash, from, true);
+        order.salt = salt.toString();
+        return this.convertToSignedOrder(order);
+    }
 }

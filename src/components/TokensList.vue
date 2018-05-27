@@ -1,7 +1,7 @@
 <template>
   <div class="form-group">
     <select v-model="token" :disabled="!tokenAIsSelected" class="form-control">
-      <option value="">All tokens</option>
+      <option value="">{{ emptyOption }}</option>
       <option v-for="(coin, index) in tokenList" :value="coin">{{ coin }}</option>
     </select>
   </div>
@@ -10,14 +10,28 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { OrderService } from '../api'
+import { Getter } from 'vuex-class'
 
 @Component
 export default class TokensList extends Vue {
   tokenList: string[] = []
+  emptyOption: string = ''
+
+  @Getter getStrategyId
 
   mounted () {
     if (this.tokenAIsSelected) {
       this.getTokenPairs('')
+    }
+    this.fillEmptyOption()
+  }
+
+  fillEmptyOption () {
+    if(this.getStrategyId() == 1) {
+      this.emptyOption = "All tokens";
+    }
+    else {
+      this.emptyOption = "Select token";
     }
   }
 

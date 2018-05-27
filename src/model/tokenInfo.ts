@@ -1,3 +1,7 @@
+import { BigNumber } from "bignumber.js";
+
 export interface TokenInfo {
-    symbol : string
+    symbol : string,
+    address: string,
+    fee: BigNumber,
 }
