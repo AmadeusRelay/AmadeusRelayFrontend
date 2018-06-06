@@ -31,7 +31,8 @@ const state = {
     needToSetFeeAllowance: false,
     needToSetAllowance: false,
     needToWrapEth: false,
-    needFeeBalance: false
+    needFeeBalance: false,
+    feeUnit: null
 }
   
 export default new Vuex.Store({
@@ -118,6 +119,9 @@ export default new Vuex.Store({
         updateNeedToWrapEth (state, needToWrapEth: boolean){
             state.needToWrapEth = needToWrapEth
         },
+        updateFeeUnit (state, unit: BigNumber) {
+            state.feeUnit = unit
+        }
     },
     getters: {
         getTokenPairs () : TokenPair[] {
@@ -167,6 +171,9 @@ export default new Vuex.Store({
         },
         getStrategyId () : number {
             return state.strategyId;
+        },
+        getFeeUnit () : BigNumber {
+            return state.feeUnit;
         }
     }
 })

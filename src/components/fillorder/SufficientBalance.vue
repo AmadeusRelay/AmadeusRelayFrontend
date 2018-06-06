@@ -29,14 +29,16 @@ export default class SufficientBalance extends Vue {
   amount: BigNumber = new BigNumber(0);
   feeAmount: BigNumber = null;
   zeroXService: ZeroXService;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
-  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
   isDestroyed: boolean = false;
+  feeUnit: BigNumber;
 
   @Getter getTokenSold
   @Getter getTokenBought
   @Getter getFeeToPay
   @Getter getTokenSoldAmount
+  @Getter getFeeUnit
   @Mutation updateNeedBalance
   @Mutation updateNeedFeeBalance
 
@@ -47,6 +49,7 @@ export default class SufficientBalance extends Vue {
     this.tokenBought = this.getTokenBought;
     this.feeAmount = this.getFeeToPay;
     this.isDestroyed = false;
+    this.feeUnit = this.getFeeUnit;
 
     this.isNecessaryToCheckBalance();
     this.isNecessaryToCheckFeeBalance();
@@ -85,8 +88,9 @@ export default class SufficientBalance extends Vue {
   }
 
   checkNecessaryBalance (amount: BigNumber) {
-    this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
-    let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount.dividedBy(1000000000000000000) : this.amount.dividedBy(1000000000000000000).plus(this.feeAmount);
+    debugger;
+    this.balanceAmount = amount.dividedBy(this.tokenSold.unit).toFormat();
+    let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount.dividedBy(this.tokenSold.unit) : this.amount.dividedBy(this.tokenSold.unit).plus(this.feeAmount);
     this.needBalance = !amount.greaterThanOrEqualTo(necessaryAmount);
     this.updateNeedBalance(this.needBalance);
     if (this.needBalance) {
@@ -95,7 +99,7 @@ export default class SufficientBalance extends Vue {
   }
 
   checkNecessaryFeeBalance (fee: BigNumber) {
-    this.feeBalanceAmount = fee.dividedBy(1000000000000000000).toFormat();
+    this.feeBalanceAmount = fee.dividedBy(this.feeUnit).toFormat();
     if (this.feeAmount && this.tokenSold.symbol !== 'ZRX') {
       this.needFeeBalance = !fee.greaterThanOrEqualTo(this.feeAmount);
     } else {

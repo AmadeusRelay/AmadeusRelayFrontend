@@ -37,8 +37,10 @@ export class OrderService {
 
     public async postFee(makerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAddress: string, takerTokenAmount: BigNumber, maker: string, expirationUnixTimestampSec: BigNumber) : Promise<Order> {
         const exchangeContractAddress = this.zeroXService.getExchangeContractAddress();
-        makerTokenAmount = new BigNumber(1000000000000000000).mul(makerTokenAmount);
-        takerTokenAmount = new BigNumber(1000000000000000000).mul(takerTokenAmount);
+        var makerUnit = await this.zeroXService.getTokenUnitByAddress(makerTokenAddress);
+        var takerUnit = await this.zeroXService.getTokenUnitByAddress(takerTokenAddress);
+        makerTokenAmount = makerUnit.mul(makerTokenAmount);
+        takerTokenAmount = takerUnit.mul(takerTokenAmount);
         try {
             const fee = await this.httpClient.getFeesAsync({
                 exchangeContractAddress : exchangeContractAddress,
