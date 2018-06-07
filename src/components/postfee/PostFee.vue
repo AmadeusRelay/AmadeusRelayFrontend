@@ -36,7 +36,7 @@
         <br />
         <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToSignOrderPage()" v-bind:class="{'inactive': !enablePostFee}">GET FEE
+                <a class="btn-next-step" @click="postFee()" v-bind:class="{'inactive': !enablePostFee}">GET FEE
                     <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -56,6 +56,7 @@ import { Settings } from 'luxon'
 import Vue from 'vue'
 import { OrderService, ZeroXService, BuildOrderService } from '../../api'
 import { Order } from '../../model/order'
+import { TokenInfo } from '../../model/tokenInfo'
 import { Scripts } from '../../utils/scripts'
 
 Settings.defaultLocale = 'en'
@@ -82,6 +83,7 @@ export default class PostFee extends Vue {
 
   makerAmountError: string = ''
   dateError: string = ''
+  hasToChangePage: boolean = false
 
   $refs: {
     makerTokenRef: TokensList,
@@ -95,8 +97,12 @@ export default class PostFee extends Vue {
   @Mutation updateLoadingState
   @Mutation selectOrder
   @Mutation updateErrorModel
+  @Mutation updateTokenSold
+  @Mutation updateTokenBought
+  @Mutation updateTokenSoldAmount
+  @Mutation updateFeeUnit
 
-  goToSignOrderPage () {
+  postFee () {
     if (this.validateRequiredFields()) {
       var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
       this.updateLoadingState(true);
@@ -114,7 +120,40 @@ export default class PostFee extends Vue {
     this.updateLoadingState(false)
     this.selectOrder(order)
     this.addCodeLine(new Scripts().postFee)
-    this.changePage(4)
+
+    const zeroXService = new ZeroXService();
+    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => { this.setFeeUnit(unit); this.setTokens(order) });
+  }
+
+  setTokens (order: Order) {
+    const zeroXService = new ZeroXService();
+    zeroXService.getTokenByAddress(order.makerTokenAddress).then(token => this.setTokenSold(token, order));
+    zeroXService.getTokenByAddress(order.takerTokenAddress).then(token => this.setTokenBought(token, order));
+  }
+
+  goToSignOrderPage () {
+    if (!this.hasToChangePage) {
+      this.hasToChangePage = true;
+    } else {
+      this.changePage(4);
+    }
+  }
+
+  setFeeUnit (unit: BigNumber) {
+    this.updateFeeUnit(unit);
+  }
+
+  setTokenSold (token: TokenInfo, order: Order) {
+    token.fee = new BigNumber(order.makerFee);
+    this.updateTokenSold(token);
+    this.updateTokenSoldAmount(new BigNumber(order.makerTokenAmount))
+    this.goToSignOrderPage();
+  }
+
+  setTokenBought (token: TokenInfo, order: Order) {
+    token.fee = new BigNumber(order.takerFee);
+    this.updateTokenBought(token);
+    this.goToSignOrderPage();
   }
 
   validateRequiredFields () {
@@ -171,17 +210,18 @@ export default class PostFee extends Vue {
       }.bind(this));
       if (selectedPair != null && selectedPair.length > 0) {
         var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
-        var conv = new BigNumber(1000000000000000000)
-        BigNumber.config({ DECIMAL_PLACES: 8 })
-        this.maxAmount = makerMaxAmount.dividedBy(conv)
-        this.maxAmountString = this.maxAmount.toFormat()
-        this.price = this.calculatePrice(selectedPair[0])
-        if (this.makerAmount !== null && this.makerAmount !== '') {
-          if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) !== 1) {
-            this.makerAmountError = ''
+        this.zeroXService.getTokenUnitBySymbol(this.makerToken).then(unit => {
+          BigNumber.config({ DECIMAL_PLACES: 8 })
+          this.maxAmount = makerMaxAmount.dividedBy(unit)
+          this.maxAmountString = this.maxAmount.toFormat()
+          this.price = this.calculatePrice(selectedPair[0])
+          if (this.makerAmount !== null && this.makerAmount !== '') {
+            if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) !== 1) {
+              this.makerAmountError = ''
+            }
+            this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
           }
-          this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
-        }
+        })
       }
       this.addMaxAmountCodeLine();
     }

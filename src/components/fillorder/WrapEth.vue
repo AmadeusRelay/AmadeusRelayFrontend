@@ -29,7 +29,7 @@ export default class WrapEth extends Vue {
   amount: BigNumber = new BigNumber(0);
   zeroXService: ZeroXService;
   isWrapping: boolean = false;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
   isDestroyed: boolean = false;
 
   @Getter getTokenSold
@@ -71,7 +71,7 @@ export default class WrapEth extends Vue {
   checkNecessaryToWrapETH (result) {
     this.needToWrapETH = result.needWrap;
     this.updateNeedToWrapEth(result.needWrap);
-    this.convertedAmount = result.currentWrapped.dividedBy(1000000000000000000).toFormat();
+    this.convertedAmount = result.currentWrapped.dividedBy(this.tokenSold.unit).toFormat();
     if (this.needToWrapETH) {
       setTimeout(() => this.isNecessaryToWrapETH(), 2000);
     }

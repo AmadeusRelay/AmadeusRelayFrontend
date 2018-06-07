@@ -12,7 +12,8 @@ const orders = await this.httpClient.getOrdersAsync({
     makerTokenAddress: tokenPairs[i].tokenB.address });
 `;
     public chooseOrder : string = `// Get order info
-const maxAmount = orders[j].takerTokenAmount.dividedBy(new BigNumber(1000000000000000000));
+var unit = await this.zeroEx.getTokenUnitByAddress(orders[j].takerTokenAddress);
+const maxAmount = orders[j].takerTokenAmount.dividedBy(unit);
 const rate = orders[j].makerTokenAmount.dividedBy(orders[j].takerTokenAmount);
 `;
     public fillOrder : string = `//Using 0x.js
