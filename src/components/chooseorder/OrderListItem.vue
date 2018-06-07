@@ -35,14 +35,8 @@ export default {
     expiringDate: function () {
       return this.getOrderExpiringDate()
     },
-    maxAmount: function () {
-      return this.getMaxAmount()
-    },
     rate: function () {
       return this.getRate()
-    },
-    fee: function () {
-      return this.getFee()
     },
     value: function () {
       return this.order.valueRequired
@@ -64,6 +58,22 @@ export default {
       }).catch(e => {
         alert(e)
       })
+    },
+    maxAmount () {
+      var maxAmount = new BigNumber(this.order.takerTokenAmount)
+      var zeroXService = new ZeroXService()
+      return zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(unitValue => {
+        BigNumber.set({ DECIMAL_PLACES: 6 })
+        return maxAmount.dividedBy(unitValue).toFormat()
+      });
+    },
+    fee () {
+      var fee = new BigNumber(this.order.takerFee)
+      var zeroXService = new ZeroXService()
+      return zeroXService.getTokenUnitBySymbol('ZRX').then(unitValue => {
+        BigNumber.set({ DECIMAL_PLACES: 6 })
+        return fee.dividedBy(unitValue).toFormat()
+      });
     }
   },
   methods: {
@@ -82,22 +92,6 @@ export default {
       var minutes = ('0' + date.getMinutes()).slice(-2)
       var seconds = ('0' + date.getSeconds()).slice(-2)
       return month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
-    },
-    getMaxAmount () {
-      var maxAmount = new BigNumber(this.order.takerTokenAmount)
-      var zeroXService = new ZeroXService()
-      zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(unitValue => {
-        BigNumber.set({ DECIMAL_PLACES: 6 })
-        return maxAmount.dividedBy(unitValue).toFormat()
-      });
-    },
-    getFee () {
-      var fee = new BigNumber(this.order.takerFee)
-      var zeroXService = new ZeroXService()
-      zeroXService.getTokenUnitBySymbol('ZRX').then(unitValue => {
-        BigNumber.set({ DECIMAL_PLACES: 6 })
-        return fee.dividedBy(unitValue).toFormat()
-      });
     },
     chooseOrder () {
       if (!this.order.valueRequired || this.order.valueRequired === '') {

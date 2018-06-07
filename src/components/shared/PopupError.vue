@@ -86,7 +86,7 @@ export default class PopupError extends Vue {
 
 <style scoped>
 #popup-error-section .container {
-    padding-top: 200px;
+    padding-top: 10%;
     padding-right: 0px;
     background-color: rgba(66 , 59, 125, 0.8);
     position: absolute;
@@ -117,7 +117,7 @@ export default class PopupError extends Vue {
 
 #popup-error-section div .error .validation{
     background-color: rgba(89 , 59, 125, 1);
-    max-height: 100px;
+    max-height: 200px;
     overflow: auto;
     width: 100%;
 }

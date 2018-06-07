@@ -7,7 +7,7 @@
             <div class='item-details'>Your transaction balance: {{balanceAmount}} {{tokenSold.symbol}}</div>
         </div>
         <div v-if='feeAmount && tokenSold.symbol !== "ZRX"'>
-            <div class='item-details'>Your fee balance: {{this.tokenBought.symbol === 'ZRX' ? 'don\'t worry! The fee will be deduced from maker amount' : feeBalanceAmount + ' ZRX'}}</div>
+            <div class='item-details'>Your fee balance: {{this.tokenBought.symbol === 'ZRX' ? 'don\'t worry! The fee will be deduced from ' + (this.isQuoteProvider? 'taker amount' : 'maker amount') : feeBalanceAmount + ' ZRX'}}</div>
         </div>
         </label>
     </div>
@@ -33,6 +33,7 @@ export default class SufficientBalance extends Vue {
   tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
   isDestroyed: boolean = false;
   feeUnit: BigNumber;
+  isQuoteProvider = false;
 
   @Getter getTokenSold
   @Getter getTokenBought
@@ -41,6 +42,7 @@ export default class SufficientBalance extends Vue {
   @Getter getFeeUnit
   @Mutation updateNeedBalance
   @Mutation updateNeedFeeBalance
+  @Getter getStrategyId
 
   mounted () {
     this.zeroXService = new ZeroXService();
@@ -51,6 +53,7 @@ export default class SufficientBalance extends Vue {
     this.isDestroyed = false;
     this.feeUnit = this.getFeeUnit;
 
+    this.isQuoteProvider = this.getStrategyId === 2;
     this.isNecessaryToCheckBalance();
     this.isNecessaryToCheckFeeBalance();
   }
@@ -88,9 +91,8 @@ export default class SufficientBalance extends Vue {
   }
 
   checkNecessaryBalance (amount: BigNumber) {
-    debugger;
     this.balanceAmount = amount.dividedBy(this.tokenSold.unit).toFormat();
-    let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount.dividedBy(this.tokenSold.unit) : this.amount.dividedBy(this.tokenSold.unit).plus(this.feeAmount);
+    let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
     this.needBalance = !amount.greaterThanOrEqualTo(necessaryAmount);
     this.updateNeedBalance(this.needBalance);
     if (this.needBalance) {

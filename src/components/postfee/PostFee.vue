@@ -122,9 +122,13 @@ export default class PostFee extends Vue {
     this.addCodeLine(new Scripts().postFee)
 
     const zeroXService = new ZeroXService();
+    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => { this.setFeeUnit(unit); this.setTokens(order) });
+  }
+
+  setTokens (order: Order) {
+    const zeroXService = new ZeroXService();
     zeroXService.getTokenByAddress(order.makerTokenAddress).then(token => this.setTokenSold(token, order));
     zeroXService.getTokenByAddress(order.takerTokenAddress).then(token => this.setTokenBought(token, order));
-    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => this.setFeeUnit(unit))
   }
 
   goToSignOrderPage () {

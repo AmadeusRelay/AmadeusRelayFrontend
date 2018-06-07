@@ -47,16 +47,19 @@ export default class ChooseOrder extends Vue {
     this.selectOrder(order);
 
     const zeroXService = new ZeroXService();
+    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => { this.setFeeUnit(unit); this.setTokens(order) });
+  }
+
+  setTokens (order: Order) {
+    const zeroXService = new ZeroXService();
     zeroXService.getTokenByAddress(order.takerTokenAddress).then(token => this.setTokenSold(token, order));
     zeroXService.getTokenByAddress(order.makerTokenAddress).then(token => this.setTokenBought(token, order));
-    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => this.setFeeUnit(unit))
-
-    this.setFeeToPay(order);
   }
 
   setTokenSold (token: TokenInfo, order: Order) {
     token.fee = new BigNumber(order.takerFee);
     this.updateTokenSold(token);
+    this.setFeeToPay(order);
     this.changeToNextPage();
   }
 

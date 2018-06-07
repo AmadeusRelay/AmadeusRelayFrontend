@@ -59,7 +59,7 @@ export default class WrapEth extends Vue {
 
     this.needBalance = this.getNeedBalance;
     if (this.tokenSold.symbol === 'ETH') {
-      this.zeroXService.isNecessaryToWrapETH(this.amount.dividedBy(this.tokenSold.unit), this.tokenSold.address).then(this.checkNecessaryToWrapETH);
+      this.zeroXService.isNecessaryToWrapETH(this.amount).then(this.checkNecessaryToWrapETH);
       this.convertedToken = 'WETH';
     } else {
       this.needToWrapETH = false;
@@ -83,7 +83,7 @@ export default class WrapEth extends Vue {
     }
     this.isWrapping = true;
     this.updateLoadingState(true);
-    this.zeroXService.wrapETH(this.amount, this.tokenSold.address).then(() => {
+    this.zeroXService.wrapETH(this.amount).then(() => {
       this.isNecessaryToWrapETH();
       this.updateLoadingState(false);
       this.isWrapping = false;

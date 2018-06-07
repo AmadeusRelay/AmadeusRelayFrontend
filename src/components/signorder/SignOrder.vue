@@ -64,7 +64,7 @@ export default class SignOrder extends Vue {
   @Mutation updateSignOrder
   @Mutation updateFeeToPay
   @Mutation updateLoadingState
-  @Mutation updateErrorMessage
+  @Mutation updateErrorModel
 
   mounted () {
     this.tokenSold = this.getTokenSold;
@@ -116,9 +116,8 @@ export default class SignOrder extends Vue {
     zeroXService.signOrder(this.order)
     .then(signedOrder => this.onSuccessfullySignOrder(signedOrder))
     .catch((e) => {
-      this.updateErrorMessage(e.message)
+      this.updateErrorModel('Signature cancelled')
       this.updateLoadingState(false)
-      this.changePage(7)
     });
   }
 
