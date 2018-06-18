@@ -1,17 +1,23 @@
+import axios from 'axios';
+import { AxiosInstance } from 'axios';
 import { HttpClient, TokenPairsItem } from '@0xproject/connect';
 import { Order } from '../model/order';
+import { Price } from '../model/price';
 import { SignedOrder } from '0x.js';
 import { TokenPair } from '../model/tokenPair';
 import { ZeroXService } from './zeroXService';
 import { BigNumber } from 'bignumber.js';
 import { BuildOrderService } from './buildOrderService';
-const ethUtil = require("ethereumjs-util");
 
 export class OrderService {
     private httpClient: HttpClient;
+    private axiosInstance: AxiosInstance;
 
     public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
-        this.httpClient = new HttpClient('https://kovan.amadeusrelay.org/api/v0');
+        this.httpClient = new HttpClient('http://localhost:3000/api/v0/');
+        this.axiosInstance = axios.create({
+            baseURL: 'http://localhost/3000/api/v0/'
+        });
     }
 
     public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
@@ -81,6 +87,22 @@ export class OrderService {
         } catch (error) {
             this.errorHandler(error)
         }
+    }
+
+    public async getPrice(takerToken?: string, makerToken?: string, trader?: string): Promise<Price> {
+        try{
+            var tokenFromAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
+            var tokenToAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
+            debugger
+            let response = await this.teste(tokenFromAddress, tokenToAddress, trader);
+            return response.data;
+        } catch (error) {
+            this.errorHandler(error)
+        }
+    }
+
+    private async teste (tokenFromAddress?: string, tokenToAddress?: string, trader?: string) : Promise<any>{
+        return await this.axiosInstance.get('/token_pairs');
     }
 
     private errorHandler(error) {

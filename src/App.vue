@@ -22,13 +22,14 @@
         <choose-strategy v-if="pageId == 1"></choose-strategy>
         <token-pairs v-if="pageId == 2"></token-pairs>
         <get-orders v-if="pageId == 3 && strategyId == 1"></get-orders>
-        <post-fee v-if="pageId == 3 && strategyId == 2"></post-fee>
+        <get-price v-if="pageId == 3 && strategyId == 2"></get-price>
         <choose-order v-if="pageId == 4 && strategyId == 1"></choose-order>
-        <sign-order v-if="pageId == 4 && strategyId == 2"></sign-order>
+        <post-fee v-if="pageId == 4 && strategyId == 2"></post-fee>
         <fill-order v-if="pageId == 5 && strategyId == 1"></fill-order>
-        <post-order v-if="pageId == 5 && strategyId == 2"></post-order>
-        <order-confirmation v-if="pageId == 6"></order-confirmation>
-        <order-error v-if="pageId == 7"></order-error>
+        <sign-order v-if="pageId == 5 && strategyId == 2"></sign-order>
+        <post-order v-if="pageId == 6 && strategyId == 2"></post-order>
+        <order-confirmation v-if="pageId == 7"></order-confirmation>
+        <order-error v-if="pageId == 8"></order-error>
       </div>
       <div class="code-container" v-if="pageId > 1">
         <codemirror v-if="pageId > 1" ref="myCm" v-model="code"></codemirror>
@@ -51,6 +52,7 @@ import ChooseStrategy from './components/choosestrategy/ChooseStrategy.vue'
 import PostFee from './components/postfee/PostFee.vue'
 import SignOrder from './components/signorder/SignOrder.vue'
 import PostOrder from './components/postorder/PostOrder.vue'
+import GetPrice from './components/getprice/GetPrice.vue'
 
 export default {
   components: {
@@ -66,7 +68,8 @@ export default {
     PostFee,
     SignOrder,
     PopupError,
-    PostOrder
+    PostOrder,
+    GetPrice
   },
   computed: mapState({
     pageId: state => state.pageId,

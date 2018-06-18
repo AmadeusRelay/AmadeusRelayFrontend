@@ -100,7 +100,7 @@ export default class FillOrder extends Vue {
 
   onSuccessfullyFillOrder () {
     this.updateLoadingState(false)
-    this.changePage(6)
+    this.changePage(7)
   }
 }
 </script>

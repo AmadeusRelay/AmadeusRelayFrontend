@@ -114,7 +114,7 @@ export default class PostFee extends Vue {
     this.updateLoadingState(false)
     this.selectOrder(order)
     this.addCodeLine(new Scripts().postFee)
-    this.changePage(4)
+    this.changePage(5)
   }
 
   validateRequiredFields () {
