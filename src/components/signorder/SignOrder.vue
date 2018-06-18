@@ -166,7 +166,7 @@ export default class SignOrder extends Vue {
     if (!this.hasToChangePage) {
       this.hasToChangePage = true;
     } else {
-      this.changePage(5);
+      this.changePage(6);
     }
   }
 
