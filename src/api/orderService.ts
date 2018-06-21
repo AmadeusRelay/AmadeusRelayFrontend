@@ -16,7 +16,7 @@ export class OrderService {
     public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
         this.httpClient = new HttpClient('http://localhost:3000/api/v0/');
         this.axiosInstance = axios.create({
-            baseURL: 'http://localhost/3000/api/v0/'
+            baseURL: 'http://localhost:3000/api/v0/'
         });
     }
 
@@ -90,11 +90,16 @@ export class OrderService {
     }
 
     public async getPrice(takerToken?: string, makerToken?: string, trader?: string): Promise<Price> {
-        try{
+        try {
             var tokenFromAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
             var tokenToAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
-            debugger
-            let response = await this.teste(tokenFromAddress, tokenToAddress, trader);
+            let response = await this.axiosInstance.get('/prices', {
+                params: {
+                    tokenFrom: tokenFromAddress,
+                    tokenTo: tokenToAddress,
+                    trader: trader
+                }
+              });
             return response.data;
         } catch (error) {
             this.errorHandler(error)

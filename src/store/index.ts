@@ -172,6 +172,9 @@ export default new Vuex.Store({
         },
         getStrategyId () : number {
             return state.strategyId;
+        },
+        getPrice (): Price {
+            return state.price;
         }
     }
 })
