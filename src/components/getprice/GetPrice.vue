@@ -18,7 +18,7 @@
           </div> 
           <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToGetPricePage()">GET PRICE
+                <a class="btn-next-step" @click="goToGetPricePage()" v-bind:class="{'inactive': !enablePriceButton}">GET PRICE
                 <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -41,6 +41,7 @@ import { Scripts } from '../../utils/scripts'
 export default class GetPrice extends Vue {
   takerToken: string = ''
   makerToken: string = ''
+  enablePriceButton: boolean = false
 
   $refs: {
     makerTokenRef: TokensList,
@@ -52,31 +53,49 @@ export default class GetPrice extends Vue {
   @Mutation updatePrice
   @Mutation updateLoadingState
   @Mutation updateErrorModel
+  @Mutation updateErrorMessage
 
   goToGetPricePage () {
-    var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
-    var zeroXService = new ZeroXService();
-    this.updateLoadingState(true)
-    orderService.getPrice(this.takerToken, this.makerToken, zeroXService.getCoinBase()).then(this.onSuccessfullyGetPrice).catch((e) => {
-      this.updateErrorModel(e);
-      this.updateLoadingState(false)
-    });
+    if (this.enablePriceButton) {
+      var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
+      var zeroXService = new ZeroXService();
+      this.updateLoadingState(true)
+      orderService.getPrice(this.takerToken, this.makerToken, zeroXService.getCoinBase()).then(this.onSuccessfullyGetPrice).catch((e) => {
+        this.updateErrorModel(e);
+        this.updateLoadingState(false)
+      });
+    }
   }
 
   onSuccessfullyGetPrice (price: any) {
-    this.updatePrice(price);
-    this.updateLoadingState(false)
-    this.changePage(4);
+    if (price === null) {
+      this.updateErrorMessage('Pair not supported')
+      this.updateLoadingState(false)
+    } else {
+      this.updatePrice(price);
+      this.updateLoadingState(false)
+      this.changePage(4);
+    }
   }
 
   updateTakerToken (value : string) {
     this.takerToken = value
     this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
+    this.validateFields()
   }
 
   updateMakerToken (value : string) {
     this.makerToken = value
     this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
+    this.validateFields()
+  }
+
+  validateFields () {
+    if (this.makerToken !== '' && this.takerToken !== '') {
+      this.enablePriceButton = true
+    } else {
+      this.enablePriceButton = false
+    }
   }
 
   mounted () {
@@ -105,6 +124,11 @@ export default class GetPrice extends Vue {
 #get-price-section label{
     color: #ffffff;
     font-size: 17px;
+}
+
+#get-price-section .btn-next-step.inactive{
+  opacity: 0.5;
+  cursor: default;
 }
 
 @media (max-width: 992px){

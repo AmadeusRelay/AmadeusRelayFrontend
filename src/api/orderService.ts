@@ -102,7 +102,10 @@ export class OrderService {
                     trader: trader
                 }
               });
-            return response.data;
+              if(response != null){
+                return response.data;
+              }
+              return null;
         } catch (error) {
             this.errorHandler(error)
         }
