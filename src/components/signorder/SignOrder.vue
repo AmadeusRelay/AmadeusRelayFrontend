@@ -124,38 +124,8 @@ export default class SignOrder extends Vue {
   onSuccessfullySignOrder (signedOrder: any) {
     this.updateSignOrder(signedOrder)
     this.updateLoadingState(false)
-    this.setFeeToPay();
-<<<<<<< HEAD
-  }
-
-  setTokenSold (symbol: string) {
-    this.updateTokenSold({
-      symbol: symbol,
-      address: this.order.makerTokenAddress,
-      fee: this.order.makerFee
-    });
-    this.updateTokenSoldAmount(new BigNumber(this.order.makerTokenAmount))
-    this.goToPostOrderPage();
-  }
-
-  setTokenBought (symbol: string) {
-    this.updateTokenBought({
-      symbol: symbol,
-      address: this.order.takerTokenAddress,
-      fee: this.order.takerFee
-    });
-    this.goToPostOrderPage();
-  }
-
-  goToPostOrderPage () {
-    if (!this.hasToChangePage) {
-      this.hasToChangePage = true;
-    } else {
-      this.changePage(6);
-    }
-=======
-    this.changePage(5);
->>>>>>> origin/develop
+    this.setFeeToPay()
+    this.changePage(6)
   }
 
   setFeeToPay () {

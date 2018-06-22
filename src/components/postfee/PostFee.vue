@@ -21,7 +21,7 @@
             </div>
             <div class="col-md-2">
                 <label>Max Amount</label>
-                <input class="form-control" v-model="priceObj.maxAmountFrom" disabled/> 
+                <input class="form-control" v-model="maxAmountString" disabled/> 
             </div>
             <div class="col-md-2 div-maker-amount">
                 <label>Maker Amount</label>
@@ -80,6 +80,7 @@ export default class PostFee extends Vue {
   minDate: string = (new Date()).toISOString()
   takerAmount: BigNumber = null
   enablePostFee: boolean = false
+  price: string = ''
   priceObj: Price = null
   makerAmountError: string = ''
   dateError: string = ''
@@ -130,7 +131,7 @@ export default class PostFee extends Vue {
     if (!this.hasToChangePage) {
       this.hasToChangePage = true;
     } else {
-      this.changePage(4);
+      this.changePage(5);
     }
   }
 
@@ -155,7 +156,7 @@ export default class PostFee extends Vue {
     var valid = true;
     if (this.makerAmount === null || this.makerAmount === '') {
       valid = false
-    } else if (new BigNumber(this.makerAmount).comparedTo(this.priceObj.maxAmountFrom.replace(/,\s?/g, '')) === 1) {
+    } else if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) === 1) {
       this.makerAmountError = 'Value is greater than max'
       valid = false
     }
@@ -176,23 +177,37 @@ export default class PostFee extends Vue {
     });
   }
 
-  setMakerSymbol () {
+  setMakerSymbolAndMaxAmount () {
     var zeroXService = new ZeroXService()
     zeroXService.getTokenSymbol(this.priceObj.tokenFrom).then((response) => {
       this.makerToken = response
+      this.setMaxAmount()
     })
   }
 
-  mounted () {
+  setMaxAmount () {
+    var makerMaxAmount = new BigNumber(this.priceObj.maxAmountFrom.replace(/,\s?/g, ''))
+    this.zeroXService.getTokenUnitBySymbol(this.makerToken).then(unit => {
+      BigNumber.config({ DECIMAL_PLACES: 8 })
+      this.maxAmount = makerMaxAmount.dividedBy(unit)
+      this.maxAmountString = this.maxAmount.toFormat()
+    })
+  }
+
+  setPrice () {
     this.priceObj = this.getPrice
+    this.price = this.priceObj.price
+  }
+
+  mounted () {
+    this.setPrice()
     this.zeroXService = new ZeroXService()
     this.setTakerSymbol()
-    this.setMakerSymbol()
+    this.setMakerSymbolAndMaxAmount()
   }
 
   @Watch('makerAmount')
   onMakerAmountChanged (val: string, oldVal: string) {
-    debugger;
     if (val !== null && val !== '') {
       if (new BigNumber(val).comparedTo(this.priceObj.maxAmountFrom.replace(/,\s?/g, '')) !== 1) {
         this.makerAmountError = ''

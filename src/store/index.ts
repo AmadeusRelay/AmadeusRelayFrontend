@@ -123,6 +123,7 @@ export default new Vuex.Store({
         },
         updatePrice(state, price: Price){
             state.price = price
+        },
         updateFeeUnit (state, unit: BigNumber) {
             state.feeUnit = unit
         }
@@ -178,6 +179,7 @@ export default new Vuex.Store({
         },
         getPrice (): Price {
             return state.price;
+        },
         getFeeUnit () : BigNumber {
             return state.feeUnit;
         }

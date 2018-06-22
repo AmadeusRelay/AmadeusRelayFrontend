@@ -46,7 +46,7 @@ export class OrderService {
         var makerUnit = await this.zeroXService.getTokenUnitByAddress(makerTokenAddress);
         var takerUnit = await this.zeroXService.getTokenUnitByAddress(takerTokenAddress);
         makerTokenAmount = makerUnit.mul(makerTokenAmount);
-        takerTokenAmount = takerUnit.mul(takerTokenAmount);
+        takerTokenAmount = takerUnit.mul(takerTokenAmount).dividedToIntegerBy(1);
         try {
             const fee = await this.httpClient.getFeesAsync({
                 exchangeContractAddress : exchangeContractAddress,
@@ -93,8 +93,8 @@ export class OrderService {
 
     public async getPrice(takerToken?: string, makerToken?: string, trader?: string): Promise<Price> {
         try {
-            var tokenFromAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
-            var tokenToAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
+            var tokenToAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
+            var tokenFromAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
             let response = await this.axiosInstance.get('/prices', {
                 params: {
                     tokenFrom: tokenFromAddress,
@@ -106,10 +106,6 @@ export class OrderService {
         } catch (error) {
             this.errorHandler(error)
         }
-    }
-
-    private async teste (tokenFromAddress?: string, tokenToAddress?: string, trader?: string) : Promise<any>{
-        return await this.axiosInstance.get('/token_pairs');
     }
 
     private errorHandler(error) {
