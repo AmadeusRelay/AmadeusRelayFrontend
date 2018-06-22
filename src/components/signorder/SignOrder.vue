@@ -21,7 +21,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{makerSymbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{takerSymbol}}</td>
+                            <td>{{tokenSold.symbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{tokenBought.symbol}}</td>
                             <td>{{expiringDate}}</td>
                             <td>1 : {{rate}}</td>
                             <td>{{fee}}</td>
@@ -48,26 +48,28 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Mutation, Getter } from 'vuex-class'
 import { ZeroXService } from '../../api'
 import { BigNumber } from 'bignumber.js'
+import { TokenInfo } from '../../model/tokenInfo'
 
 @Component
 export default class SignOrder extends Vue {
-  takerSymbol: string = ''
-  makerSymbol: string = ''
-  hasToChangePage: boolean = false
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  feeUnit: BigNumber = new BigNumber(0);
 
   @Getter getSelectedOrder
+  @Getter getTokenSold
+  @Getter getTokenBought
+  @Getter getFeeUnit
   @Mutation changePage
   @Mutation updateSignOrder
-  @Mutation updateTokenSold
-  @Mutation updateTokenBought
   @Mutation updateFeeToPay
-  @Mutation updateTokenSoldAmount
   @Mutation updateLoadingState
   @Mutation updateErrorModel
 
   mounted () {
-    this.setTakerSymbol();
-    this.setMakerSymbol();
+    this.tokenSold = this.getTokenSold;
+    this.tokenBought = this.getTokenBought;
+    this.feeUnit = this.getFeeUnit;
   }
 
   get order () {
@@ -94,33 +96,18 @@ export default class SignOrder extends Vue {
 
   get fee () {
     var fee = new BigNumber(this.order.makerFee)
-    var conv = new BigNumber(1000000000000000000)
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return fee.dividedBy(conv).toFormat()
+    return fee.dividedBy(this.feeUnit).toFormat()
   }
 
   get makerAmount () {
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return new BigNumber(this.order.makerTokenAmount).dividedBy(new BigNumber(1000000000000000000)).toFormat()
+    return new BigNumber(this.order.makerTokenAmount).dividedBy(new BigNumber(this.tokenSold.unit)).toFormat()
   }
 
   get takerAmount () {
     BigNumber.config({ DECIMAL_PLACES: 6 })
-    return new BigNumber(this.order.takerTokenAmount).dividedBy(new BigNumber(1000000000000000000)).toFormat()
-  }
-
-  setTakerSymbol () {
-    var zeroXService = new ZeroXService()
-    zeroXService.getTokenSymbol(this.order.takerTokenAddress).then((response) => {
-      this.takerSymbol = response
-    });
-  }
-
-  setMakerSymbol () {
-    var zeroXService = new ZeroXService()
-    zeroXService.getTokenSymbol(this.order.makerTokenAddress).then((response) => {
-      this.makerSymbol = response
-    })
+    return new BigNumber(this.order.takerTokenAmount).dividedBy(new BigNumber(this.tokenBought.unit)).toFormat()
   }
 
   signOrder () {
@@ -136,11 +123,9 @@ export default class SignOrder extends Vue {
 
   onSuccessfullySignOrder (signedOrder: any) {
     this.updateSignOrder(signedOrder)
-    const zeroXService = new ZeroXService();
-    zeroXService.getTokenSymbol(signedOrder.makerTokenAddress).then(symbol => this.setTokenSold(symbol));
-    zeroXService.getTokenSymbol(signedOrder.takerTokenAddress).then(symbol => this.setTokenBought(symbol));
     this.updateLoadingState(false)
     this.setFeeToPay();
+<<<<<<< HEAD
   }
 
   setTokenSold (symbol: string) {
@@ -168,6 +153,9 @@ export default class SignOrder extends Vue {
     } else {
       this.changePage(6);
     }
+=======
+    this.changePage(5);
+>>>>>>> origin/develop
   }
 
   setFeeToPay () {
