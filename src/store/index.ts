@@ -121,13 +121,10 @@ export default new Vuex.Store({
         updateNeedToWrapEth (state, needToWrapEth: boolean){
             state.needToWrapEth = needToWrapEth
         },
-<<<<<<< HEAD
         updatePrice(state, price: Price){
             state.price = price
-=======
         updateFeeUnit (state, unit: BigNumber) {
             state.feeUnit = unit
->>>>>>> origin/develop
         }
     },
     getters: {
@@ -179,13 +176,10 @@ export default new Vuex.Store({
         getStrategyId () : number {
             return state.strategyId;
         },
-<<<<<<< HEAD
         getPrice (): Price {
             return state.price;
-=======
         getFeeUnit () : BigNumber {
             return state.feeUnit;
->>>>>>> origin/develop
         }
     }
 })

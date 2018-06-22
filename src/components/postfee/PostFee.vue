@@ -59,11 +59,8 @@ import { Settings } from 'luxon'
 import Vue from 'vue'
 import { OrderService, ZeroXService, BuildOrderService } from '../../api'
 import { Order } from '../../model/order'
-<<<<<<< HEAD
 import { Price } from '../../model/price'
-=======
 import { TokenInfo } from '../../model/tokenInfo'
->>>>>>> origin/develop
 import { Scripts } from '../../utils/scripts'
 
 Settings.defaultLocale = 'en'
@@ -118,9 +115,6 @@ export default class PostFee extends Vue {
     this.updateLoadingState(false)
     this.selectOrder(order)
     this.addCodeLine(new Scripts().postFee)
-<<<<<<< HEAD
-    this.changePage(5)
-=======
 
     const zeroXService = new ZeroXService();
     zeroXService.getTokenUnitBySymbol('ZRX').then(unit => { this.setFeeUnit(unit); this.setTokens(order) });
@@ -155,7 +149,6 @@ export default class PostFee extends Vue {
     token.fee = new BigNumber(order.takerFee);
     this.updateTokenBought(token);
     this.goToSignOrderPage();
->>>>>>> origin/develop
   }
 
   validateRequiredFields () {
@@ -176,70 +169,11 @@ export default class PostFee extends Vue {
     return valid
   }
 
-<<<<<<< HEAD
   setTakerSymbol () {
     var zeroXService = new ZeroXService()
     zeroXService.getTokenSymbol(this.priceObj.tokenTo).then((response) => {
       this.takerToken = response
     });
-=======
-  updateTakerToken (value : string) {
-    this.takerToken = value
-    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
-    this.zeroXService.getTokenAddress(value).then(address => this.updateTakerTokenAddress(address));
-    this.updateMaxAmountAndPrice()
-  }
-
-  updateTakerTokenAddress (address: string) {
-    this.takerTokenAddress = address
-  }
-
-  updateMakerToken (value : string) {
-    this.makerToken = value
-    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
-    this.zeroXService.getTokenAddress(value).then(address => this.updateMakerTokenAddress(address));
-    this.updateMaxAmountAndPrice()
-  }
-
-  updateMakerTokenAddress (address: string) {
-    this.makerTokenAddress = address
-  }
-
-  updateMaxAmountAndPrice () {
-    if (this.makerToken !== '' && this.takerToken !== '') {
-      var tokens = this.getTokenPairs
-      var selectedPair = tokens.filter(function (token) {
-        return token.tokenBSymbol === this.makerToken && token.tokenASymbol === this.takerToken;
-      }.bind(this));
-      if (selectedPair != null && selectedPair.length > 0) {
-        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
-        this.zeroXService.getTokenUnitBySymbol(this.makerToken).then(unit => {
-          BigNumber.config({ DECIMAL_PLACES: 8 })
-          this.maxAmount = makerMaxAmount.dividedBy(unit)
-          this.maxAmountString = this.maxAmount.toFormat()
-          this.price = this.calculatePrice(selectedPair[0])
-          if (this.makerAmount !== null && this.makerAmount !== '') {
-            if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) !== 1) {
-              this.makerAmountError = ''
-            }
-            this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
-          }
-        })
-      }
-      this.addMaxAmountCodeLine();
-    }
-  }
-
-  calculatePrice (pair) {
-    const priceFromMin = new BigNumber(pair.minTokenAAmount).dividedBy(pair.minTokenBAmount)
-    const priceFromMax = new BigNumber(pair.maxTokenAAmount).dividedBy(pair.maxTokenBAmount)
-
-    if (priceFromMin.comparedTo(priceFromMax) === 1) {
-      return priceFromMax;
-    } else {
-      return priceFromMin;
-    }
->>>>>>> origin/develop
   }
 
   setMakerSymbol () {
