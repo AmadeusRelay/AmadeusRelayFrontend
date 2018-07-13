@@ -20,12 +20,12 @@ export class OrderService {
         });
     }
 
-    public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
+    public async listOrders(takerToken?: string, makerToken?: string, taker?: string): Promise<Order[]> {
         var takerTokenAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
         var makerTokenAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
 
         return new Promise<Order[]>((resolve, reject) => {
-            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress });
+            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress, taker: taker });
             result.then(orders => {
                 resolve(this.convertOrders(orders));
             }).catch(e => reject(e));            
