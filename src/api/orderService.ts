@@ -8,15 +8,16 @@ import { TokenPair } from '../model/tokenPair';
 import { ZeroXService } from './zeroXService';
 import { BigNumber } from 'bignumber.js';
 import { BuildOrderService } from './buildOrderService';
+const config = require('../../config')
 
 export class OrderService {
     private httpClient: HttpClient;
     private axiosInstance: AxiosInstance;
 
     public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
-        this.httpClient = new HttpClient('http://localhost:3000/api/v0/');
+        this.httpClient = new HttpClient(config.network.url);
         this.axiosInstance = axios.create({
-            baseURL: 'http://localhost:3000/api/v0/'
+            baseURL: config.network.url
         });
     }
 
@@ -149,7 +150,7 @@ export class OrderService {
 
             if (tokenASymbol && tokenBSymbol)
             {
-                let tokenPair : TokenPair = {
+                let tokenPair1 : TokenPair = {
                     tokenASymbol: tokenASymbol,
                     tokenBSymbol: tokenBSymbol,
                     maxTokenBAmount: pair.tokenB.maxAmount.toString(),
@@ -157,8 +158,18 @@ export class OrderService {
                     minTokenAAmount: pair.tokenA.minAmount.toString(),
                     minTokenBAmount: pair.tokenB.minAmount.toString()
                 };
+
+                let tokenPair2 : TokenPair = {
+                    tokenASymbol: tokenBSymbol,
+                    tokenBSymbol: tokenASymbol,
+                    maxTokenBAmount: pair.tokenA.maxAmount.toString(),
+                    maxTokenAAmount: pair.tokenB.maxAmount.toString(),
+                    minTokenAAmount: pair.tokenB.minAmount.toString(),
+                    minTokenBAmount: pair.tokenA.minAmount.toString()
+                };
     
-                tokens.push(tokenPair);
+                tokens.push(tokenPair1);
+                tokens.push(tokenPair2);
             }
         }
         return tokens;
