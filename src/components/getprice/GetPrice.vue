@@ -99,7 +99,7 @@ export default class GetPrice extends Vue {
   }
 
   mounted () {
-    this.addCodeLine(new Scripts().getOrders);
+    this.addCodeLine(new Scripts().getPrice);
     this.$refs.makerTokenRef.refreshToken(this.takerToken, false)
     this.$refs.takerTokenRef.refreshToken(this.makerToken, true)
   }
