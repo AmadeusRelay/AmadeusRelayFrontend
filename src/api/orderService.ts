@@ -172,6 +172,11 @@ export class OrderService {
                 tokens.push(tokenPair2);
             }
         }
+        // Distinct
+        tokens = tokens.filter((pair, index) => {
+            var i = tokens.findIndex(p => p.tokenASymbol === pair.tokenASymbol && p.tokenBSymbol === pair.tokenBSymbol);
+            return i === index;
+        });
         return tokens;
     }
 }
