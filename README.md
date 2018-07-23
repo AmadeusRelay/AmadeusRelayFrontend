@@ -269,7 +269,7 @@ Using the same route described in the reserve manager strategy, you have:
 
 This is important only to know if the required pair is supported by Amadeus. Otherwise, you can not retrieve price or build the order.
 
-#### STEP 2: Get price
+#### STEP 2: GET price
 
 To get the price, Amadeus provides a specific route, which is not part of the 0x standard relayer API. Amadeus team think this stage is important
 so there is no confusion of concepts with other endpoints of the standard API, and there is an explicit step to obtain the conversion value between two tokens. That way, this route is not available in 0x Connect, and it must be accessed by an HTTP client. 
