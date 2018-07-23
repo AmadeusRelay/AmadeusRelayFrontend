@@ -70,14 +70,14 @@ This function can be called passing tokenA as empty or passing a token address a
 {
     "tokenA": {
       "address": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
-      "minAmount": "100000000000",
-      "maxAmount": "2002000000000000",
+      "minAmount": "1",
+      "maxAmount": "999999999999999999999",
       "precision": 8
     },
     "tokenB": {
       "address": "0xb18845c260f680d5b9d84649638813e342e4f8c9",
-      "minAmount": "1310000000000",
-      "maxAmount": "26326070000000000",
+      "minAmount": "1",
+      "maxAmount": "999999999999999999999",
       "precision": 8
     }
 }
@@ -140,7 +140,7 @@ Let's see an example:
 - To do this, you must fill the value you want to exchange
 - If you choose to put 10 WETH, you will receive 10000 ZRX in exchange
 
-There're an important point at this step. If you don't have WETH itself, only ETH, you have to exchange both with a command similar to this:
+There's an important point at this step. If you don't have WETH itself, only ETH, you have to exchange both with a command similar to this:
 ```
 var takerAddress: string = web3.eth.coinbase
 var amount = ZeroEx.toBaseUnitAmount(new BigNumber(takerAmount), 18)
@@ -242,51 +242,79 @@ However, some errors can occur, for example:
 
 #### Note
 
-Amadeus Relay development team has developed a library that encapsulates steps 1, 2 and 3 of this tutorial and also does the step 4. The team found it interesting to provide a simpler way of putting together an order and signing it. To view the code and the readme to install it, you can access the [0xOrderBuilder](https://github.com/AmadeusRelay/0xOrderBuilder) library.
+Amadeus Relay development team has developed a library that encapsulates steps 1, 2, 3 and 4 of this tutorial and also does the step 5. The team found it interesting to provide a simpler way of putting together an order and signing it. To view the code and the readme to install it, you can access the [0xOrderBuilder](https://github.com/AmadeusRelay/0xOrderBuilder) library.
 
 #### STEP 1: GET token_pairs
 
-For the quote provider strategy, the first step is also to get token pairs to trade. This allows the dApp to know which conversion price the relayer is working with. 
+For the quote provider strategy, the first step is also to get token pairs to trade. This allows the dApp to know which tokens the relayer is working with. 
 
-Using the same route described in the reserve manager strategy, you can calculate the price charged. From the same example of the response, you have:
+Using the same route described in the reserve manager strategy, you have:
 
 ```
 {
     "tokenA": {
       "address": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
-      "minAmount": "100000000000",
-      "maxAmount": "2002000000000000",
+      "minAmount": "1",
+      "maxAmount": "999999999999999999999",
       "precision": 8
     },
     "tokenB": {
       "address": "0xb18845c260f680d5b9d84649638813e342e4f8c9",
-      "minAmount": "1310000000000",
-      "maxAmount": "26326070000000000",
+      "minAmount": "1",
+      "maxAmount": "999999999999999999999",
       "precision": 8
     }
 }
 ```
-and with a simple division of the maximum amounts of tokens, you can obtain the practiced price.
+
+This is important only to know if the required pair is supported by Amadeus. Otherwise, you can not retrieve price or build the order.
+
+#### STEP 2: GET price
+
+To get the price, Amadeus provides a specific route, which is not part of the 0x standard relayer API. Amadeus team think this stage is important
+so there is no confusion of concepts with other endpoints of the standard API, and there is an explicit step to obtain the conversion value between two tokens. That way, this route is not available in 0x Connect, and it must be accessed by an HTTP client. 
+
+```
+GET /api/v0/prices?tokenFrom=&tokenTo=&trader=
+```
+where the conversion happens in the tokenFrom -> tokenTo direction. The trader parameter is the public key of the wallet that is requesting the price. 
+
+This route returns a JSON object:
+
+```
+{
+  "maxAmountFrom": "000000000000020000",
+  "maxAmountTo": "000000000000020000",
+  "minAmountFrom": "000000000000000001",
+  "minAmountTo": "000000000000000001",
+  "price": "00000089890000001",
+  "tokenFrom": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+  "tokenTo": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d"
+}
+```
+which specifies the maximum and minimum amount can be traded of the requested token pair and the price between them. This step, as already mentioned, is also encapsulated in the 0xOrderBuilder.js library.
 
 At this moment, you already know how to get which coins can be traded and the related price. On the next step, you'll see how to assemble the order, but still without the fee information.
 
-#### STEP 2: Mount the order
+#### STEP 3: Mount the order
 
 As has already been said, 0xOrderBuilder.js facilitates the assembly of the order. However, if you do not want to use it, you must know how to specify the fields of your order. The fields are:
 
 * "exchangeContractAddress": The address of the 0x protocol exchange smart contract, based on your ethereum network
-* "maker": yours eth wallet address
+* "maker": your eth wallet address
 * "taker": "0x0000000000000000000000000000000000000000" or Amadeus Relay address
 * "makerTokenAddress": the token address you wish to sell
 * "takerTokenAddress": the token address you wish to buy
 * "makerTokenAmount": the amount you wish to sell (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));
 * "takerTokenAmount": the amount you wish to buy (in base units, e.g.: 1 ZRX => new BigNumber(1000000000000000000));
 * "expirationUnixTimestampSec": order expiration
-* "salt": randomic number, that can be generate by calling 0x.js method generatePseudoRandomSalt
+* "salt": a random number, that can be generated by calling 0x.js method generatePseudoRandomSalt
 
-and with them, you can get the order fee, as we'll see further.
+where the relationship between the makerTokenAmount and the takerTokenAmount is given by the price calculated in step 2.
 
-#### STEP 3: POST fees
+With these fields, you can get the order fee, as we'll see further.
+
+#### STEP 4: POST fees
 
 Given an unsigned order without the fee-related properties, it is necessary to fill in the fee information to sign the order. To do this, you can call API POST fees:
 
@@ -324,7 +352,7 @@ This method does some input validations, such as checking whether the relayer su
 
 With this information, your order is ready, and you can sign it.
 
-#### STEP 4: Signing an order
+#### STEP 5: Signing an order
 
 You can use 0xOrderBuilder.js to sign the order in a simplified way. If you do not want to, you have some alternatives:
 
@@ -359,11 +387,11 @@ given that for the second alternative, the private key would be obtained by some
 
 With the signed order, the next step are convert ETH in WETH (if you need to), allow the 0x to interact with your funds and post the order for the relayer to complete it
 
-#### STEP 5: Converting ETH in WETH
+#### STEP 6: Converting ETH in WETH
 
 If you don't have WETH itself, only ETH, you have to exchange both. The commands to do this have already been shown in the reserve manager strategy.
 
-#### STEP 6: Set allowance
+#### STEP 7: Set allowance
 
 As already mentioned in the reserve manager strategy, you should also allow the 0x protocol to interact with your funds, either for the primary token you want to sell or for the ZRX token fee payment. The difference here is that you should call the method passing the makerTokenAddress and makerAddress, because they refer to the token you want to sell and your address, respectively.
 
@@ -375,7 +403,7 @@ await this.zeroEx.token.setProxyAllowanceAsync(order.makerTokenAddress, makerAdd
 
 You'll have to do the same command using the ZRX token address, since the fee is charged in ZRX, then you need to authorize this interaction as well.
 
-#### STEP 7: POST order
+#### STEP 8: POST order
 
 Now, everything is ready to complete the order. At this point, as well as the reserve manager strategy, you should ensure:
 - You have the token amount you want to exchange in your wallet (WETH if that's the case);
