@@ -47,5 +47,9 @@ module.exports = {
     // In our experience, they generally work as expected,
     // just be aware of this issue when enabling this option.
     cssSourceMap: false
+  },
+  network: {
+    url: 'http://localhost:3000/api/v0/',
+    networkId: 42
   }
 }

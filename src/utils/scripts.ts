@@ -12,7 +12,8 @@ const orders = await this.httpClient.getOrdersAsync({
     makerTokenAddress: tokenPairs[i].tokenB.address });
 `;
     public chooseOrder : string = `// Get order info
-const maxAmount = orders[j].takerTokenAmount.dividedBy(new BigNumber(1000000000000000000));
+var unit = await this.zeroEx.getTokenUnitByAddress(orders[j].takerTokenAddress);
+const maxAmount = orders[j].takerTokenAmount.dividedBy(unit);
 const rate = orders[j].makerTokenAmount.dividedBy(orders[j].takerTokenAmount);
 `;
     public fillOrder : string = `//Using 0x.js
@@ -84,4 +85,13 @@ await this.httpClient.submitOrderAsync({
     takerTokenAmount: signedOrder.takerTokenAmount
 });
     `;
+
+    public getPrice : string = `// Get price
+    let price = await this.axiosInstance.get('/prices', {
+        params: {
+            tokenFrom: tokenFromAddress,
+            tokenTo: tokenToAddress,
+            trader: trader
+        }
+      });`;
 }

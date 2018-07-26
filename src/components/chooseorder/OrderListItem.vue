@@ -35,14 +35,8 @@ export default {
     expiringDate: function () {
       return this.getOrderExpiringDate()
     },
-    maxAmount: function () {
-      return this.getMaxAmount()
-    },
     rate: function () {
       return this.getRate()
-    },
-    fee: function () {
-      return this.getFee()
     },
     value: function () {
       return this.order.valueRequired
@@ -64,6 +58,22 @@ export default {
       }).catch(e => {
         alert(e)
       })
+    },
+    maxAmount () {
+      var maxAmount = new BigNumber(this.order.takerTokenAmount)
+      var zeroXService = new ZeroXService()
+      return zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(unitValue => {
+        BigNumber.set({ DECIMAL_PLACES: 6 })
+        return maxAmount.dividedBy(unitValue).toFormat()
+      });
+    },
+    fee () {
+      var fee = new BigNumber(this.order.takerFee)
+      var zeroXService = new ZeroXService()
+      return zeroXService.getTokenUnitBySymbol('ZRX').then(unitValue => {
+        BigNumber.set({ DECIMAL_PLACES: 6 })
+        return fee.dividedBy(unitValue).toFormat()
+      });
     }
   },
   methods: {
@@ -83,26 +93,17 @@ export default {
       var seconds = ('0' + date.getSeconds()).slice(-2)
       return month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds
     },
-    getMaxAmount () {
-      var makerAmount = new BigNumber(this.order.takerTokenAmount)
-      var conv = new BigNumber(1000000000000000000)
-      BigNumber.set({ DECIMAL_PLACES: 6 })
-      return makerAmount.dividedBy(conv).toFormat()
-    },
-    getFee () {
-      var fee = new BigNumber(this.order.takerFee)
-      var conv = new BigNumber(1000000000000000000)
-      BigNumber.set({ DECIMAL_PLACES: 6 })
-      return fee.dividedBy(conv).toFormat()
-    },
     chooseOrder () {
       if (!this.order.valueRequired || this.order.valueRequired === '') {
         this.setError('You must insert a value')
         return;
       }
       try {
-        var value = (new BigNumber(1000000000000000000)).mul(this.order.valueRequired);
-        this.$emit('setTakerAmount', value);
+        var zeroXService = new ZeroXService()
+        zeroXService.getTokenUnitByAddress(this.order.takerTokenAddress).then(unitValue => {
+          var value = unitValue.mul(this.order.valueRequired);
+          this.$emit('setTakerAmount', value);
+        })
       } catch (error) {
         this.setError('The value is not valid.')
         return;

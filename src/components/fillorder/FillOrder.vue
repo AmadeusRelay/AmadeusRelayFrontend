@@ -3,7 +3,7 @@
       <div class="container">
           <div class="row">
             <div v-if='takerAmount && makerAmount' class="col-md-12">
-                <p>Chosen order: {{takerAmount.dividedBy(1000000000000000000).toFormat()}} {{tokenSold.symbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerAmount.dividedBy(1000000000000000000).toFormat()}} {{tokenBought.symbol}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(1000000000000000000).toFormat() + ' ZRX') :''}}
+                <p>Chosen order: {{takerAmount.dividedBy(tokenSold.unit).toFormat()}} {{tokenSold.symbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{makerAmount.dividedBy(tokenBought.unit).toFormat()}} {{tokenBought.symbol}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(feeUnit).toFormat() + ' ZRX') :''}}
                 <br>In order to be able to fill the order, you need to: </p>
             </div>
           </div>
@@ -56,8 +56,9 @@ export default class FillOrder extends Vue {
   feeAmount: BigNumber = null;
   zeroXService: ZeroXService;
   isFilling: boolean = false;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
-  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  feeUnit: BigNumber = new BigNumber(0);
 
   @Getter getSelectedOrder
   @Getter getTokenSoldAmount
@@ -69,6 +70,7 @@ export default class FillOrder extends Vue {
   @Getter getNeedToWrapEth
   @Getter getTokenSold
   @Getter getTokenBought
+  @Getter getFeeUnit
   @Mutation addCodeLine
   @Mutation changePage
   @Mutation updateErrorMessage
@@ -82,6 +84,7 @@ export default class FillOrder extends Vue {
     this.makerAmount = new BigNumber(this.getTokenSoldAmount).mul(this.order.makerTokenAmount).dividedBy(this.order.takerTokenAmount);
     this.tokenSold = this.getTokenSold;
     this.tokenBought = this.getTokenBought;
+    this.feeUnit = this.getFeeUnit;
     this.addCodeLine(new Scripts().fillOrder);
   }
 
@@ -94,13 +97,13 @@ export default class FillOrder extends Vue {
     this.zeroXService.fillOrder(this.order, this.takerAmount).then(this.onSuccessfullyFillOrder).catch((e) => {
       this.updateErrorMessage(e.message);
       this.updateLoadingState(false)
-      this.changePage(7);
+      this.changePage(8);
     });
   }
 
   onSuccessfullyFillOrder () {
     this.updateLoadingState(false)
-    this.changePage(6)
+    this.changePage(7)
   }
 }
 </script>

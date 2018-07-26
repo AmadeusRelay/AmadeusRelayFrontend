@@ -29,15 +29,17 @@ export default class SufficientBalance extends Vue {
   amount: BigNumber = new BigNumber(0);
   feeAmount: BigNumber = null;
   zeroXService: ZeroXService;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
-  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
   isDestroyed: boolean = false;
+  feeUnit: BigNumber;
   isQuoteProvider = false;
 
   @Getter getTokenSold
   @Getter getTokenBought
   @Getter getFeeToPay
   @Getter getTokenSoldAmount
+  @Getter getFeeUnit
   @Mutation updateNeedBalance
   @Mutation updateNeedFeeBalance
   @Getter getStrategyId
@@ -49,6 +51,8 @@ export default class SufficientBalance extends Vue {
     this.tokenBought = this.getTokenBought;
     this.feeAmount = this.getFeeToPay;
     this.isDestroyed = false;
+    this.feeUnit = this.getFeeUnit;
+
     this.isQuoteProvider = this.getStrategyId === 2;
     this.isNecessaryToCheckBalance();
     this.isNecessaryToCheckFeeBalance();
@@ -87,7 +91,7 @@ export default class SufficientBalance extends Vue {
   }
 
   checkNecessaryBalance (amount: BigNumber) {
-    this.balanceAmount = amount.dividedBy(1000000000000000000).toFormat();
+    this.balanceAmount = amount.dividedBy(this.tokenSold.unit).toFormat();
     let necessaryAmount = this.tokenSold.symbol !== 'ZRX' || !this.feeAmount ? this.amount : this.amount.plus(this.feeAmount);
     this.needBalance = !amount.greaterThanOrEqualTo(necessaryAmount);
     this.updateNeedBalance(this.needBalance);
@@ -97,7 +101,7 @@ export default class SufficientBalance extends Vue {
   }
 
   checkNecessaryFeeBalance (fee: BigNumber) {
-    this.feeBalanceAmount = fee.dividedBy(1000000000000000000).toFormat();
+    this.feeBalanceAmount = fee.dividedBy(this.feeUnit).toFormat();
     if (this.feeAmount && this.tokenSold.symbol !== 'ZRX') {
       this.needFeeBalance = !fee.greaterThanOrEqualTo(this.feeAmount);
     } else {

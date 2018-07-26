@@ -7,13 +7,17 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label>Maker token (to sell)</label>
-                <tokens-list :token='makerToken' ref='makerTokenRef' @updateToken='updateMakerToken'/> 
+                <input class="form-control" v-model="makerToken" disabled/> 
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label>Taker token (to buy)</label>
-                <tokens-list :token='takerToken' ref="takerTokenRef" @updateToken='updateTakerToken'/>
+                <input class="form-control" v-model="takerToken" disabled/> 
+            </div>
+            <div class="col-md-2">
+                <label>Price</label>
+                <input class="form-control" v-model="priceObj.price" disabled/> 
             </div>
             <div class="col-md-2">
                 <label>Max Amount</label>
@@ -36,7 +40,7 @@
         <br />
         <div class="row">
             <div class="col-md-12">
-                <a class="btn-next-step" @click="goToSignOrderPage()" v-bind:class="{'inactive': !enablePostFee}">GET FEE
+                <a class="btn-next-step" @click="postFee()" v-bind:class="{'inactive': !enablePostFee}">GET FEE
                     <img src="../../assets/arrow-right.svg"/>
                 </a>
             </div>
@@ -46,7 +50,6 @@
 </template>
 
 <script lang="ts">
-import TokensList from './../getorders/TokensList.vue'
 import { BigNumber } from 'bignumber.js'
 import { Component, Watch } from 'vue-property-decorator'
 import { Mutation, Getter } from 'vuex-class'
@@ -56,12 +59,14 @@ import { Settings } from 'luxon'
 import Vue from 'vue'
 import { OrderService, ZeroXService, BuildOrderService } from '../../api'
 import { Order } from '../../model/order'
+import { Price } from '../../model/price'
+import { TokenInfo } from '../../model/tokenInfo'
 import { Scripts } from '../../utils/scripts'
 
 Settings.defaultLocale = 'en'
 
 @Component({
-  components: { 'tokens-list': TokensList, 'datetime': Datetime }
+  components: { 'datetime': Datetime }
 })
 
 export default class PostFee extends Vue {
@@ -71,37 +76,34 @@ export default class PostFee extends Vue {
   maxAmount: BigNumber = null
   maxAmountString: string = ''
   makerAmount: string = ''
-  makerTokenAddress: string = ''
-  takerTokenAddress: string = ''
   date: string = new Date((new Date()).getTime() + 10 * 60000).toISOString()
   minDate: string = (new Date()).toISOString()
-  price: BigNumber = new BigNumber(1)
   takerAmount: BigNumber = null
-  maxAmountCodeAdded: boolean = false
   enablePostFee: boolean = false
-
+  price: string = ''
+  priceObj: Price = null
   makerAmountError: string = ''
   dateError: string = ''
+  hasToChangePage: boolean = false
 
-  $refs: {
-    makerTokenRef: TokensList,
-    takerTokenRef: TokensList
-  }
-
+  @Getter getPrice
   @Mutation addCodeLine
   @Mutation changePage
-  @Getter getTokenPairs
   @Mutation updateErrorMessage
   @Mutation updateLoadingState
   @Mutation selectOrder
   @Mutation updateErrorModel
+  @Mutation updateTokenSold
+  @Mutation updateTokenBought
+  @Mutation updateTokenSoldAmount
+  @Mutation updateFeeUnit
 
-  goToSignOrderPage () {
+  postFee () {
     if (this.validateRequiredFields()) {
       var orderService : OrderService = new OrderService(new ZeroXService(), new BuildOrderService());
       this.updateLoadingState(true);
       const timestamp = Math.floor(new Date(this.date).getTime() / 1000);
-      orderService.postFee(this.makerTokenAddress, new BigNumber(this.makerAmount), this.takerTokenAddress, this.takerAmount, this.zeroXService.getCoinBase(), new BigNumber(timestamp))
+      orderService.postFee(this.priceObj.tokenFrom, new BigNumber(this.makerAmount), this.priceObj.tokenTo, this.takerAmount, this.zeroXService.getCoinBase(), new BigNumber(timestamp))
         .then(this.onSuccessfullyPostFee)
         .catch((e) => {
           this.updateErrorModel(e);
@@ -114,17 +116,44 @@ export default class PostFee extends Vue {
     this.updateLoadingState(false)
     this.selectOrder(order)
     this.addCodeLine(new Scripts().postFee)
-    this.changePage(4)
+
+    const zeroXService = new ZeroXService();
+    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => { this.setFeeUnit(unit); this.setTokens(order) });
+  }
+
+  setTokens (order: Order) {
+    const zeroXService = new ZeroXService();
+    zeroXService.getTokenByAddress(order.makerTokenAddress).then(token => this.setTokenSold(token, order));
+    zeroXService.getTokenByAddress(order.takerTokenAddress).then(token => this.setTokenBought(token, order));
+  }
+
+  goToSignOrderPage () {
+    if (!this.hasToChangePage) {
+      this.hasToChangePage = true;
+    } else {
+      this.changePage(5);
+    }
+  }
+
+  setFeeUnit (unit: BigNumber) {
+    this.updateFeeUnit(unit);
+  }
+
+  setTokenSold (token: TokenInfo, order: Order) {
+    token.fee = new BigNumber(order.makerFee);
+    this.updateTokenSold(token);
+    this.updateTokenSoldAmount(new BigNumber(order.makerTokenAmount))
+    this.goToSignOrderPage();
+  }
+
+  setTokenBought (token: TokenInfo, order: Order) {
+    token.fee = new BigNumber(order.takerFee);
+    this.updateTokenBought(token);
+    this.goToSignOrderPage();
   }
 
   validateRequiredFields () {
     var valid = true;
-    if (this.takerToken === null || this.takerToken === '') {
-      valid = false
-    }
-    if (this.makerToken === null || this.makerToken === '') {
-      valid = false
-    }
     if (this.makerAmount === null || this.makerAmount === '') {
       valid = false
     } else if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) === 1) {
@@ -141,94 +170,50 @@ export default class PostFee extends Vue {
     return valid
   }
 
-  updateTakerToken (value : string) {
-    this.takerToken = value
-    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
-    this.zeroXService.getTokenAddress(value).then(address => this.updateTakerTokenAddress(address));
-    this.updateMaxAmountAndPrice()
+  setTakerSymbol () {
+    var zeroXService = new ZeroXService()
+    zeroXService.getTokenSymbol(this.priceObj.tokenTo).then((response) => {
+      this.takerToken = response
+    });
   }
 
-  updateTakerTokenAddress (address: string) {
-    this.takerTokenAddress = address
+  setMakerSymbolAndMaxAmount () {
+    var zeroXService = new ZeroXService()
+    zeroXService.getTokenSymbol(this.priceObj.tokenFrom).then((response) => {
+      this.makerToken = response
+      this.setMaxAmount()
+    })
   }
 
-  updateMakerToken (value : string) {
-    this.makerToken = value
-    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
-    this.zeroXService.getTokenAddress(value).then(address => this.updateMakerTokenAddress(address));
-    this.updateMaxAmountAndPrice()
+  setMaxAmount () {
+    var makerMaxAmount = new BigNumber(this.priceObj.maxAmountFrom.replace(/,\s?/g, ''))
+    this.zeroXService.getTokenUnitBySymbol(this.makerToken).then(unit => {
+      BigNumber.config({ DECIMAL_PLACES: 8 })
+      this.maxAmount = makerMaxAmount.dividedBy(unit)
+      this.maxAmountString = this.maxAmount.toFormat()
+    })
   }
 
-  updateMakerTokenAddress (address: string) {
-    this.makerTokenAddress = address
-  }
-
-  updateMaxAmountAndPrice () {
-    if (this.makerToken !== '' && this.takerToken !== '') {
-      var tokens = this.getTokenPairs
-      var selectedPair = tokens.filter(function (token) {
-        return token.tokenBSymbol === this.makerToken && token.tokenASymbol === this.takerToken;
-      }.bind(this));
-      if (selectedPair != null && selectedPair.length > 0) {
-        var makerMaxAmount = new BigNumber(selectedPair[0].maxTokenBAmount)
-        var conv = new BigNumber(1000000000000000000)
-        BigNumber.config({ DECIMAL_PLACES: 8 })
-        this.maxAmount = makerMaxAmount.dividedBy(conv)
-        this.maxAmountString = this.maxAmount.toFormat()
-        this.price = this.calculatePrice(selectedPair[0])
-        if (this.makerAmount !== null && this.makerAmount !== '') {
-          if (new BigNumber(this.makerAmount).comparedTo(this.maxAmount) !== 1) {
-            this.makerAmountError = ''
-          }
-          this.takerAmount = new BigNumber(this.makerAmount).mul(this.price)
-        }
-      }
-      this.addMaxAmountCodeLine();
-    }
-  }
-
-  calculatePrice (pair) {
-    const priceFromMin = new BigNumber(pair.minTokenAAmount).dividedBy(pair.minTokenBAmount)
-    const priceFromMax = new BigNumber(pair.maxTokenAAmount).dividedBy(pair.maxTokenBAmount)
-
-    if (priceFromMin.comparedTo(priceFromMax) === 1) {
-      return priceFromMax;
-    } else {
-      return priceFromMin;
-    }
-  }
-
-  addMaxAmountCodeLine () {
-    if (!this.maxAmountCodeAdded) {
-      this.addCodeLine(new Scripts().maxAmount)
-      this.maxAmountCodeAdded = true
-    }
+  setPrice () {
+    this.priceObj = this.getPrice
+    this.price = this.priceObj.price
   }
 
   mounted () {
-    this.$refs.makerTokenRef.refreshToken(this.takerToken, true)
-    this.$refs.takerTokenRef.refreshToken(this.makerToken, false)
+    this.setPrice()
     this.zeroXService = new ZeroXService()
+    this.setTakerSymbol()
+    this.setMakerSymbolAndMaxAmount()
   }
 
   @Watch('makerAmount')
   onMakerAmountChanged (val: string, oldVal: string) {
     if (val !== null && val !== '') {
-      if (new BigNumber(val).comparedTo(this.maxAmount) !== 1) {
+      if (new BigNumber(val).comparedTo(this.priceObj.maxAmountFrom.replace(/,\s?/g, '')) !== 1) {
         this.makerAmountError = ''
       }
-      this.takerAmount = new BigNumber(val).mul(this.price)
+      this.takerAmount = new BigNumber(val).mul(this.priceObj.price)
     }
-    this.validateRequiredFields();
-  }
-
-  @Watch('makerToken')
-  onMakerTokenChanged (val: string, oldVal: string) {
-    this.validateRequiredFields();
-  }
-
-  @Watch('takerToken')
-  onTakerTokenChanged (val: string, oldVal: string) {
     this.validateRequiredFields();
   }
 

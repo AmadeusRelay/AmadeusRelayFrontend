@@ -3,7 +3,7 @@
       <div class="container">
           <div class="row">
             <div v-if='signedOrder.makerTokenAmount && signedOrder.takerTokenAmount' class="col-md-12">
-                <p>Chosen order: {{signedOrder.makerTokenAmount.dividedBy(1000000000000000000).toFormat()}} {{tokenSold.symbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{signedOrder.takerTokenAmount.dividedBy(1000000000000000000).toFormat()}} {{tokenBought.symbol}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(1000000000000000000).toFormat() + ' ZRX') :''}}
+                <p>Chosen order: {{signedOrder.makerTokenAmount.dividedBy(tokenSold.unit).toFormat()}} {{tokenSold.symbol}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{signedOrder.takerTokenAmount.dividedBy(tokenBought.unit).toFormat()}} {{tokenBought.symbol}} {{feeAmount ? (' / Fee: ' + feeAmount.dividedBy(feeUnit).toFormat() + ' ZRX') :''}}
                 <br>In order to be able to fill the order, you need to: </p>
             </div>
           </div>
@@ -47,8 +47,9 @@ export default class PostOrder extends Vue {
   feeAmount: BigNumber = null;
   orderService: OrderService;
   isPosting: boolean = false;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
-  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  feeUnit: BigNumber = new BigNumber(0);
 
   @Getter getSignedOrder
   @Getter getTokenSoldAmount
@@ -60,6 +61,7 @@ export default class PostOrder extends Vue {
   @Getter getNeedToWrapEth
   @Getter getTokenSold
   @Getter getTokenBought
+  @Getter getFeeUnit
   @Mutation addCodeLine
   @Mutation changePage
   @Mutation updateLoadingState
@@ -74,6 +76,7 @@ export default class PostOrder extends Vue {
     this.feeAmount = this.getFeeToPay;
     this.tokenSold = this.getTokenSold;
     this.tokenBought = this.getTokenBought;
+    this.feeUnit = this.getFeeUnit;
     this.addCodeLine(new Scripts().postOrder);
   }
 
@@ -92,7 +95,7 @@ export default class PostOrder extends Vue {
 
   onSuccessfullyPostOrder () {
     this.updateLoadingState(false)
-    this.changePage(6)
+    this.changePage(7)
   }
 }
 </script>

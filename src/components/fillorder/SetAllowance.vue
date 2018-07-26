@@ -35,14 +35,16 @@ export default class SetAllowance extends Vue {
   zeroXService: ZeroXService;
   isAuthorizing: boolean = false;
   isAuthorizingFee: boolean = false;
-  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
-  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0) };
+  tokenSold: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
+  tokenBought: TokenInfo = { symbol: '', address: '', fee: new BigNumber(0), unit: new BigNumber(0) };
   isDestroyed: boolean = false;
+  feeUnit: BigNumber;
 
   @Getter getTokenSoldAmount
   @Getter getFeeToPay
   @Getter getTokenSold
   @Getter getTokenBought
+  @Getter getFeeUnit
   @Mutation updateLoadingState
   @Mutation updateNeedToSetAllowance
   @Mutation updateNeedToSetFeeAllowance
@@ -54,6 +56,7 @@ export default class SetAllowance extends Vue {
     this.tokenBought = this.getTokenBought;
     this.feeAmount = this.getFeeToPay;
     this.isDestroyed = false;
+    this.feeUnit = this.getFeeUnit;
     this.setConvertedToken();
 
     this.isNecessaryToSetAllowance();
@@ -94,7 +97,7 @@ export default class SetAllowance extends Vue {
   checkNecessaryToSetAllowance (result) {
     this.needToSetAllowance = result.needAllowance;
     this.updateNeedToSetAllowance(result.needAllowance);
-    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    let amount: BigNumber = result.currentAllowance.dividedBy(this.tokenSold.unit);
     if (amount.lessThanOrEqualTo(1000000000)) {
       this.authorizedAmount = amount.toFormat();
     } else {
@@ -108,7 +111,7 @@ export default class SetAllowance extends Vue {
   checkNecessaryToSetFeeAllowance (result) {
     this.needToSetFeeAllowance = result.needAllowance;
     this.updateNeedToSetFeeAllowance(result.needAllowance);
-    let amount: BigNumber = result.currentAllowance.dividedBy(1000000000000000000);
+    let amount: BigNumber = result.currentAllowance.dividedBy(this.feeUnit);
     if (amount.lessThanOrEqualTo(1000000000)) {
       this.authorizedZrxAmount = amount.toFormat();
     } else {

@@ -23,6 +23,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { ZeroXService } from '../../api'
 import OrdersList from './OrdersList.vue'
 import { Order } from '../../model/order'
+import { TokenInfo } from '../../model/tokenInfo'
 import { BigNumber } from 'bignumber.js'
 import { Scripts } from '../../utils/scripts'
 
@@ -40,33 +41,36 @@ export default class ChooseOrder extends Vue {
   @Mutation updateTokenSold
   @Mutation updateTokenBought
   @Mutation updateFeeToPay
+  @Mutation updateFeeUnit
 
   goToFillOrderPage (order: Order) {
     this.selectOrder(order);
 
     const zeroXService = new ZeroXService();
-    zeroXService.getTokenSymbol(order.takerTokenAddress).then(symbol => this.setTokenSold(symbol, order));
-    zeroXService.getTokenSymbol(order.makerTokenAddress).then(symbol => this.setTokenBought(symbol, order));
+    zeroXService.getTokenUnitBySymbol('ZRX').then(unit => { this.setFeeUnit(unit); this.setTokens(order) });
+  }
 
+  setTokens (order: Order) {
+    const zeroXService = new ZeroXService();
+    zeroXService.getTokenByAddress(order.takerTokenAddress).then(token => this.setTokenSold(token, order));
+    zeroXService.getTokenByAddress(order.makerTokenAddress).then(token => this.setTokenBought(token, order));
+  }
+
+  setTokenSold (token: TokenInfo, order: Order) {
+    token.fee = new BigNumber(order.takerFee);
+    this.updateTokenSold(token);
     this.setFeeToPay(order);
-  }
-
-  setTokenSold (symbol: string, order: Order) {
-    this.updateTokenSold({
-      symbol: symbol,
-      address: order.takerTokenAddress,
-      fee: order.takerFee
-    });
     this.changeToNextPage();
   }
 
-  setTokenBought (symbol: string, order: Order) {
-    this.updateTokenBought({
-      symbol: symbol,
-      address: order.makerTokenAddress,
-      fee: order.makerFee
-    });
+  setTokenBought (token: TokenInfo, order: Order) {
+    token.fee = new BigNumber(order.makerFee);
+    this.updateTokenBought(token);
     this.changeToNextPage();
+  }
+
+  setFeeUnit (unit: BigNumber) {
+    this.updateFeeUnit(unit);
   }
 
   changeToNextPage () {

@@ -1,10 +1,12 @@
 import { Order } from "../model/order";
 import { TokenPair } from "../model/tokenPair";
+import { TokenInfo } from "../model/tokenInfo";
 import Vue from 'vue'
 import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
 import { SignUtil } from 'eth-sig-util';
 import { ECSignature } from "../model/ecSignature";
+const config = require('../../config')
 declare var web3;
 
 export class ZeroXService {
@@ -12,7 +14,7 @@ export class ZeroXService {
 
     public constructor() {
         this.zeroEx = new ZeroEx(web3.currentProvider,  {
-              "networkId": 42
+              "networkId": config.network.networkId
             });
     }
 
@@ -42,6 +44,20 @@ export class ZeroXService {
         if (tokenReceived == null) return null;
         if (tokenReceived.symbol === 'WETH') return 'ETH'
         return tokenReceived.symbol;
+    }
+
+    public async getTokenUnitByAddress(tokenAddress: string) :  Promise<BigNumber> {
+        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(tokenAddress))
+        if (tokenReceived == null) return null;
+        return new BigNumber(Math.pow(10, tokenReceived.decimals));
+    }
+
+    public async getTokenUnitBySymbol(tokenSymbol: string) :  Promise<BigNumber> {
+        if (tokenSymbol === "ETH") tokenSymbol = "WETH";
+
+        let tokenReceived = (await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(tokenSymbol))
+        if (tokenReceived == null) return null;
+        return new BigNumber(Math.pow(10, tokenReceived.decimals));
     }
 
     public async isNecessaryToWrapETH(amount: BigNumber) : Promise< { needWrap: boolean, currentWrapped: BigNumber }> {
@@ -77,6 +93,17 @@ export class ZeroXService {
                 return this.zeroEx.awaitTransactionMinedAsync(tx);
             }
         }
+    }
+
+    private convertToTokenInfo(token: Token) : TokenInfo
+    {
+        var tokenInfo : TokenInfo = {
+            address: token.address,
+            unit: new BigNumber(Math.pow(10, token.decimals)),
+            symbol: token.symbol === "WETH" ? "ETH" : token.symbol,
+            fee: null
+        }
+        return tokenInfo;
     }
 
     private convertToSignedOrder(order: Order) :  SignedOrder
@@ -117,14 +144,20 @@ export class ZeroXService {
             symbol = "WETH";
         };
 
-        var token : Token = await this.getToken(symbol);
+        var token : Token = await this.getTokenBySymbol(symbol);
 
         if (token) { return token.address; }
 
         return "";
     }
 
-    private async getToken(symbol: string) : Promise<Token> {
+    public async getTokenByAddress(address: string) : Promise<TokenInfo> {
+        var token = await this.zeroEx.tokenRegistry.getTokenIfExistsAsync(address);
+
+        return this.convertToTokenInfo(token);
+    }
+
+    private async getTokenBySymbol(symbol: string) : Promise<Token> {
         return await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 

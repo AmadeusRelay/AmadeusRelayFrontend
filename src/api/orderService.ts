@@ -1,25 +1,32 @@
+import axios from 'axios';
+import { AxiosInstance } from 'axios';
 import { HttpClient, TokenPairsItem } from '@0xproject/connect';
 import { Order } from '../model/order';
+import { Price } from '../model/price';
 import { SignedOrder } from '0x.js';
 import { TokenPair } from '../model/tokenPair';
 import { ZeroXService } from './zeroXService';
 import { BigNumber } from 'bignumber.js';
 import { BuildOrderService } from './buildOrderService';
-const ethUtil = require("ethereumjs-util");
+const config = require('../../config')
 
 export class OrderService {
     private httpClient: HttpClient;
+    private axiosInstance: AxiosInstance;
 
     public constructor(private zeroXService: ZeroXService, private buildOrderService: BuildOrderService) {
-        this.httpClient = new HttpClient('https://kovan.amadeusrelay.org/api/v0');
+        this.httpClient = new HttpClient(config.network.url);
+        this.axiosInstance = axios.create({
+            baseURL: config.network.url
+        });
     }
 
-    public async listOrders(takerToken?: string, makerToken?: string): Promise<Order[]> {
+    public async listOrders(takerToken?: string, makerToken?: string, taker?: string): Promise<Order[]> {
         var takerTokenAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
         var makerTokenAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
 
         return new Promise<Order[]>((resolve, reject) => {
-            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress });
+            const result: Promise<SignedOrder[]> = this.httpClient.getOrdersAsync({ makerTokenAddress: makerTokenAddress, takerTokenAddress: takerTokenAddress, taker: taker });
             result.then(orders => {
                 resolve(this.convertOrders(orders));
             }).catch(e => reject(e));            
@@ -37,8 +44,10 @@ export class OrderService {
 
     public async postFee(makerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAddress: string, takerTokenAmount: BigNumber, maker: string, expirationUnixTimestampSec: BigNumber) : Promise<Order> {
         const exchangeContractAddress = this.zeroXService.getExchangeContractAddress();
-        makerTokenAmount = new BigNumber(1000000000000000000).mul(makerTokenAmount);
-        takerTokenAmount = new BigNumber(1000000000000000000).mul(takerTokenAmount);
+        var makerUnit = await this.zeroXService.getTokenUnitByAddress(makerTokenAddress);
+        var takerUnit = await this.zeroXService.getTokenUnitByAddress(takerTokenAddress);
+        makerTokenAmount = makerUnit.mul(makerTokenAmount);
+        takerTokenAmount = takerUnit.mul(takerTokenAmount).dividedToIntegerBy(1);
         try {
             const fee = await this.httpClient.getFeesAsync({
                 exchangeContractAddress : exchangeContractAddress,
@@ -83,6 +92,26 @@ export class OrderService {
         }
     }
 
+    public async getPrice(takerToken?: string, makerToken?: string, trader?: string): Promise<Price> {
+        try {
+            var tokenToAddress = takerToken && takerToken !== '' ? await this.zeroXService.getTokenAddress(takerToken) : undefined;
+            var tokenFromAddress = makerToken && makerToken != '' ? await this.zeroXService.getTokenAddress(makerToken) : undefined;
+            let response = await this.axiosInstance.get('/prices', {
+                params: {
+                    tokenFrom: tokenFromAddress,
+                    tokenTo: tokenToAddress,
+                    trader: trader
+                }
+              });
+              if(response != null){
+                return response.data;
+              }
+              return null;
+        } catch (error) {
+            this.errorHandler(error)
+        }
+    }
+
     private errorHandler(error) {
         const errorSplit = error.message.split('\n');
         throw JSON.parse(errorSplit[errorSplit.length - 1])
@@ -121,7 +150,7 @@ export class OrderService {
 
             if (tokenASymbol && tokenBSymbol)
             {
-                let tokenPair : TokenPair = {
+                let tokenPair1 : TokenPair = {
                     tokenASymbol: tokenASymbol,
                     tokenBSymbol: tokenBSymbol,
                     maxTokenBAmount: pair.tokenB.maxAmount.toString(),
@@ -129,10 +158,25 @@ export class OrderService {
                     minTokenAAmount: pair.tokenA.minAmount.toString(),
                     minTokenBAmount: pair.tokenB.minAmount.toString()
                 };
+
+                let tokenPair2 : TokenPair = {
+                    tokenASymbol: tokenBSymbol,
+                    tokenBSymbol: tokenASymbol,
+                    maxTokenBAmount: pair.tokenA.maxAmount.toString(),
+                    maxTokenAAmount: pair.tokenB.maxAmount.toString(),
+                    minTokenAAmount: pair.tokenB.minAmount.toString(),
+                    minTokenBAmount: pair.tokenA.minAmount.toString()
+                };
     
-                tokens.push(tokenPair);
+                tokens.push(tokenPair1);
+                tokens.push(tokenPair2);
             }
         }
+        // Distinct
+        tokens = tokens.filter((pair, index) => {
+            var i = tokens.findIndex(p => p.tokenASymbol === pair.tokenASymbol && p.tokenBSymbol === pair.tokenBSymbol);
+            return i === index;
+        });
         return tokens;
     }
 }

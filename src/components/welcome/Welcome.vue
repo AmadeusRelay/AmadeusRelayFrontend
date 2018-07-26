@@ -25,7 +25,7 @@
         </div>
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork, 'inactive' : !metamaskNetwork}"></span> Connect Metamask to Kovan test network
+            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork, 'inactive' : !metamaskNetwork}"></span> Connect Metamask to {{networkName}} test network
           </label>
         </div>       
       </div>
@@ -60,12 +60,14 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
 import { MetamaskService } from '../../api'
+const config = require('../../../config')
 
 @Component
 export default class Welcome extends Vue {
   metamaskInstalled: boolean = false
   metamaskLogin: boolean = false
   metamaskNetwork: boolean = false
+  networkName = 'Kovan';
 
   @Mutation changePage
 
@@ -74,7 +76,7 @@ export default class Welcome extends Vue {
   }
 
   goToDocumentation () {
-    window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/')
+    window.open('https://amadeusrelay.github.io/AmadeusRelayFrontend/');
   }
 
   checkMetamaskIntalled () {
@@ -84,11 +86,16 @@ export default class Welcome extends Vue {
       this.metamaskLogin = metamaskService.checkMetamaskLoggedIn()
       this.metamaskNetwork = metamaskService.checkMetamaskNetwork()
     }.bind(this),
-    200)
+    200);
   }
 
   mounted () {
-    this.checkMetamaskIntalled()
+    this.checkMetamaskIntalled();
+    if (config.network.networkId === 1) {
+      this.networkName = 'Mainnet';
+    } else if (config.network.networkId === 42) {
+      this.networkName = 'Kovan';
+    }
   }
 }
 </script>
