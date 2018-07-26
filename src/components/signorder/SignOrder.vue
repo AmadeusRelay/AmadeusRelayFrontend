@@ -124,8 +124,8 @@ export default class SignOrder extends Vue {
   onSuccessfullySignOrder (signedOrder: any) {
     this.updateSignOrder(signedOrder)
     this.updateLoadingState(false)
-    this.setFeeToPay();
-    this.changePage(5);
+    this.setFeeToPay()
+    this.changePage(6)
   }
 
   setFeeToPay () {

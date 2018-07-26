@@ -1,3 +1,4 @@
+const config = require('../../config')
 declare var web3;
 
 export class MetamaskService {
@@ -10,6 +11,6 @@ export class MetamaskService {
     }
 
     public checkMetamaskNetwork(): boolean {
-        return this.checkMetamaskInstalled() && this.checkMetamaskLoggedIn() && web3.version.network == "42"
+        return this.checkMetamaskInstalled() && this.checkMetamaskLoggedIn() && web3.version.network == config.network.networkId
     }
 }

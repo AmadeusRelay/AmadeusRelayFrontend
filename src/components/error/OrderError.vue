@@ -55,6 +55,7 @@ export default class OrderError extends Vue {
   @Mutation changePage
   @Mutation cleanCodeLine
   @Getter getErrorMessage
+  @Getter getStrategyId
 
   errorMessage: string = '';
   errorDetails: string = '';
@@ -67,10 +68,18 @@ export default class OrderError extends Vue {
   setErrorDetails () {
     if (this.errorMessage === 'ORDER_FILL_EXPIRED') {
       this.errorDetails = "The order created by Amadeus Relay expired because the expiration time is short in our strategy. Don't worry, get orders again and interact with them more quickly.";
-    } else if (this.errorMessage === 'INSUFFICIENT_TAKER_ALLOWANCE') {
-      this.errorDetails = "You haven't allowed 0x to interact with your funds or allowed a lower quantity than you want to exchange.";
-    } else if (this.errorMessage === 'INSUFFICIENT_TAKER_BALANCE') {
-      this.errorDetails = "Your wallet does not have the tokens' quantity that you want to trade.";
+    } else if (this.getStrategyId === 2) {
+      if (this.errorMessage === 'INSUFFICIENT_MAKER_ALLOWANCE') {
+        this.errorDetails = "You haven't allowed 0x to interact with your funds or allowed a lower quantity than you want to exchange.";
+      } else if (this.errorMessage === 'INSUFFICIENT_MAKER_BALANCE') {
+        this.errorDetails = "Your wallet does not have the tokens' quantity that you want to trade.";
+      }
+    } else {
+      if (this.errorMessage === 'INSUFFICIENT_TAKER_ALLOWANCE') {
+        this.errorDetails = "You haven't allowed 0x to interact with your funds or allowed a lower quantity than you want to exchange.";
+      } else if (this.errorMessage === 'INSUFFICIENT_TAKER_BALANCE') {
+        this.errorDetails = "Your wallet does not have the tokens' quantity that you want to trade.";
+      }
     }
   }
 

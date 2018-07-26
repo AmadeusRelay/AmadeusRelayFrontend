@@ -6,6 +6,7 @@ import { BigNumber } from 'bignumber.js';
 import { ZeroEx, TransactionReceiptWithDecodedLogs, SignedOrder, Token } from '0x.js';
 import { SignUtil } from 'eth-sig-util';
 import { ECSignature } from "../model/ecSignature";
+const config = require('../../config')
 declare var web3;
 
 export class ZeroXService {
@@ -13,7 +14,7 @@ export class ZeroXService {
 
     public constructor() {
         this.zeroEx = new ZeroEx(web3.currentProvider,  {
-              "networkId": 42
+              "networkId": config.network.networkId
             });
     }
 

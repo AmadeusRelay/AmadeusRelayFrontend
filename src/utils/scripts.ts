@@ -85,4 +85,13 @@ await this.httpClient.submitOrderAsync({
     takerTokenAmount: signedOrder.takerTokenAmount
 });
     `;
+
+    public getPrice : string = `// Get price
+    let price = await this.axiosInstance.get('/prices', {
+        params: {
+            tokenFrom: tokenFromAddress,
+            tokenTo: tokenToAddress,
+            trader: trader
+        }
+      });`;
 }

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { TokenPair } from "../model/tokenPair";
 import { Order } from '../model/order'
+import { Price } from '../model/price'
 import { TokenInfo } from '../model/tokenInfo'
 import { BigNumber } from 'bignumber.js'
 import { ErrorModel } from '../model/errorModel';
@@ -23,6 +24,7 @@ const state = {
     tokenSoldAmount: null,
     errorMessage: null,
     loading: false,
+    price: null,
     errorModel: null,
     tokenSold: null,
     tokenBought: null,
@@ -119,6 +121,9 @@ export default new Vuex.Store({
         updateNeedToWrapEth (state, needToWrapEth: boolean){
             state.needToWrapEth = needToWrapEth
         },
+        updatePrice(state, price: Price){
+            state.price = price
+        },
         updateFeeUnit (state, unit: BigNumber) {
             state.feeUnit = unit
         }
@@ -171,6 +176,9 @@ export default new Vuex.Store({
         },
         getStrategyId () : number {
             return state.strategyId;
+        },
+        getPrice (): Price {
+            return state.price;
         },
         getFeeUnit () : BigNumber {
             return state.feeUnit;
