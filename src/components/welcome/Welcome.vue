@@ -15,7 +15,7 @@
       <div class="row">
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskInstalled, 'inactive' : !metamaskInstalled && !toshiInstalled}"></span> Have {{!metamaskInstalled && !toshiInstalled ? 'Metamask or Toshi' : (metamaskInstalled ? 'Metamask' : 'Toshi')}}  installed in your browser
+            <span class="cb-validation" v-bind:class="{'active' : metamaskInstalled || toshiInstalled, 'inactive' : !metamaskInstalled && !toshiInstalled}"></span> Have {{!metamaskInstalled && !toshiInstalled ? 'Metamask or Toshi' : (metamaskInstalled ? 'Metamask' : 'Toshi')}}  installed in your browser
           </label>
         </div>
         <div class="col-md-12">
@@ -36,7 +36,7 @@
           <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-5">
-          <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToChooseStrategyPage()" :disabled="!metamaskInstalled || !web3Login || !web3Network">LET'S GO!</button>
+          <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToChooseStrategyPage()" :disabled="(!metamaskInstalled && !toshiInstalled) || !web3Login || !web3Network">LET'S GO!</button>
         </div>
       </div>
       <div class="row">
