@@ -15,17 +15,17 @@
       <div class="row">
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskInstalled, 'inactive' : !metamaskInstalled}"></span> Have Metamask installed in your browser
+            <span class="cb-validation" v-bind:class="{'active' : metamaskInstalled, 'inactive' : !metamaskInstalled && !toshiInstalled}"></span> Have {{!metamaskInstalled && !toshiInstalled ? 'Metamask or Toshi' : (metamaskInstalled ? 'Metamask' : 'Toshi')}}  installed in your browser
           </label>
         </div>
         <div class="col-md-12">
         <label>
-          <span class="cb-validation" v-bind:class="{'active' : metamaskLogin, 'inactive' : !metamaskLogin}"></span> Login to your Metamask account
+          <span class="cb-validation" v-bind:class="{'active' : web3Login, 'inactive' : !web3Login}"></span> Login to your {{!metamaskInstalled && !toshiInstalled ? 'Metamask or Toshi' : (metamaskInstalled ? 'Metamask' : 'Toshi')}} account
         </label>
         </div>
         <div class="col-md-12">
           <label>
-            <span class="cb-validation" v-bind:class="{'active' : metamaskNetwork, 'inactive' : !metamaskNetwork}"></span> Connect Metamask to {{networkName}} test network
+            <span class="cb-validation" v-bind:class="{'active' : web3Network, 'inactive' : !web3Network}"></span> Connect {{!metamaskInstalled && !toshiInstalled ? 'Metamask or Toshi' : (metamaskInstalled ? 'Metamask' : 'Toshi')}} to {{networkName}} test network
           </label>
         </div>       
       </div>
@@ -36,7 +36,7 @@
           <button class="js-add btn btn-block btn-documentation" type="button" @click="goToDocumentation()">DOCUMENTATION</button>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-5">
-          <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToChooseStrategyPage()" :disabled="!metamaskInstalled || !metamaskLogin || !metamaskNetwork">LET'S GO!</button>
+          <button class="js-add btn btn-block btn-start-demo" type="button" @click="goToChooseStrategyPage()" :disabled="!metamaskInstalled || !web3Login || !web3Network">LET'S GO!</button>
         </div>
       </div>
       <div class="row">
@@ -59,14 +59,15 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Mutation } from 'vuex-class'
-import { MetamaskService } from '../../api'
+import { Web3Service } from '../../api'
 const config = require('../../../config')
 
 @Component
 export default class Welcome extends Vue {
   metamaskInstalled: boolean = false
-  metamaskLogin: boolean = false
-  metamaskNetwork: boolean = false
+  toshiInstalled: boolean = false
+  web3Login: boolean = false
+  web3Network: boolean = false
   networkName = 'Kovan';
 
   @Mutation changePage
@@ -81,10 +82,11 @@ export default class Welcome extends Vue {
 
   checkMetamaskIntalled () {
     setInterval(function () {
-      var metamaskService = new MetamaskService()
-      this.metamaskInstalled = metamaskService.checkMetamaskInstalled()
-      this.metamaskLogin = metamaskService.checkMetamaskLoggedIn()
-      this.metamaskNetwork = metamaskService.checkMetamaskNetwork()
+      var web3Service = new Web3Service()
+      this.metamaskInstalled = web3Service.checkMetamaskInstalled()
+      this.toshiInstalled = web3Service.checkToshiInstalled()
+      this.web3Login = web3Service.checkLoggedIn()
+      this.web3Network = web3Service.checkNetwork()
     }.bind(this),
     200);
   }
