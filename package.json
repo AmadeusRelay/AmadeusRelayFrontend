@@ -17,7 +17,7 @@
     "@0xproject/connect": "^0.6.12",
     "axios": "^0.17.1",
     "bignumber.js": "^4.1.0",
-    "bootstrap": "^4.1.1",
+    "bootstrap": "^4.3.1",
     "bootstrap-vue": "^1.5.1",
     "compression-webpack-plugin": "^1.1.11",
     "eth-sig-util": "^1.4.2",
