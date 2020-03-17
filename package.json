@@ -88,7 +88,8 @@
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-dev-middleware": "^1.12.2",
     "webpack-hot-middleware": "^2.22.1",
-    "webpack-merge": "^4.1.2"
+    "webpack-merge": "^4.1.2",
+    "minimist": ">=1.2.2"
   },
   "engines": {
     "node": ">= 4.0.0",
